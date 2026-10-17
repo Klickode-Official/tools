@@ -1,15 +1,15 @@
-// Image Converter — page content and SEO metadata. Logic lives in ./script.js.
+// Image Converter: page copy and SEO details. What the page does lives in ./script.js.
 export default {
   slug: 'image-converter',
   category: 'images',
   order: 1, // position within its category (lower first; unset tools sort by name after)
   name: 'Image Converter',
-  // <title> and meta description: what shows in Google. Keep title ≲ 60 chars, description ≲ 160.
-  title: 'Image Converter — JPG, PNG, WebP & AVIF, No Upload',
-  description: 'Convert images between JPG, PNG, WebP and AVIF in your browser. Batch convert, resize and download as ZIP. No upload, no watermark, no limits.',
-  // One line for tool cards on the home and category pages.
-  short: 'Batch convert JPG, PNG, WebP and AVIF without uploading.',
-  data: {mode: 'convert'},
+  // <title> and meta description, as shown in Google. Keep the title under ~60 characters, the description under ~160.
+  title: 'Image Converter: JPG, PNG, WebP and AVIF in Your Browser',
+  description: 'Convert JPG, PNG, WebP and AVIF images right in your browser. Drop in as many as you like and download them all as a ZIP. Nothing gets uploaded.',
+  // One line for the tool cards on the home and category pages.
+  short: 'Switch between JPG, PNG, WebP and AVIF.',
+  data: { mode: 'convert' },
   body: `<label class="dropzone" id="dropzone" for="files">
   <strong>Drop images here, paste, or click to choose</strong>
   <span>JPG, PNG, WebP, AVIF, GIF, BMP, SVG (and HEIC in Safari) · batch supported · files stay on your device</span>
@@ -31,21 +31,24 @@ export default {
 <div class="status" id="status" aria-live="polite"></div>
 <ul class="file-list" id="results"></ul>`,
   content: `<h2>How to convert images</h2>
-<ol><li>Drop one or more images on the box above, paste from the clipboard, or click to choose files.</li><li>Pick the output format and quality. Every file converts immediately; changing an option re-converts them all.</li><li>Download files one by one, or all at once as a ZIP.</li></ol>
-<h2>Which format should I use?</h2>
-<ul><li><strong>WebP</strong>: typically 25–35% smaller than JPG at the same quality, supports transparency, works in every modern browser. The best default for the web.</li><li><strong>AVIF</strong>: smaller still, but slower to encode, and not every browser can create it (the option is disabled if yours can't).</li><li><strong>JPG</strong>: universal compatibility for photos. No transparency; transparent areas are filled with the background colour you choose.</li><li><strong>PNG</strong>: lossless. Best for screenshots, logos and images with sharp edges or transparency; large for photos.</li></ul>`,
+<ol><li>Drop your images on the box above. You can also paste one or click to pick files.</li><li>Choose a format and quality. Each file converts straight away, and if you change a setting they all update.</li><li>Download them one at a time, or grab the lot as a ZIP.</li></ol>
+<h2>Which format should I pick?</h2>
+<p><strong>WebP</strong> is the one to use for websites. It's usually a quarter to a third smaller than JPG at the same quality, it supports transparency, and every current browser can show it.</p>
+<p><strong>AVIF</strong> is smaller again but slower to make, and not every browser can create it yet. If yours can't, the option is greyed out.</p>
+<p><strong>JPG</strong> works everywhere, which makes it the safe choice for sending photos to people. It has no transparency, so see-through areas get filled with the background colour you choose.</p>
+<p><strong>PNG</strong> keeps every pixel exactly as it was. Use it for screenshots, logos and anything with sharp edges or transparency. For photos the files get big.</p>`,
   faq: [
     {
       q: 'Are my images uploaded?',
-      a: 'No. Images are decoded and re-encoded on a canvas in this browser tab. Nothing is sent to a server, which is why there are no file-count limits, queues or watermarks. You can even disconnect from the internet after the page loads.',
+      a: 'No. Your images are converted inside this browser tab and never sent to a server. That’s also why there are no file limits, queues or watermarks. Once the page has loaded you can even switch off your Wi-Fi and it keeps working.',
     },
     {
       q: 'Can I convert HEIC photos from my iPhone?',
-      a: 'Safari can decode HEIC, so the converter works there. Chrome and Firefox can’t read HEIC yet; on those browsers, export the photo as JPG from the Photos app first.',
+      a: 'In Safari, yes. Chrome and Firefox can’t read HEIC files yet, so on those browsers export the photo as JPG from the Photos app first, or set your iPhone camera to “Most Compatible”.',
     },
     {
-      q: 'Is metadata kept?',
-      a: 'No. Re-encoding through a canvas drops EXIF data, including GPS location. Use the <a href="/tools/exif-remover/">EXIF remover</a> to check what a photo contains.',
+      q: 'Does it keep the photo’s location and camera info?',
+      a: 'No. Converting drops that data, GPS location included. If you want to see what a photo contains first, use the <a href="/tools/exif-remover/">EXIF remover</a>.',
     },
   ],
 };

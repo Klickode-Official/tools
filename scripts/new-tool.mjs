@@ -23,13 +23,13 @@ const name = slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 await mkdir(dir, { recursive: true });
 await writeFile(
   join(dir, 'tool.mjs'),
-  `// ${name} — page content and SEO metadata. Logic lives in ./script.js.
+  `// ${name}: page copy and SEO details. What the page does lives in ./script.js.
 export default {
   slug: '${slug}',
   category: '${category}',
   name: '${name}',
   // <title> and meta description: what shows in Google. Keep title ≲ 60 chars, description ≲ 160.
-  title: '${name} — TODO: main keyword phrase',
+  title: '${name}: TODO main keyword phrase',
   description: 'TODO: one or two sentences with the phrase people search for. Mention that it is free and runs in the browser.',
   // One line for tool cards on the home and category pages.
   short: 'TODO: what it does in under 60 characters.',

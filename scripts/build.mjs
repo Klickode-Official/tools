@@ -1,17 +1,18 @@
 // Static site generator. Every folder in tools/ becomes its own page at /tools/<slug>/:
 //   tools/<slug>/tool.mjs   page copy + SEO metadata (required)
 //   tools/<slug>/script.js  page behaviour (required)
+//   tools/<slug>/icon.svg   24×24 line icon, stroked with currentColor (optional; falls back to the category icon)
 //   tools/<slug>/og.png     1200×630 social preview (optional, `npm run og` makes them)
 //   tools/<slug>/*          anything else (workers, images) is copied alongside
 //
 //   SITE_URL=https://tools.example.com npm run build
 //
 // SITE_URL enables canonical links, absolute og:image URLs and sitemap.xml.
-import { cp, mkdir, readdir, rm, writeFile, stat } from 'node:fs/promises';
+import { cp, mkdir, readdir, readFile, rm, writeFile, stat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { categories, categoryById, categoryIcon } from './categories.mjs';
-import { layout, breadcrumbs, toolGrid, esc, SITE_NAME } from './layout.mjs';
+import { layout, breadcrumbs, toolGrid, toolIcon, esc, SITE_NAME } from './layout.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(root, 'dist');
@@ -35,7 +36,9 @@ export async function loadTools() {
     const fullTitle = t.title.length + SITE_NAME.length + 3 <= 62 ? `${t.title} | ${SITE_NAME}` : t.title;
     if (t.title.length > 65) warnings.push(`${dir}: title is ${t.title.length} chars; Google shows about 60`);
     if (t.description.length > 165) warnings.push(`${dir}: description is ${t.description.length} chars; Google shows about 160`);
-    tools.push({ ...t, fullTitle, hasOg: await exists(join(root, 'tools', dir, 'og.png')) });
+    const iconFile = join(root, 'tools', dir, 'icon.svg');
+    const icon = (await exists(iconFile)) ? (await readFile(iconFile, 'utf8')).trim() : null;
+    tools.push({ ...t, fullTitle, icon, hasOg: await exists(join(root, 'tools', dir, 'og.png')) });
   }
   return tools.sort((a, b) => (a.order ?? 99) - (b.order ?? 99) || a.name.localeCompare(b.name));
 }
@@ -64,7 +67,7 @@ await cp(join(root, 'assets'), join(out, 'assets'), { recursive: true });
 for (const t of tools) {
   const cat = catOf(t);
   const path = `/tools/${t.slug}/`;
-  await cp(join(root, 'tools', t.slug), join(out, 'tools', t.slug), { recursive: true, filter: (src) => !src.endsWith('tool.mjs') });
+  await cp(join(root, 'tools', t.slug), join(out, 'tools', t.slug), { recursive: true, filter: (src) => !/(tool\.mjs|icon\.svg)$/.test(src) });
   const related = tools.filter((o) => o.category === t.category && o.slug !== t.slug);
   const graph = [
     {
@@ -103,9 +106,9 @@ for (const t of tools) {
       jsonLd: { '@context': 'https://schema.org', '@graph': graph },
       body: `${breadcrumbs([['/', 'Tools'], [`/${cat.slug}/`, cat.name], [path, t.name]])}
 <header class="page-head">
-  <div class="title-row"><span class="tool-icon lg">${categoryIcon(cat, 24)}</span><h1>${esc(t.name)}</h1></div>
+  <div class="title-row"><span class="tool-icon lg">${toolIcon(t, cat, 24)}</span><h1>${esc(t.name)}</h1></div>
   <p class="lede">${esc(t.description)}</p>
-  <ul class="pills"><li>Runs in your browser</li><li>Free, no sign-up</li><li>No upload</li></ul>
+  <ul class="pills"><li>Runs in your browser</li><li>No sign-up</li></ul>
 </header>
 <section class="tool" aria-label="${esc(t.name)}">
 ${t.body}
@@ -152,14 +155,14 @@ await page(
   layout({
     siteUrl,
     path: '/',
-    title: `${SITE_NAME} — Free, Private Online Tools for Images, JSON & SEO`,
-    description: `${tools.length} free online tools that run entirely in your browser: image converter and compressor, JSON formatter, regex tester, SEO checkers and more. No sign-up, no uploads.`,
+    title: `${SITE_NAME}: Free Online Tools for Images, JSON and SEO`,
+    description: `Free tools for converting images, tidying JSON, testing regex and checking SEO. They run in your browser, so your files stay on your computer.`,
     scripts: ['/assets/js/home.js'],
     jsonLd: { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE_NAME, ...(siteUrl && { url: abs('/') }) },
     body: `<div class="hero-wrap"><section class="hero">
   <p class="eyebrow">${tools.length} free tools · no sign-up</p>
   <h1>Online tools that never see your files.</h1>
-  <p class="lede">Convert images, format JSON, test regexes and check SEO. Everything runs in your browser, so your photos, tokens and data stay on your device.</p>
+  <p class="lede">Convert an image, tidy up some JSON, test a regex or check a page’s SEO. It all runs right here in your browser, so nothing you drop in gets uploaded.</p>
   <div class="search"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     <input type="search" id="tool-search" placeholder="Search tools, e.g. “webp” or “json”" aria-label="Search tools" autocomplete="off"></div>
 </section>
@@ -178,9 +181,9 @@ ${categories
 <p class="empty" id="no-results" hidden>No tools match that search.</p>
 </div>
 <section class="why">
-  <div><span class="eyebrow">Private</span><p>Files are processed on your device. Nothing is uploaded, so there is nothing to leak.</p></div>
-  <div><span class="eyebrow">Free</span><p>No accounts, no watermarks, no daily limits. Batch as much as your device can handle.</p></div>
-  <div><span class="eyebrow">Fast</span><p>No upload queue. Results appear as soon as you drop a file or paste text.</p></div>
+  <h2>Why your files stay put</h2>
+  <p>Most online converters upload your file, process it on a server somewhere and send it back. These tools skip that trip. The work happens in this browser tab, so there’s no waiting in a queue, no cap on how many files you do, and no copy of your photo left on someone else’s computer afterwards.</p>
+  <p>That’s also why the tools keep working if your connection drops once the page has loaded.</p>
 </section>`,
   }),
 );

@@ -224,9 +224,9 @@ h3 { font-size: 16px; margin: 20px 0 6px; font-weight: 600; }
 .cat-head a { font-size: 14px; text-decoration: none; font-weight: 500; }
 .cat-head a::after { content: ' →'; }
 .empty { color: var(--muted); margin-top: 32px; }
-.why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 56px; padding-top: 32px; border-top: 1px solid var(--border); }
-.why p { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
-.why .eyebrow { color: var(--red); }
+.why { max-width: 68ch; margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--border); }
+.why h2 { margin-top: 0; }
+.why p { color: var(--muted); margin: 0 0 10px; }
 
 .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
 .tool-card { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 18px 18px 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-decoration: none; color: var(--text); box-shadow: var(--shadow); transition: border-color 0.15s, transform 0.15s; }
@@ -382,7 +382,7 @@ mark.alt { background: var(--mark-alt); }
   .hero-art { display: none; }
 }
 @media (max-width: 760px) {
-  .grid-2, .why { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
   .title-row { gap: 12px; }
   .tool-icon.lg { width: 40px; height: 40px; }
   textarea, .output { min-height: 200px; }

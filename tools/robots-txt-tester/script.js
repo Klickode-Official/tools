@@ -15,7 +15,7 @@ function run() {
   const groups = selectGroups(parsed, ua.value || '*');
   summary.innerHTML = `<table class="kv">
     <tr><th>Groups</th><td>${parsed.groups.length}</td></tr>
-    <tr><th>Applies to "${escapeHtml(ua.value || '*')}"</th><td>${groups.length ? groups.map((g) => `User-agent: ${escapeHtml(g.agents.join(', '))} (line ${g.line})`).join('<br>') : 'No group — everything allowed'}</td></tr>
+    <tr><th>Applies to "${escapeHtml(ua.value || '*')}"</th><td>${groups.length ? groups.map((g) => `User-agent: ${escapeHtml(g.agents.join(', '))} (line ${g.line})`).join('<br>') : 'None, so everything is allowed'}</td></tr>
     <tr><th>Sitemaps</th><td>${parsed.sitemaps.map(escapeHtml).join('<br>') || '—'}</td></tr>
     ${parsed.warnings.map((w) => `<tr><th>Line ${w.line}</th><td class="err-text">${escapeHtml(w.message)}</td></tr>`).join('')}
   </table>`;
@@ -25,7 +25,7 @@ function run() {
   const blocked = rows.filter((x) => !x.r.allowed).length;
   setStatus(status, `${rows.length - blocked} allowed · ${blocked} blocked`, true);
   results.innerHTML = rows
-    .map(({ u, r }) => `<li><span class="badge ${r.allowed ? 'added' : 'removed'}">${r.allowed ? 'allowed' : 'blocked'}</span>${escapeHtml(u)} <span class="check">— ${escapeHtml(r.reason)}</span></li>`)
+    .map(({ u, r }) => `<li><span class="badge ${r.allowed ? 'added' : 'removed'}">${r.allowed ? 'allowed' : 'blocked'}</span>${escapeHtml(u)} <span class="check">(${escapeHtml(r.reason)})</span></li>`)
     .join('');
 }
 

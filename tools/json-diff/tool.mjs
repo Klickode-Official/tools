@@ -1,13 +1,13 @@
-// JSON Diff — page content and SEO metadata. Logic lives in ./script.js.
+// JSON Diff: page copy and SEO details. What the page does lives in ./script.js.
 export default {
   slug: 'json-diff',
   category: 'json',
   name: 'JSON Diff',
-  // <title> and meta description: what shows in Google. Keep title ≲ 60 chars, description ≲ 160.
-  title: 'JSON Diff — Compare Two JSON Documents Online',
-  description: 'Compare two JSON objects and see every added, removed and changed value with its JSON path. Free, private and browser-only.',
-  // One line for tool cards on the home and category pages.
-  short: 'Compare two JSON documents and list every change by path.',
+  // <title> and meta description, as shown in Google. Keep the title under ~60 characters, the description under ~160.
+  title: 'JSON Diff: Compare Two JSON Files and See What Changed',
+  description: 'Paste two JSON documents and see every value that was added, removed or changed, with the path to find it. Key order and spacing are ignored.',
+  // One line for the tool cards on the home and category pages.
+  short: 'See what changed between two JSON files.',
   body: `<div class="toolbar"><button class="btn primary" id="compare">Compare</button><button class="btn" id="sample">Sample</button><button class="btn" id="clear">Clear</button></div>
 <div class="status" id="status" aria-live="polite"></div>
 <div class="grid-2">
@@ -17,15 +17,15 @@ export default {
 <h2>Differences</h2>
 <ul class="list-plain" id="result"></ul>`,
   content: `<h2>How it works</h2>
-<p>The diff is structural, not textual: whitespace and key order don't matter. Each difference is reported with a JSONPath-style location such as <code>$.users[2].email</code>, so you can find it in large API payloads.</p>`,
+<p>This compares the data, not the text. Spacing, line breaks and the order of keys don’t count as changes. Each difference comes with a path like <code>$.users[2].email</code>, so you can find it even in a huge API response.</p>`,
   faq: [
     {
       q: 'How are arrays compared?',
-      a: 'Arrays are compared index by index. Inserting an element at the start of an array shows every following element as changed.',
+      a: 'Item by item, in order. So if something is inserted at the start of a list, every item after it shows up as changed.',
     },
     {
-      q: 'Is there a size limit?',
-      a: 'Only your browser memory. Documents of several megabytes compare in well under a second.',
+      q: 'How big can the files be?',
+      a: 'That depends on your computer’s memory rather than on us. Files of a few megabytes compare in under a second.',
     },
   ],
 };

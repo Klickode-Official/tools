@@ -61,7 +61,7 @@ ${body}
 <footer class="site-footer"><div class="wrap">
   <div class="footer-brand">
     <img src="/assets/brand/mark.svg" alt="" width="28" height="28">
-    <div><strong>Klickode Tools</strong><span>Free tools that run in your browser. Your files never leave your device.</span></div>
+    <div><strong>Klickode Tools</strong><span>Made by Klickode. Free to use, and your files stay on your device.</span></div>
   </div>
   <nav aria-label="Footer">
     ${NAV.map(([href, label]) => `<a href="${href}">${label}</a>`).join(' ')}
@@ -77,7 +77,11 @@ ${(scripts.length ? scripts : ['/assets/js/ui.js']).map((s) => `<script type="mo
 export const breadcrumbs = (items) =>
   `<nav class="crumbs" aria-label="Breadcrumb"><ol>${items.map(([href, label], i) => (i === items.length - 1 ? `<li aria-current="page">${esc(label)}</li>` : `<li><a href="${href}">${esc(label)}</a></li>`)).join('')}</ol></nav>`;
 
+// A tool's own icon.svg, sized for inline use; the category icon if it has none.
+export const toolIcon = (t, cat, size = 20) =>
+  t.icon ? t.icon.replace('<svg ', `<svg width="${size}" height="${size}" aria-hidden="true" `) : cat ? categoryIcon(cat, size) : '';
+
 export const toolCard = (t, cat) =>
-  `<a class="tool-card" href="/tools/${t.slug}/" data-search="${esc(`${t.name} ${t.short} ${t.slug} ${cat?.name ?? ''}`.toLowerCase())}">${cat ? `<span class="tool-icon">${categoryIcon(cat)}</span>` : ''}<strong>${esc(t.name)}</strong><span class="desc">${esc(t.short)}</span></a>`;
+  `<a class="tool-card" href="/tools/${t.slug}/" data-search="${esc(`${t.name} ${t.short} ${t.slug} ${cat?.name ?? ''}`.toLowerCase())}"><span class="tool-icon">${toolIcon(t, cat)}</span><strong>${esc(t.name)}</strong><span class="desc">${esc(t.short)}</span></a>`;
 
 export const toolGrid = (list, catOf) => `<div class="tool-grid">${list.map((t) => toolCard(t, catOf(t))).join('')}</div>`;

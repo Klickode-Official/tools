@@ -1,14 +1,14 @@
-// JSON to CSV Converter — page content and SEO metadata. Logic lives in ./script.js.
+// JSON to CSV Converter: page copy and SEO details. What the page does lives in ./script.js.
 export default {
   slug: 'json-to-csv',
   category: 'json',
   name: 'JSON to CSV Converter',
-  // <title> and meta description: what shows in Google. Keep title ≲ 60 chars, description ≲ 160.
-  title: 'JSON to CSV Converter — Export JSON Arrays to Spreadsheets',
-  description: 'Convert a JSON array to CSV. Nested objects are flattened into dot-notation columns. Free and private: nothing leaves your browser.',
-  // One line for tool cards on the home and category pages.
-  short: 'Flatten JSON arrays into CSV for Excel or Sheets.',
-  data: {direction: 'json'},
+  // <title> and meta description, as shown in Google. Keep the title under ~60 characters, the description under ~160.
+  title: 'JSON to CSV Converter for Excel and Google Sheets',
+  description: 'Turn a JSON array into a CSV you can open in Excel or Google Sheets. Nested objects get their own columns, like address.city.',
+  // One line for the tool cards on the home and category pages.
+  short: 'Turn JSON into a spreadsheet.',
+  data: { direction: 'json' },
   body: `<div class="toolbar">
   <button class="btn primary" id="convert">Convert</button>
   <label class="check">Delimiter <select id="delimiter"><option value=",">Comma</option><option value=";">Semicolon</option><option value="	">Tab</option><option value="|">Pipe</option></select></label>
@@ -29,12 +29,12 @@ export default {
     <textarea id="output" spellcheck="false" readonly></textarea>
   </div>
 </div>`,
-  content: `<h2>Conversion rules</h2>
-<ul><li>The input should be an array of objects. Columns are the union of all keys, in first-seen order.</li><li>Nested objects become dot-notation columns: <code>{"a":{"b":1}}</code> → column <code>a.b</code>.</li><li>Arrays inside records are written as JSON text in a single cell.</li></ul>`,
+  content: `<h2>How it handles your data</h2>
+<ul><li>Give it a list of objects. Every key it finds becomes a column, in the order it first shows up.</li><li>Nested objects are spread into columns with dotted names, so <code>{"address":{"city":"Leeds"}}</code> becomes an <code>address.city</code> column.</li><li>Lists inside a record are kept as JSON text in one cell, so nothing gets lost.</li></ul>`,
   faq: [
     {
-      q: 'Will Excel open the output?',
-      a: 'Yes. Use the semicolon delimiter if your Excel locale uses commas as decimal separators.',
+      q: 'Excel shows everything in one column. What now?',
+      a: 'Your Excel probably expects semicolons, which is common in Europe. Pick “Semicolon” as the delimiter and download again.',
     },
   ],
 };

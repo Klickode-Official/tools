@@ -1,19 +1,18 @@
-// Keyword Density Checker — page content and SEO metadata. Logic lives in ./script.js.
+// Keyword Density Checker: page copy and SEO details. What the page does lives in ./script.js.
 export default {
   slug: 'keyword-density',
   category: 'seo',
   name: 'Keyword Density Checker',
-  // <title> and meta description: what shows in Google. Keep title ≲ 60 chars, description ≲ 160.
-  title: 'Keyword Density Checker — Word & Phrase Frequency Counter',
-  description: 'Count the most frequent words and two- and three-word phrases in your text, with density percentages and stop-word filtering. Free and private.',
-  // One line for tool cards on the home and category pages.
-  short: 'Top words and phrases with density percentages.',
+  // <title> and meta description, as shown in Google. Keep the title under ~60 characters, the description under ~160.
+  title: 'Keyword Density Checker and Phrase Counter',
+  description: 'Paste an article to see which words and phrases you use most and how often. Useful for spotting the phrase you’ve accidentally used ten times.',
+  // One line for the tool cards on the home and category pages.
+  short: 'Count your most repeated words and phrases.',
   body: `<div class="panel"><div class="panel-head"><label for="input">Text</label><span><label class="check"><input type="checkbox" id="stopwords" checked> Ignore stop words</label> <button class="btn small" id="clear">Clear</button></span></div>
 <textarea id="input" class="short" placeholder="Paste an article or page copy…"></textarea></div>
 <div class="status ok" id="stats" aria-live="polite"></div>
 <div id="result"></div>`,
-  content: `<h2>Is there an ideal keyword density?</h2>
-<p>No. Modern search engines understand topics and synonyms, and repeating a phrase unnaturally ("keyword stuffing") can hurt. Use this tool the other way round: to check that your main topic actually stands out, and that no phrase is repeated so often it reads awkwardly. If a phrase is above 3–4% of the text, read the passage aloud.</p>`,
-  faq: [
-  ],
+  content: `<h2>Is there a perfect keyword density?</h2>
+<p>No, and chasing one tends to make writing worse. Search engines understand synonyms and topics now, and stuffing in the same phrase can count against you. Use this the other way round: check that your main topic actually comes through, and that nothing is repeated so often it gets awkward. If a phrase is more than 3 or 4 percent of the text, read that part out loud.</p>`,
+  faq: [],
 };

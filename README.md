@@ -21,6 +21,7 @@ tools/
   image-converter/
     tool.mjs        ← page copy + SEO: title, description, how-to, FAQ, category, order
     script.js       ← what the page does
+    icon.svg        ← the tool's own 24×24 line icon (falls back to the category icon)
     og.png          ← social preview card (generated)
   json-formatter/
     …               ← one folder per tool, same shape
@@ -42,6 +43,10 @@ tests/              ← node:test suites for assets/js/lib
 
 The build discovers tools automatically: there's no central list to edit. A tool's folder name is its URL.
 
+## Writing copy
+
+Write tool text the way you'd explain it to a friend: short sentences, contractions, real examples ("Got a form that says max 200 KB?"). Skip em dashes, stacked adjectives and three-item slogans. The FAQ is a good place for the questions people actually ask.
+
 ## What every tool page gets for SEO
 
 - Its own URL (`/tools/<slug>/`), `<title>`, meta description and canonical link
@@ -57,6 +62,7 @@ The build discovers tools automatically: there's no central list to edit. A tool
 ```sh
 npm run new-tool -- color-picker images   # creates tools/color-picker/{tool.mjs,script.js}
 # edit the two files, add logic to assets/js/lib/ with a test if it's non-trivial
+# add tools/color-picker/icon.svg: a 24×24 line icon using stroke="currentColor", like the others
 npm test && npm run build
 npm run og -- color-picker                 # render its social card (needs Playwright, see below)
 ```

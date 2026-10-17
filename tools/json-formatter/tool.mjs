@@ -1,14 +1,14 @@
-// JSON Formatter & Validator — page content and SEO metadata. Logic lives in ./script.js.
+// JSON Formatter & Validator: page copy and SEO details. What the page does lives in ./script.js.
 export default {
   slug: 'json-formatter',
   category: 'json',
   order: 1, // position within its category (lower first; unset tools sort by name after)
   name: 'JSON Formatter & Validator',
-  // <title> and meta description: what shows in Google. Keep title ≲ 60 chars, description ≲ 160.
-  title: 'JSON Formatter & Validator — Beautify, Minify, Find Errors',
-  description: 'Free online JSON formatter and validator. Pretty-print or minify JSON and get the exact line and column of syntax errors. Runs entirely in your browser.',
-  // One line for tool cards on the home and category pages.
-  short: 'Pretty-print, minify and validate JSON with exact error locations.',
+  // <title> and meta description, as shown in Google. Keep the title under ~60 characters, the description under ~160.
+  title: 'JSON Formatter and Validator with Exact Error Lines',
+  description: 'Paste messy JSON and get it tidy and readable. If it’s broken, you’ll see the exact line and column where it went wrong. Your data stays in your browser.',
+  // One line for the tool cards on the home and category pages.
+  short: 'Tidy up JSON and find the broken bit.',
   body: `<div class="toolbar">
   <button class="btn primary" id="format">Format</button>
   <button class="btn" id="minify">Minify</button>
@@ -30,22 +30,23 @@ export default {
     <textarea id="output" spellcheck="false" readonly></textarea>
   </div>
 </div>`,
-  content: `<h2>How to format JSON</h2>
-<ol><li>Paste or type JSON into the input box.</li><li>Click <strong>Format</strong> to pretty-print, or <strong>Minify</strong> to strip whitespace.</li><li>If the JSON is invalid, the error message tells you the exact line and column, and the cursor jumps there.</li></ol>
-<h2>Common JSON errors</h2>
-<ul><li><strong>Trailing commas</strong> — <code>[1, 2,]</code> is valid JavaScript but not valid JSON.</li><li><strong>Single quotes</strong> — JSON strings and keys must use double quotes.</li><li><strong>Unquoted keys</strong> — <code>{a: 1}</code> must be <code>{"a": 1}</code>.</li><li><strong>Leading zeros</strong> — <code>01</code> is not a valid JSON number.</li><li><strong>Comments</strong> — standard JSON has no comments.</li></ul>`,
+  content: `<h2>How to use it</h2>
+<ol><li>Paste your JSON into the left box.</li><li>Hit <strong>Format</strong> to make it readable, or <strong>Minify</strong> to squash it onto one line.</li><li>If something’s wrong, you’ll get the line and column, and the cursor jumps right to it.</li></ol>
+<h2>The usual suspects</h2>
+<p>Most broken JSON comes down to a handful of mistakes:</p>
+<ul><li>A <strong>trailing comma</strong> like <code>[1, 2,]</code>. JavaScript allows it, JSON doesn’t.</li><li><strong>Single quotes</strong>. Keys and strings need double quotes.</li><li><strong>Keys without quotes</strong>, so <code>{a: 1}</code> has to be <code>{"a": 1}</code>.</li><li><strong>Leading zeros</strong>. <code>01</code> isn’t a valid number.</li><li><strong>Comments</strong>. Plain JSON doesn’t have them, so remove any <code>//</code> lines.</li></ul>`,
   faq: [
     {
-      q: 'Is my JSON uploaded anywhere?',
-      a: 'No. Parsing and formatting happen in JavaScript in your browser. Nothing is sent to a server, so it is safe for API responses and config files that contain secrets.',
+      q: 'Is my JSON sent anywhere?',
+      a: 'No. It’s formatted in your browser, so it’s fine to paste API responses or config files with keys in them.',
     },
     {
-      q: 'Why does the share link not leak my data?',
-      a: 'Share links store the input in the URL fragment (the part after <code>#</code>), which browsers never send to the web server. Anyone you send the link to can read it, though, so treat it like the data itself.',
+      q: 'Is the share link private?',
+      a: 'The JSON sits in the part of the link after the <code>#</code>, which browsers never send to a server. But anyone you give the link to can see it, so share it like you’d share the data itself.',
     },
     {
-      q: 'What does "Sort keys" do?',
-      a: 'It orders object keys alphabetically at every level, which makes two JSON documents easier to compare.',
+      q: 'What does “Sort keys” do?',
+      a: 'It puts the keys in alphabetical order at every level. Handy when you want to compare two documents by eye.',
     },
   ],
 };

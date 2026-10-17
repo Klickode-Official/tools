@@ -1,13 +1,13 @@
-// Text Diff — page content and SEO metadata. Logic lives in ./script.js.
+// Text Diff: page copy and SEO details. What the page does lives in ./script.js.
 export default {
   slug: 'text-diff',
   category: 'text',
   name: 'Text Diff',
-  // <title> and meta description: what shows in Google. Keep title ≲ 60 chars, description ≲ 160.
-  title: 'Text Diff Checker — Compare Two Texts Line by Line',
-  description: 'Compare two blocks of text or code and highlight added and removed lines. Free, private, no upload.',
-  // One line for tool cards on the home and category pages.
-  short: 'Line-by-line comparison of two texts or code files.',
+  // <title> and meta description, as shown in Google. Keep the title under ~60 characters, the description under ~160.
+  title: 'Text Diff Checker: Compare Two Texts Line by Line',
+  description: 'Compare two versions of a text or code file and see which lines were added or removed. Handy for checking edits before you send them.',
+  // One line for the tool cards on the home and category pages.
+  short: 'Spot the changed lines between two texts.',
   body: `<div class="toolbar"><button class="btn primary" id="compare">Compare</button><label class="check"><input type="checkbox" id="trim"> Ignore leading/trailing whitespace</label><button class="btn" id="sample">Sample</button><button class="btn" id="clear">Clear</button></div>
 <div class="status" id="status" aria-live="polite"></div>
 <div class="grid-2">
@@ -16,7 +16,7 @@ export default {
 </div>
 <h2>Result</h2>
 <pre class="output" id="result" style="white-space:normal" tabindex="0"></pre>`,
-  content: `<h2>How it works</h2><p>The checker finds the longest common subsequence of lines, then marks lines only in the original as removed (−) and lines only in the changed text as added (+). For JSON, use the <a href="/tools/json-diff/">JSON Diff</a> tool, which ignores formatting.</p>`,
-  faq: [
-  ],
+  content: `<h2>How it works</h2>
+<p>It lines the two versions up and marks lines that only exist in the original with a minus, and lines that only exist in the new version with a plus. Everything else stays plain so the changes stand out. For JSON, the <a href="/tools/json-diff/">JSON Diff</a> does a better job because it ignores formatting.</p>`,
+  faq: [],
 };

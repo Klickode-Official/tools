@@ -1,14 +1,14 @@
-// Meta Tag Analyzer — page content and SEO metadata. Logic lives in ./script.js.
+// Meta Tag Analyzer: page copy and SEO details. What the page does lives in ./script.js.
 export default {
   slug: 'meta-tag-analyzer',
   category: 'seo',
   order: 1, // position within its category (lower first; unset tools sort by name after)
   name: 'Meta Tag Analyzer',
-  // <title> and meta description: what shows in Google. Keep title ≲ 60 chars, description ≲ 160.
-  title: 'Meta Tag Analyzer — Free On-Page SEO Checker',
-  description: 'Paste a page’s HTML to audit its title, meta description, headings, canonical, Open Graph tags, image alt text and JSON-LD. Free and private.',
-  // One line for tool cards on the home and category pages.
-  short: 'Audit title, description, headings, OG tags and structured data.',
+  // <title> and meta description, as shown in Google. Keep the title under ~60 characters, the description under ~160.
+  title: 'Meta Tag Checker: Free On-Page SEO Audit',
+  description: 'Paste a page’s HTML and get a list of SEO problems: a missing description, skipped headings, images without alt text, broken structured data and more.',
+  // One line for the tool cards on the home and category pages.
+  short: 'Check a page’s title, description and tags.',
   body: `<div class="panel"><div class="panel-head"><label for="input">Page HTML</label><span><button class="btn small" id="sample">Sample</button> <button class="btn small" id="clear">Clear</button></span></div>
 <textarea id="input" spellcheck="false" placeholder="Paste the page source here. In most browsers: right-click → View Page Source (Ctrl+U / ⌘⌥U), select all, copy."></textarea></div>
 <div class="status" id="status" aria-live="polite"></div>
@@ -16,11 +16,10 @@ export default {
   <div class="panel"><h2>Checks</h2><ul class="check-list" id="checks"></ul></div>
   <div class="panel"><h2>Summary</h2><div id="summary"></div><h2>Heading outline</h2><ul class="list-plain" id="headings"></ul></div>
 </div>`,
-  content: `<h2>Why paste HTML instead of a URL?</h2>
-<p>Fetching another site from a web page is blocked by browsers unless that site opts in, so URL-based checkers route your request through their own servers. Pasting the source keeps this tool fully private, and it also lets you check pages that aren't public yet: staging sites, drafts and localhost.</p>
-<h2>What's checked</h2>
-<ul><li>Title and meta description presence, length and estimated pixel width</li><li>A single <code>&lt;h1&gt;</code> and no skipped heading levels</li><li>Canonical URL, <code>noindex</code>, viewport, <code>lang</code> and charset</li><li>Image <code>alt</code> attributes</li><li>Open Graph and Twitter card tags</li><li>JSON-LD structured data that fails to parse</li></ul>
-<p>For JavaScript-rendered pages (React, Vue), copy the rendered DOM from DevTools (Elements panel → right-click <code>&lt;html&gt;</code> → Copy outerHTML) instead of View Source.</p>`,
-  faq: [
-  ],
+  content: `<h2>Why paste the HTML instead of a link?</h2>
+<p>Browsers don’t let one website read another, so checkers that take a URL have to fetch the page through their own servers. Pasting the source keeps everything on your machine. It also means you can check pages that aren’t live yet, like a staging site or something on localhost.</p>
+<h2>What it looks at</h2>
+<ul><li>Whether the title and meta description exist, and whether they’re long enough without getting cut off</li><li>One clear <code>&lt;h1&gt;</code>, and headings that don’t skip levels</li><li>Canonical link, <code>noindex</code>, the mobile viewport tag, language and character set</li><li>Images without <code>alt</code> text</li><li>Open Graph and Twitter tags for link previews</li><li>Structured data (JSON-LD) that won’t parse</li></ul>
+<p>If your site is built with React, Vue or similar, View Source may be nearly empty. Open DevTools instead, right-click the <code>&lt;html&gt;</code> element, choose Copy outerHTML, and paste that.</p>`,
+  faq: [],
 };

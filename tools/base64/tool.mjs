@@ -1,13 +1,13 @@
-// Base64 Encoder / Decoder — page content and SEO metadata. Logic lives in ./script.js.
+// Base64 Encoder / Decoder: page copy and SEO details. What the page does lives in ./script.js.
 export default {
   slug: 'base64',
   category: 'encoding',
   name: 'Base64 Encoder / Decoder',
-  // <title> and meta description: what shows in Google. Keep title ≲ 60 chars, description ≲ 160.
-  title: 'Base64 Encode & Decode Online — UTF-8 and URL-safe',
-  description: 'Encode text to Base64 or decode Base64 to text. Supports UTF-8, emoji and URL-safe Base64 (Base64URL). Runs locally in your browser.',
-  // One line for tool cards on the home and category pages.
-  short: 'UTF-8 safe Base64 and Base64URL, both directions.',
+  // <title> and meta description, as shown in Google. Keep the title under ~60 characters, the description under ~160.
+  title: 'Base64 Encode and Decode Online (UTF-8 Safe)',
+  description: 'Encode text to Base64 or decode it back. Handles accents and emoji properly, and has a URL-safe mode for tokens and links.',
+  // One line for the tool cards on the home and category pages.
+  short: 'Encode or decode Base64, emoji included.',
   body: `<div class="toolbar"><button class="btn primary" id="encode">Encode</button><button class="btn" id="decode">Decode</button><label class="check"><input type="checkbox" id="urlsafe"> URL-safe (Base64URL)</label><button class="btn" id="swap">Swap</button></div>
 <div class="status" id="status" aria-live="polite"></div>
 
@@ -21,11 +21,13 @@ export default {
     <textarea id="output" spellcheck="false" readonly></textarea>
   </div>
 </div>`,
-  content: `<h2>About Base64</h2><p>Base64 represents binary data using 64 printable characters, growing it by about 33%. It is encoding, not encryption: anyone can decode it. Base64URL swaps <code>+</code> and <code>/</code> for <code>-</code> and <code>_</code> and drops padding so the result is safe in URLs and JWTs.</p>`,
+  content: `<h2>What Base64 is for</h2>
+<p>Base64 turns any data into plain letters and numbers so it can travel through places that only accept text, like JSON, email or a URL. It makes things about a third bigger, and it isn’t encryption. Anyone can decode it, so don’t use it to hide anything.</p>
+<p>The URL-safe version swaps <code>+</code> and <code>/</code> for <code>-</code> and <code>_</code> and drops the <code>=</code> padding. That’s the flavour JWTs use.</p>`,
   faq: [
     {
-      q: 'Why do I get "not valid UTF-8"?',
-      a: 'The Base64 decodes to binary data (like an image), not text. This tool decodes text only.',
+      q: 'Why does it say “not valid UTF-8”?',
+      a: 'What you pasted decodes to binary data, like an image or a zip file, rather than text. This tool only shows text.',
     },
   ],
 };

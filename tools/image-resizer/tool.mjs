@@ -1,15 +1,15 @@
-// Image Resizer — page content and SEO metadata. Logic lives in ./script.js.
+// Image Resizer: page copy and SEO details. What the page does lives in ./script.js.
 export default {
   slug: 'image-resizer',
   category: 'images',
   order: 3, // position within its category (lower first; unset tools sort by name after)
   name: 'Image Resizer',
-  // <title> and meta description: what shows in Google. Keep title ≲ 60 chars, description ≲ 160.
-  title: 'Image Resizer — Resize Images by Pixels or Percent, in Bulk',
-  description: 'Resize images to exact dimensions, a maximum width or height, or a percentage. High-quality downscaling, batch processing and ZIP download, entirely in your browser.',
-  // One line for tool cards on the home and category pages.
-  short: 'Resize by pixels or percent, in bulk, with high-quality scaling.',
-  data: {mode: 'resize'},
+  // <title> and meta description, as shown in Google. Keep the title under ~60 characters, the description under ~160.
+  title: 'Resize Images Online by Pixels or Percent, Free',
+  description: 'Make images smaller by width, height or percentage, or fit them inside a box like 1920×1080. Resize a whole batch at once and download them as a ZIP.',
+  // One line for the tool cards on the home and category pages.
+  short: 'Make images smaller by pixels or percent.',
+  data: { mode: 'resize' },
   body: `<label class="dropzone" id="dropzone" for="files">
   <strong>Drop images here, paste, or click to choose</strong>
   <span>JPG, PNG, WebP, AVIF, GIF, BMP, SVG (and HEIC in Safari) · batch supported · files stay on your device</span>
@@ -30,13 +30,19 @@ export default {
 <div class="toolbar"><button class="btn primary" id="download-all" disabled>Download all (ZIP)</button><button class="btn" id="clear" disabled>Clear</button></div>
 <div class="status" id="status" aria-live="polite"></div>
 <ul class="file-list" id="results"></ul>`,
-  content: `<h2>Resize modes</h2>
-<ul><li><strong>Fit within</strong>: scales the image down until it fits inside the width × height box, keeping the aspect ratio. Use it for "max 1920×1080".</li><li><strong>Width</strong> / <strong>Height</strong>: sets one side; the other follows the aspect ratio.</li><li><strong>Percentage</strong>: scales both sides equally.</li></ul>
-<p>Images are never enlarged, because upscaling adds blur rather than detail. Downscaling uses stepwise halving, so large reductions stay sharp instead of aliased.</p>`,
+  content: `<h2>Ways to resize</h2>
+<p><strong>Fit within</strong> shrinks the image until it fits inside the width and height you set, without stretching it. This is what you want for “no bigger than 1920×1080”.</p>
+<p><strong>Width</strong> or <strong>Height</strong> sets one side and works out the other for you.</p>
+<p><strong>Percentage</strong> scales the whole thing down, so 50% gives you half the width and half the height.</p>
+<p>Images are never made bigger than they already are. Blowing up a small image just makes it blurry, and that’s rarely what anyone wants. Big reductions are done in steps, which keeps fine detail like text and hair from going jagged.</p>`,
   faq: [
     {
       q: 'Are my images uploaded?',
-      a: 'No. Images are decoded and re-encoded on a canvas in this browser tab. Nothing is sent to a server, which is why there are no file-count limits, queues or watermarks. You can even disconnect from the internet after the page loads.',
+      a: 'No. They’re resized in your browser and stay on your device.',
+    },
+    {
+      q: 'Will resizing change the format?',
+      a: 'Not unless you ask it to. Leave the format on “Same as original”, or pick a different one if you want to convert at the same time.',
     },
   ],
 };

@@ -1,14 +1,14 @@
-// CSV to JSON Converter — page content and SEO metadata. Logic lives in ./script.js.
+// CSV to JSON Converter: page copy and SEO details. What the page does lives in ./script.js.
 export default {
   slug: 'csv-to-json',
   category: 'json',
   name: 'CSV to JSON Converter',
-  // <title> and meta description: what shows in Google. Keep title ≲ 60 chars, description ≲ 160.
-  title: 'CSV to JSON Converter — Convert Spreadsheets to JSON',
-  description: 'Convert CSV to a JSON array of objects with automatic number and boolean detection. Handles quoted fields, commas and line breaks. Runs in your browser.',
-  // One line for tool cards on the home and category pages.
-  short: 'Turn CSV rows into JSON objects with type detection.',
-  data: {direction: 'csv'},
+  // <title> and meta description, as shown in Google. Keep the title under ~60 characters, the description under ~160.
+  title: 'CSV to JSON Converter, Free and Runs in Your Browser',
+  description: 'Paste a CSV or open a file and get a JSON array back. Numbers and true/false values are detected for you, and commas inside quotes don’t trip it up.',
+  // One line for the tool cards on the home and category pages.
+  short: 'Turn spreadsheet rows into JSON.',
+  data: { direction: 'csv' },
   body: `<div class="toolbar">
   <button class="btn primary" id="convert">Convert</button>
   <label class="check">Delimiter <select id="delimiter"><option value=",">Comma</option><option value=";">Semicolon</option><option value="	">Tab</option><option value="|">Pipe</option></select></label>
@@ -31,16 +31,16 @@ Ada,36"></textarea>
     <textarea id="output" spellcheck="false" readonly></textarea>
   </div>
 </div>`,
-  content: `<h2>Conversion rules</h2>
-<ul><li>Quoted fields may contain commas, quotes (written as <code>""</code>) and line breaks, as in RFC 4180.</li><li>With type detection on, <code>42</code> becomes a number and <code>true</code>/<code>false</code>/<code>null</code> become JSON literals. Integers too large for JavaScript are kept as strings so IDs don't lose precision.</li><li>Turn off the header option to get an array of arrays.</li></ul>`,
+  content: `<h2>How it handles your data</h2>
+<ul><li>Fields in quotes can contain commas, line breaks and quotes (written as <code>""</code>), the way Excel and Google Sheets export them.</li><li>With type detection on, <code>42</code> becomes a number and <code>true</code>, <code>false</code> and <code>null</code> become real JSON values. Very long numbers like order IDs stay as text so they aren’t rounded.</li><li>Untick “First row is header” if your file has no header row. You’ll get a list of lists instead of objects.</li></ul>`,
   faq: [
     {
-      q: 'Can I convert Excel files?',
-      a: 'Save the sheet as CSV first (File → Save As → CSV), then open it here.',
+      q: 'Can I use an Excel file?',
+      a: 'Save it as CSV first (File, then Save As, then CSV) and open that here.',
     },
     {
       q: 'Is my file uploaded?',
-      a: 'No. The file is read locally with the browser File API.',
+      a: 'No. Your browser reads the file directly and nothing leaves your computer.',
     },
   ],
 };

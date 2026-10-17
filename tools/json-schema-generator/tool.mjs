@@ -1,13 +1,13 @@
-// JSON Schema Generator — page content and SEO metadata. Logic lives in ./script.js.
+// JSON Schema Generator: page copy and SEO details. What the page does lives in ./script.js.
 export default {
   slug: 'json-schema-generator',
   category: 'json',
   name: 'JSON Schema Generator',
-  // <title> and meta description: what shows in Google. Keep title ≲ 60 chars, description ≲ 160.
-  title: 'JSON Schema Generator — Infer a Schema from Sample JSON',
-  description: 'Generate a JSON Schema (draft 2020-12) from example JSON. Detects types, required fields, nested objects, arrays and common string formats.',
-  // One line for tool cards on the home and category pages.
-  short: 'Infer a draft 2020-12 JSON Schema from a sample payload.',
+  // <title> and meta description, as shown in Google. Keep the title under ~60 characters, the description under ~160.
+  title: 'JSON Schema Generator from Sample JSON',
+  description: 'Paste a sample API response and get a JSON Schema (draft 2020-12) to start from, with types, required fields and formats like email and date filled in.',
+  // One line for the tool cards on the home and category pages.
+  short: 'Get a JSON Schema from a sample response.',
   body: `<div class="toolbar">
   <button class="btn primary" id="generate">Generate</button>
   <label class="check"><input type="checkbox" id="required" checked> Mark fields required</label>
@@ -28,9 +28,8 @@ export default {
     <textarea id="output" spellcheck="false" readonly></textarea>
   </div>
 </div>`,
-  content: `<h2>How the schema is inferred</h2>
-<ul><li>Every value's type is recorded; integers and decimals are distinguished.</li><li>For arrays of objects, all items are merged: a field is <code>required</code> only if every item has it, and mixed types become a type union.</li><li>Strings that look like dates, date-times, emails, URIs or UUIDs get a <code>format</code>.</li></ul>
-<p>An inferred schema is a starting point. Review it, then tighten it with constraints like <code>minLength</code>, <code>enum</code> or <code>pattern</code>.</p>`,
-  faq: [
-  ],
+  content: `<h2>What it figures out</h2>
+<ul><li>The type of every value, including whether a number is a whole number or not.</li><li>For a list of objects, it looks at every item. A field is only marked required if all of them have it.</li><li>Strings that look like dates, emails, links or UUIDs get the matching <code>format</code>.</li></ul>
+<p>Think of the result as a first draft. Read through it, then tighten it with things like <code>minLength</code>, <code>enum</code> or <code>pattern</code> where you know more than one sample can tell you.</p>`,
+  faq: [],
 };

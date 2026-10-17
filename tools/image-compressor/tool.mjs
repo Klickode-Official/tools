@@ -1,15 +1,15 @@
-// Image Compressor — page content and SEO metadata. Logic lives in ./script.js.
+// Image Compressor: page copy and SEO details. What the page does lives in ./script.js.
 export default {
   slug: 'image-compressor',
   category: 'images',
   order: 2, // position within its category (lower first; unset tools sort by name after)
   name: 'Image Compressor',
-  // <title> and meta description: what shows in Google. Keep title ≲ 60 chars, description ≲ 160.
-  title: 'Image Compressor — Shrink JPG, PNG & WebP to a Target Size',
-  description: 'Compress images in your browser. Set a quality or a target file size in KB, batch process, and download as ZIP. Private: images are never uploaded.',
-  // One line for tool cards on the home and category pages.
-  short: 'Shrink images, optionally to an exact target size in KB.',
-  data: {mode: 'compress'},
+  // <title> and meta description, as shown in Google. Keep the title under ~60 characters, the description under ~160.
+  title: 'Compress Images to a Target Size in KB, Free',
+  description: 'Got a form that says “max 200 KB”? Type the size you need and we’ll find the best quality that fits. Works with JPG, PNG and WebP, all on your device.',
+  // One line for the tool cards on the home and category pages.
+  short: 'Shrink photos to fit an upload limit.',
+  data: { mode: 'compress' },
   body: `<label class="dropzone" id="dropzone" for="files">
   <strong>Drop images here, paste, or click to choose</strong>
   <span>JPG, PNG, WebP, AVIF, GIF, BMP, SVG (and HEIC in Safari) · batch supported · files stay on your device</span>
@@ -30,14 +30,18 @@ export default {
 <div class="toolbar"><button class="btn primary" id="download-all" disabled>Download all (ZIP)</button><button class="btn" id="clear" disabled>Clear</button></div>
 <div class="status" id="status" aria-live="polite"></div>
 <ul class="file-list" id="results"></ul>`,
-  content: `<h2>Hitting a target file size</h2>
-<p>Many upload forms cap images at a size like 200 KB. Enter a <strong>target size</strong> and the compressor binary-searches the highest JPG or WebP quality that fits, so you lose as little detail as possible. If even the lowest quality is too big, reduce the dimensions with the resize option as well.</p>
-<h2>Tips</h2>
-<ul><li>Converting a photo to <strong>WebP</strong> usually saves more than lowering JPG quality.</li><li>PNG is lossless, so "quality" doesn't apply. For PNG photos, switch to WebP or JPG.</li><li>If a file comes out larger than the original, the original is kept, since it's already well optimised.</li></ul>`,
+  content: `<h2>Getting under a size limit</h2>
+<p>Job portals, visa forms and some email clients reject images over a certain size. Put that number in <strong>Target size</strong> and the compressor tries a few quality levels until it finds the highest one that still fits. If even the lowest quality is too big, shrink the dimensions too with the resize option.</p>
+<h2>A few tips</h2>
+<ul><li>Switching a photo to WebP usually saves more than turning JPG quality down.</li><li>PNG doesn’t have a quality setting, because it never throws detail away. For photos saved as PNG, pick JPG or WebP instead.</li><li>If the compressed file would come out bigger than your original, you get the original back. It was already as small as it was going to get.</li></ul>`,
   faq: [
     {
       q: 'Are my images uploaded?',
-      a: 'No. Images are decoded and re-encoded on a canvas in this browser tab. Nothing is sent to a server, which is why there are no file-count limits, queues or watermarks. You can even disconnect from the internet after the page loads.',
+      a: 'No. Everything happens in this browser tab, so your photos never leave your device. There’s no limit on how many you do at once either.',
+    },
+    {
+      q: 'What quality should I use without a target size?',
+      a: 'Around 75 is a good starting point for photos. Most people can’t tell it apart from the original, and the file is usually a fraction of the size.',
     },
   ],
 };

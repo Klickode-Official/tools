@@ -1,5 +1,5 @@
 import { $, persist, setStatus, escapeHtml } from '/assets/js/ui.js';
-import { parse } from '/assets/js/lib/json.js';
+import { parse, stringify } from '/assets/js/lib/json.js';
 import { jsonDiff } from '/assets/js/lib/diff.js';
 
 const left = $('#left');
@@ -8,7 +8,7 @@ const status = $('#status');
 const result = $('#result');
 persist(left, right);
 
-const show = (v) => escapeHtml(v === undefined ? '' : JSON.stringify(v));
+const show = (v) => escapeHtml(v === undefined ? '' : stringify(v));
 
 function compare() {
   result.innerHTML = '';

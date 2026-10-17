@@ -1,3 +1,5 @@
+import { BigNum, stringify } from './json.js';
+
 // RFC 4180 CSV parsing/serialising and JSON <-> CSV conversion.
 
 export function parseCsv(text, delimiter = ',') {
@@ -67,7 +69,7 @@ export function csvToJson(text, { delimiter = ',', header = true, types = true }
 function flatten(obj, prefix = '', out = {}) {
   for (const [k, v] of Object.entries(obj)) {
     const key = prefix ? `${prefix}.${k}` : k;
-    if (v && typeof v === 'object' && !Array.isArray(v)) flatten(v, key, out);
+    if (v && typeof v === 'object' && !Array.isArray(v) && !(v instanceof BigNum)) flatten(v, key, out);
     else out[key] = v;
   }
   return out;
@@ -75,7 +77,7 @@ function flatten(obj, prefix = '', out = {}) {
 
 function cell(v, delimiter) {
   if (v === null || v === undefined) return '';
-  const s = typeof v === 'object' ? JSON.stringify(v) : String(v);
+  const s = v instanceof BigNum ? v.raw : typeof v === 'object' ? stringify(v) : String(v);
   return /["\r\n]/.test(s) || s.includes(delimiter) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 

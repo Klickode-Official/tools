@@ -37,14 +37,40 @@ export function relative(date, now = Date.now()) {
   }
 }
 
-export function describe(date) {
+const fmt = (date, locale, opts) => new Intl.DateTimeFormat(locale, opts).format(date);
+
+export function describe(date, timeZone) {
   const ms = date.getTime();
-  return {
+  const out = {
     seconds: String(Math.floor(ms / 1000)),
     milliseconds: String(ms),
     iso: date.toISOString(),
     utc: date.toUTCString(),
-    local: date.toString(),
-    relative: relative(date),
+    local: fmt(date, 'en-GB', { dateStyle: 'full', timeStyle: 'long' }),
   };
+  if (timeZone) {
+    try {
+      out.zone = fmt(date, 'en-GB', { dateStyle: 'full', timeStyle: 'long', timeZone });
+    } catch {
+      // Unknown zone name: leave the row out.
+    }
+  }
+  // Thai Buddhist calendar (พ.ศ. = C.E. + 543), Bangkok time.
+  try {
+    out.thai = fmt(date, 'th-TH-u-ca-buddhist', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Asia/Bangkok' });
+  } catch {
+    // Older browsers without the Buddhist calendar.
+  }
+  out.relative = relative(date);
+  return out;
+}
+
+export const COMMON_ZONES = ['Asia/Bangkok', 'UTC', 'Europe/London', 'Europe/Berlin', 'America/New_York', 'America/Los_Angeles', 'Asia/Singapore', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Kolkata', 'Asia/Dubai', 'Australia/Sydney'];
+
+export function allZones() {
+  try {
+    return Intl.supportedValuesOf('timeZone');
+  } catch {
+    return COMMON_ZONES;
+  }
 }

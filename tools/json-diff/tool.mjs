@@ -20,8 +20,8 @@ export default {
 <p>This compares the data, not the text. Spacing, line breaks and the order of keys don’t count as changes. Each difference comes with a path like <code>$.users[2].email</code>, so you can find it even in a huge API response.</p>`,
   faq: [
     {
-      q: 'How are arrays compared?',
-      a: 'Item by item, in order. So if something is inserted at the start of a list, every item after it shows up as changed.',
+      q: 'How are lists compared?',
+      a: 'If every item in a list has a unique id field (id, _id, uuid, key, sku, slug or code), items are matched by that id, so adding or reordering items only reports what really changed. Otherwise items are compared in order.',
     },
     {
       q: 'How big can the files be?',

@@ -27,3 +27,8 @@ test('round-trips', () => {
   const data = [{ a: 'x', b: 2 }, { a: 'y\nz', b: 3 }];
   assert.deepEqual(csvToJson(jsonToCsv(data)), data);
 });
+
+test('jsonToCsv keeps long numbers exact', async () => {
+  const { parse } = await import('../assets/js/lib/json.js');
+  assert.equal(jsonToCsv(parse('[{"id":12345678901234567890,"n":{"x":1}}]')), 'id,n.x\n12345678901234567890,1');
+});

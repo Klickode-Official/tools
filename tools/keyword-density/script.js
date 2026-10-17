@@ -17,7 +17,7 @@ const table = (title, rows) =>
 function run() {
   const k = keywordDensity(input.value, { ignoreStopwords: stop.checked, top: 15 });
   const s = stats(input.value);
-  statsEl.textContent = `${k.total.toLocaleString()} words · ${s.sentences} sentences · ~${s.readingMinutes} min read`;
+  statsEl.textContent = `${k.total.toLocaleString()} word${k.total === 1 ? '' : 's'} · ${s.sentences} sentence${s.sentences === 1 ? '' : 's'} · ~${s.readingMinutes} min read`;
   out.innerHTML = `<div class="grid-3">${table('Single words', k.single)}${table('Two-word phrases', k.double)}${table('Three-word phrases', k.triple)}</div>`;
 }
 input.addEventListener('input', debounce(run, 200));

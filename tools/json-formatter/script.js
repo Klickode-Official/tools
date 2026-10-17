@@ -1,5 +1,5 @@
 import { $, persist, setStatus, download, shareLink, readShared, debounce } from '/assets/js/ui.js';
-import { format, minify, parse } from '/assets/js/lib/json.js';
+import { format, minify, parse, countBigNums } from '/assets/js/lib/json.js';
 
 const input = $('#input');
 const output = $('#output');
@@ -22,7 +22,9 @@ function run(mode) {
     const indent = indentSel.value === 'tab' ? '\t' : Number(indentSel.value);
     output.value = mode === 'minify' ? minify(input.value) : format(input.value, { indent, sort: sort.checked });
     const bytes = new TextEncoder().encode(output.value).length;
-    setStatus(status, `Valid JSON · ${bytes.toLocaleString()} bytes`, true);
+    const big = countBigNums(parse(input.value));
+    const note = big ? ` · kept ${big} long number${big === 1 ? '' : 's'} exactly as written` : '';
+    setStatus(status, `Valid JSON · ${bytes.toLocaleString()} bytes${note}`, true);
   } catch (e) {
     output.value = '';
     setStatus(status, e.message, false);

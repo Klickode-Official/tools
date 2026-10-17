@@ -11,7 +11,7 @@ const labels = { camel: 'camelCase', pascal: 'PascalCase', snake: 'snake_case', 
 function run() {
   const t = input.value;
   const s = stats(t);
-  statsEl.textContent = `${s.words.toLocaleString()} words · ${s.characters.toLocaleString()} characters (${s.charactersNoSpaces.toLocaleString()} without spaces) · ${s.sentences} sentences · ${s.lines} lines · ~${s.readingMinutes} min read`;
+  statsEl.textContent = `${s.words.toLocaleString()} word${s.words === 1 ? '' : 's'} · ${s.characters.toLocaleString()} characters (${s.charactersNoSpaces.toLocaleString()} without spaces) · ${s.sentences} sentence${s.sentences === 1 ? '' : 's'} · ${s.lines} line${s.lines === 1 ? '' : 's'} · ~${s.readingMinutes} min read`;
   table.innerHTML = Object.entries(cases)
     .map(([k, fn], i) => `<tr><th>${labels[k]}</th><td id="case-${i}">${escapeHtml(fn(t))}</td><td style="width:1%"><button class="btn small" data-copy="#case-${i}">Copy</button></td></tr>`)
     .join('');

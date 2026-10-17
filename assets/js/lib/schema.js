@@ -1,8 +1,11 @@
+import { BigNum } from './json.js';
+
 // Infer a JSON Schema (draft 2020-12) from a sample document.
 
 function typeOf(v) {
   if (v === null) return 'null';
   if (Array.isArray(v)) return 'array';
+  if (v instanceof BigNum) return /[.eE]/.test(v.raw) ? 'number' : 'integer';
   if (typeof v === 'number') return Number.isInteger(v) ? 'integer' : 'number';
   return typeof v;
 }

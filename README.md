@@ -116,6 +116,8 @@ Social cards: `npm i -D playwright && npx playwright install chromium && npm run
 
 The Shop Card Maker uses platform logos from [Simple Icons](https://simpleicons.org) (CC0 data, v16.35.0), stored in `tools/shop-card-maker/logos.js`. The logos remain trademarks of their owners and are only offered for linking to the user's own page on that platform. Amazon and Lazada aren't in Simple Icons, so their cards use a text label. To refresh the logos, regenerate `logos.js` from a newer `simple-icons` package.
 
-## License
+## Copyright
 
-MIT. Fonts: Inter and JetBrains Mono under the SIL Open Font License (see `assets/fonts/`).
+© 2026 Klickode Studio Ltd. All rights reserved. This is proprietary code: see `LICENSE`. It may not be copied, reused or redistributed without written permission. Fonts (SIL OFL 1.1) and Simple Icons logo data (CC0) keep their own licences, listed in `LICENSE`.
+
+The site's legal pages (terms, privacy, disclaimer, copyright) live in `scripts/legal.mjs`.

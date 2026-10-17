@@ -1,8 +1,8 @@
 // Shared HTML shell: <head> SEO tags, header, footer.
 import { categoryIcon } from './categories.mjs';
+import { COMPANY, CONTACT_URL } from './legal.mjs';
 
 export const SITE_NAME = 'Klickode Tools';
-export const REPO_URL = 'https://github.com/faiqworkstudio/klickode-tools';
 export const STUDIO_URL = 'https://www.klickode.com/';
 
 export const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -38,6 +38,7 @@ export function layout({ siteUrl, path, title, description, body, scripts = [], 
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#E03131">
+  <meta name="copyright" content="© ${new Date().getFullYear()} ${COMPANY} All rights reserved.">
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
   <link rel="preload" href="/assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -66,14 +67,19 @@ ${styles.map((h) => `  <link rel="stylesheet" href="${h}">\n`).join('')}  <scrip
 ${body}
 </div></main>
 <footer class="site-footer"><div class="wrap">
-  <div class="footer-brand">
-    <img src="/assets/brand/mark.svg" alt="" width="32" height="32">
-    <div><strong>Klickode Tools</strong><span>Made by <a href="${STUDIO_URL}">Klickode Studio</a>. Free to use, and your files stay on your device.</span></div>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <img src="/assets/brand/mark.svg" alt="" width="32" height="32">
+      <div><strong>Klickode Tools</strong><span>Made by <a href="${STUDIO_URL}">Klickode Studio</a>. Free to use, and your files stay on your device.</span></div>
+    </div>
+    <nav aria-label="Footer">
+      ${NAV.map(([href, label]) => `<a href="${href}">${label}</a>`).join(' ')}
+    </nav>
   </div>
-  <nav aria-label="Footer">
-    ${NAV.map(([href, label]) => `<a href="${href}">${label}</a>`).join(' ')}
-    <a href="/privacy/">Privacy</a> <a href="/terms/">Terms</a> <a href="${REPO_URL}">Source</a>
-  </nav>
+  <div class="footer-legal">
+    <span>© ${new Date().getFullYear()} ${COMPANY} All rights reserved. No part of this site may be copied without written permission.</span>
+    <nav aria-label="Legal"><a href="/terms/">Terms</a> <a href="/privacy/">Privacy</a> <a href="/disclaimer/">Disclaimer</a> <a href="/copyright/">Copyright</a> <a href="${CONTACT_URL}">Contact</a></nav>
+  </div>
 </div></footer>
 </div></div></div>
 ${(scripts.length ? scripts : ['/assets/js/ui.js']).map((s) => `<script type="module" src="${s}"></script>`).join('\n')}

@@ -215,7 +215,11 @@ h3 { font-size: 16px; margin: 20px 0 6px; font-weight: 600; }
 .icon-btn:hover { background: var(--mist); }
 
 .site-footer { border-top: 1px solid var(--border); color: var(--muted); font-size: 14px; padding: 28px 0 36px; }
-.site-footer .wrap { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: center; }
+.site-footer .wrap { display: flex; flex-direction: column; gap: 22px; }
+.footer-top { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: center; }
+.footer-legal { display: flex; flex-wrap: wrap; gap: 10px 24px; justify-content: space-between; align-items: center; padding-top: 18px; border-top: 1px solid var(--border); font-size: 13px; color: var(--faint); }
+.footer-legal nav { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.footer-brand span a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .footer-brand { display: flex; gap: 12px; align-items: center; }
 .footer-brand img { border-radius: 7px; }
 .footer-brand strong { display: block; color: var(--text); }
@@ -534,6 +538,18 @@ mark.alt { background: var(--mark-alt); }
 .faq summary::after { content: '+'; color: var(--red); font-weight: 400; font-size: 20px; line-height: 1; }
 .faq details[open] summary::after { content: '−'; }
 .faq p { margin: 10px 0 0; color: var(--muted); }
+
+/* ---------- legal pages ---------- */
+.legal h2 { scroll-margin-top: 96px; margin-top: 40px; }
+.legal-meta { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; color: var(--faint); margin: 14px 0 0; }
+.legal-toc { margin: 8px 0 8px; padding: 18px 22px; border: 1px solid var(--border); border-radius: 16px; background: var(--bar); }
+.legal-toc ol { margin: 10px 0 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+.legal-toc li { margin: 3px 0; break-inside: avoid; }
+.legal-toc li::marker { color: var(--red); font-family: var(--mono); font-size: 12px; }
+.legal-toc a { color: var(--text); text-decoration: none; }
+.legal-toc a:hover { color: var(--red); }
+.legal-foot { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); }
+@media (max-width: 600px) { .legal-toc ol { columns: 1; } }
 
 /* ---------- image tools ---------- */
 .dropzone { position: relative; display: block; border: 1.5px dashed var(--border-strong); border-radius: 14px; background: var(--bar); padding: 44px 16px; text-align: center; cursor: pointer; margin-bottom: 16px; transition: border-color 0.15s, background 0.15s; }

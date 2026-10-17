@@ -15,6 +15,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { categories, categoryById, categoryIcon } from './categories.mjs';
 import { layout, breadcrumbs, toolGrid, toolIcon, esc, SITE_NAME } from './layout.mjs';
+import { legalPages, COMPANY } from './legal.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(root, 'dist');
@@ -199,42 +200,16 @@ ${categories
 );
 
 // --- legal + 404 --------------------------------------------------------------------
-await page(
-  '/privacy/',
-  layout({
-    siteUrl,
-    path: '/privacy/',
-    title: `Privacy Policy | ${SITE_NAME}`,
-    description: `How ${SITE_NAME} handles your data.`,
-    body: `<section class="content"><h1>Privacy Policy</h1>
-<p><strong>Short version:</strong> the tools process everything in your browser. We don't receive, store or sell the files or text you use them with.</p>
-<h2>Files and text you enter</h2><p>Images, files, text and tokens you put into a tool are processed by JavaScript on the page and never transmitted to our servers. Some tools save your last text input in your browser's local storage so it survives a refresh; clear it with the tool's Clear button or your browser's site-data settings. The JWT decoder deliberately does not save input. Images are never stored.</p>
-<h2>Share links</h2><p>Share links put the tool's input in the URL fragment (after <code>#</code>). Browsers don't send the fragment to web servers, but anyone who has the link can read its contents.</p>
-<h2>Fonts and third parties</h2><p>Fonts and all other assets are served from this site. Pages load nothing from third-party domains.</p>
-<h2>Hosting logs</h2><p>Like any website, our hosting provider may log standard request data (IP address, user agent, requested URL) for security and operations. These logs never include tool input.</p>
-<h2>Cookies and tracking</h2><p>We use no advertising cookies or third-party trackers. If we add analytics, it will be cookieless and aggregate-only, and this page will be updated first.</p>
-<h2>Contact</h2><p>Questions: open an issue on <a href="https://github.com/faiqworkstudio/klickode-tools/issues">GitHub</a>.</p></section>`,
-  }),
-);
-await page(
-  '/terms/',
-  layout({
-    siteUrl,
-    path: '/terms/',
-    title: `Terms of Use | ${SITE_NAME}`,
-    description: `Terms of use for ${SITE_NAME}.`,
-    body: `<section class="content"><h1>Terms of Use</h1>
-<p>${SITE_NAME} is provided free of charge, as is, without warranty of any kind. Verify results before relying on them in production; you use the tools at your own risk.</p>
-<p>You keep all rights to content you process. Only process files and data you are authorised to use. The source code is available under the MIT License.</p></section>`,
-  }),
-);
+for (const lp of legalPages) {
+  await page(`/${lp.slug}/`, layout({ siteUrl, path: `/${lp.slug}/`, title: `${lp.title} | ${SITE_NAME}`, description: lp.description, body: lp.body }));
+}
 await page(
   '404.html',
   layout({ siteUrl, path: '/404', title: `Page not found | ${SITE_NAME}`, description: 'Page not found.', body: `<header class="page-head"><h1>Page not found</h1><p class="lede">That page doesn't exist. Try one of these:</p></header>${toolGrid(tools, catOf)}` }),
 );
 
 // --- sitemap + robots -------------------------------------------------------------------
-const urls = ['/', ...categories.filter((c) => byCategory(c.id).length).map((c) => `/${c.slug}/`), ...tools.map((t) => `/tools/${t.slug}/`), '/privacy/', '/terms/'];
+const urls = ['/', ...categories.filter((c) => byCategory(c.id).length).map((c) => `/${c.slug}/`), ...tools.map((t) => `/tools/${t.slug}/`), ...legalPages.map((lp) => `/${lp.slug}/`)];
 if (siteUrl) {
   const today = new Date().toISOString().slice(0, 10);
   await writeFile(
@@ -242,7 +217,13 @@ if (siteUrl) {
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${abs(u)}</loc><lastmod>${today}</lastmod></url>`).join('\n')}\n</urlset>\n`,
   );
 }
-await writeFile(join(out, 'robots.txt'), `User-agent: *\nAllow: /\n${siteUrl ? `Sitemap: ${abs('/sitemap.xml')}\n` : ''}`);
+// Search engines (including AI search and assistants fetching a page for a person) are welcome;
+// crawlers that collect pages to train AI models are asked to stay out. See /copyright/.
+const AI_CRAWLERS = ['GPTBot', 'ClaudeBot', 'anthropic-ai', 'CCBot', 'Google-Extended', 'Applebot-Extended', 'Bytespider', 'meta-externalagent', 'FacebookBot', 'cohere-ai', 'cohere-training-data-crawler', 'Diffbot', 'ImagesiftBot', 'Omgilibot', 'Timpibot'];
+await writeFile(
+  join(out, 'robots.txt'),
+  `# © ${new Date().getFullYear()} ${COMPANY} All rights reserved. Use of this site's content to train AI is not permitted.\n\n${AI_CRAWLERS.map((a) => `User-agent: ${a}`).join('\n')}\nDisallow: /\n\nUser-agent: *\nAllow: /\n${siteUrl ? `\nSitemap: ${abs('/sitemap.xml')}\n` : ''}`,
+);
 
 for (const w of warnings) console.warn(`SEO warning: ${w}`);
 console.log(`Built ${urls.length} pages (${tools.length} tools) into dist/${siteUrl ? ` for ${siteUrl}` : ' (set SITE_URL to emit canonical URLs and sitemap.xml)'}`);

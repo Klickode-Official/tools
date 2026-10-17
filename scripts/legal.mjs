@@ -4,6 +4,11 @@ export const COMPANY = 'Klickode Studio Ltd.';
 export const CONTACT_EMAIL = 'klickode@gmail.com';
 export const CONTACT_URL = 'https://www.klickode.com/contact';
 export const UPDATED = '17 October 2026';
+export const STUDIO_SITE = 'https://www.klickode.com/';
+
+// One line of brand identity, repeated where customers don't see it but anyone inspecting does:
+// the HTML source, the top of every CSS/JS file, image metadata and the developer console.
+export const BRAND_NOTICE = `© ${new Date().getFullYear()} ${'Klickode Studio Ltd.'} All rights reserved. Klickode™ and the Klickode logo are trademarks of Klickode Studio Ltd. Unauthorised copying is prohibited. ${'https://www.klickode.com/'}`;
 
 const mail = `<a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>`;
 

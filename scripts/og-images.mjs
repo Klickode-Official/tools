@@ -7,6 +7,8 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { readdir } from 'node:fs/promises';
 import { categoryById } from './categories.mjs';
+import { stampPng } from './png-meta.mjs';
+import { BRAND_NOTICE, COMPANY } from './legal.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 let chromium;
@@ -59,6 +61,7 @@ async function shot(html, file) {
   await page.setContent(html, { waitUntil: 'load' });
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({ path: file, type: 'png' });
+  await stampPng(file, { Copyright: BRAND_NOTICE, Author: COMPANY });
   console.log('wrote', file.replace(root + '/', ''));
 }
 
@@ -74,6 +77,7 @@ if (!only) {
   await page.setViewportSize({ width: 180, height: 180 });
   await page.setContent(`<html><body style="margin:0;background:#E03131">${mark.replace('width="1024" height="1024"', 'width="180" height="180"')}</body></html>`);
   await page.screenshot({ path: join(root, 'assets/brand/apple-touch-icon.png') });
+  await stampPng(join(root, 'assets/brand/apple-touch-icon.png'), { Copyright: BRAND_NOTICE, Author: COMPANY });
   console.log('wrote assets/brand/apple-touch-icon.png');
 }
 await browser.close();

@@ -146,6 +146,17 @@ function initScroller() {
   if (scroller && document.activeElement === document.body) scroller.focus({ preventScroll: true });
 }
 
+// A signature for anyone who opens the developer tools.
+function signConsole() {
+  console.info(
+    '%cKLICKODE%c TOOLS\n%c© Klickode Studio Ltd. All rights reserved. Klickode™ is a trademark of Klickode Studio Ltd.\nCopying this site or its code needs written permission: https://www.klickode.com/contact',
+    'font: 800 18px Inter, system-ui, sans-serif; color: #E03131; letter-spacing: -0.03em',
+    'font: 600 11px monospace; color: #E03131; letter-spacing: 0.3em',
+    'font: 12px system-ui, sans-serif; color: inherit',
+  );
+}
+
 initTheme();
 initCopyButtons();
 initScroller();
+signConsole();

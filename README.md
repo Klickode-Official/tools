@@ -120,4 +120,4 @@ The Shop Card Maker uses platform logos from [Simple Icons](https://simpleicons.
 
 © 2026 Klickode Studio Ltd. All rights reserved. This is proprietary code: see `LICENSE`. It may not be copied, reused or redistributed without written permission. Fonts (SIL OFL 1.1) and Simple Icons logo data (CC0) keep their own licences, listed in `LICENSE`.
 
-The site's legal pages (terms, privacy, disclaimer, copyright) live in `scripts/legal.mjs`.
+The site's legal pages (terms, privacy, disclaimer, copyright) live in `scripts/legal.mjs`, along with `BRAND_NOTICE`: the copyright line the build writes, out of sight of visitors, into every page's source, the top of every shipped CSS/JS file and the site's own PNGs (`scripts/png-meta.mjs`). The browser console also shows a signature (`assets/js/ui.js`). Nothing is hidden in the visible page itself, because hidden text counts as spam to search engines.

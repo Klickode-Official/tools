@@ -1,6 +1,6 @@
 // Shared HTML shell: <head> SEO tags, header, footer.
 import { categoryIcon } from './categories.mjs';
-import { COMPANY, CONTACT_URL } from './legal.mjs';
+import { COMPANY, CONTACT_URL, BRAND_NOTICE } from './legal.mjs';
 
 export const SITE_NAME = 'Klickode Tools';
 export const STUDIO_URL = 'https://www.klickode.com/';
@@ -16,11 +16,32 @@ const NAV = [
   ['/encoding-tools/', 'Encoding'],
 ];
 
+// Tells search engines who is behind the site and which logo is the brand's.
+const ORGANIZATION = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: COMPANY,
+  alternateName: ['Klickode', 'Klickode Studio'],
+  url: STUDIO_URL,
+  logo: 'https://www.klickode.com/icon-192.png',
+  email: 'klickode@gmail.com',
+  address: { '@type': 'PostalAddress', addressLocality: 'Bangkok', addressCountry: 'TH' },
+  brand: { '@type': 'Brand', name: 'Klickode' },
+};
+
+const FOOTER_COLUMNS = [
+  ['Categories', NAV.map(([href, label]) => [href, label === 'Text' ? 'Regex & text' : label === 'Business' ? 'Business & social' : label])],
+  ['Popular', [['/tools/image-converter/', 'Image Converter'], ['/tools/image-compressor/', 'Image Compressor'], ['/tools/json-formatter/', 'JSON Formatter'], ['/tools/shop-card-maker/', 'Shop Card Maker'], ['/tools/regex-tester/', 'Regex Tester']]],
+  ['Company', [[STUDIO_URL, 'Klickode Studio'], [CONTACT_URL, 'Contact'], ['mailto:klickode@gmail.com', 'klickode@gmail.com']]],
+  ['Legal', [['/terms/', 'Terms of Use'], ['/privacy/', 'Privacy Policy'], ['/disclaimer/', 'Disclaimer'], ['/copyright/', 'Copyright']]],
+];
+
 const THEME_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg>';
 
 export function layout({ siteUrl, path, title, description, body, scripts = [], styles = [], bodyAttrs = '', jsonLd, ogImage = '/assets/brand/og.png', active = '' }) {
   const abs = (p) => (siteUrl ? `${siteUrl}${p}` : p);
   return `<!doctype html>
+<!-- ${BRAND_NOTICE} -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -39,6 +60,8 @@ export function layout({ siteUrl, path, title, description, body, scripts = [], 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#E03131">
   <meta name="copyright" content="© ${new Date().getFullYear()} ${COMPANY} All rights reserved.">
+  <meta name="author" content="${COMPANY}">
+  <script type="application/ld+json">${JSON.stringify(ORGANIZATION).replace(/</g, '\\u003c')}</script>
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
   <link rel="preload" href="/assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -67,18 +90,20 @@ ${styles.map((h) => `  <link rel="stylesheet" href="${h}">\n`).join('')}  <scrip
 ${body}
 </div></main>
 <footer class="site-footer"><div class="wrap">
-  <div class="footer-top">
-    <div class="footer-brand">
-      <img src="/assets/brand/mark.svg" alt="" width="32" height="32">
-      <div><strong>Klickode Tools</strong><span>Made by <a href="${STUDIO_URL}">Klickode Studio</a>. Free to use, and your files stay on your device.</span></div>
+  <div class="footer-grid">
+    <div class="footer-about">
+      <a class="brand" href="/" aria-label="${SITE_NAME} home">
+        <img src="/assets/brand/mark.svg" alt="" width="36" height="36">
+        <span class="brand-text"><span class="brand-name">Klickode</span><span class="brand-tag">Tools</span></span>
+      </a>
+      <p>Free tools that run in your browser. Your files never leave your device.</p>
+      <a class="footer-studio" href="${STUDIO_URL}">Need a website? Meet Klickode Studio <span aria-hidden="true">↗</span></a>
     </div>
-    <nav aria-label="Footer">
-      ${NAV.map(([href, label]) => `<a href="${href}">${label}</a>`).join(' ')}
-    </nav>
+    ${FOOTER_COLUMNS.map(([title, links]) => `<nav class="footer-col" aria-label="${title}"><h2>${title}</h2><ul>${links.map(([href, label]) => `<li><a href="${href}">${label}</a></li>`).join('')}</ul></nav>`).join('\n    ')}
   </div>
-  <div class="footer-legal">
-    <span>© ${new Date().getFullYear()} ${COMPANY} All rights reserved. No part of this site may be copied without written permission.</span>
-    <nav aria-label="Legal"><a href="/terms/">Terms</a> <a href="/privacy/">Privacy</a> <a href="/disclaimer/">Disclaimer</a> <a href="/copyright/">Copyright</a> <a href="${CONTACT_URL}">Contact</a></nav>
+  <div class="footer-bottom">
+    <span>© ${new Date().getFullYear()} ${COMPANY} All rights reserved.</span>
+    <span>No part of this site may be copied without written permission. Made in Bangkok.</span>
   </div>
 </div></footer>
 </div></div></div>

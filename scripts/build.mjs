@@ -15,7 +15,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { categories, categoryById, categoryIcon } from './categories.mjs';
 import { layout, breadcrumbs, toolGrid, toolIcon, esc, SITE_NAME } from './layout.mjs';
-import { legalPages, COMPANY } from './legal.mjs';
+import { legalPages, COMPANY, BRAND_NOTICE } from './legal.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(root, 'dist');
@@ -224,6 +224,17 @@ await writeFile(
   join(out, 'robots.txt'),
   `# © ${new Date().getFullYear()} ${COMPANY} All rights reserved. Use of this site's content to train AI is not permitted.\n\n${AI_CRAWLERS.map((a) => `User-agent: ${a}`).join('\n')}\nDisallow: /\n\nUser-agent: *\nAllow: /\n${siteUrl ? `\nSitemap: ${abs('/sitemap.xml')}\n` : ''}`,
 );
+
+// Sign every stylesheet and script we ship. /*! comments survive most minifiers, so the notice
+// stays with the code if someone copies it.
+async function signFiles(dir) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) await signFiles(full);
+    else if (/\.(css|js)$/.test(entry.name)) await writeFile(full, `/*! ${BRAND_NOTICE} */\n${await readFile(full, 'utf8')}`);
+  }
+}
+await signFiles(out);
 
 for (const w of warnings) console.warn(`SEO warning: ${w}`);
 console.log(`Built ${urls.length} pages (${tools.length} tools) into dist/${siteUrl ? ` for ${siteUrl}` : ' (set SITE_URL to emit canonical URLs and sitemap.xml)'}`);

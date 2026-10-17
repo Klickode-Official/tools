@@ -82,7 +82,10 @@ export const breadcrumbs = (items) =>
 export const toolIcon = (t, cat, size = 20) =>
   t.icon ? t.icon.replace('<svg ', `<svg width="${size}" height="${size}" aria-hidden="true" `) : cat ? categoryIcon(cat, size) : '';
 
+// Tool card: an illustration of what the tool does (tools/<slug>/preview.html), then its name.
 export const toolCard = (t, cat) =>
-  `<a class="tool-card" href="/tools/${t.slug}/" data-search="${esc(`${t.name} ${t.short} ${t.slug} ${cat?.name ?? ''}`.toLowerCase())}"><span class="tool-icon">${toolIcon(t, cat)}</span><strong>${esc(t.name)}</strong><span class="desc">${esc(t.short)}</span></a>`;
+  `<a class="tool-card" href="/tools/${t.slug}/" data-search="${esc(`${t.name} ${t.short} ${t.slug} ${cat?.name ?? ''}`.toLowerCase())}">${
+    t.preview ? `<div class="tc-preview" aria-hidden="true">${t.preview}</div>` : ''
+  }<div class="tc-body"><span class="tc-title"><span class="tool-icon">${toolIcon(t, cat, 16)}</span><strong>${esc(t.name)}</strong></span><span class="desc">${esc(t.short)}</span></div></a>`;
 
 export const toolGrid = (list, catOf) => `<div class="tool-grid">${list.map((t) => toolCard(t, catOf(t))).join('')}</div>`;

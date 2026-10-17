@@ -70,4 +70,10 @@ $('#clear').addEventListener('click', () => {
 run();
 `,
 );
-console.log(`Created tools/${slug}/tool.mjs and tools/${slug}/script.js. Run npm run build to see it at /tools/${slug}/.`);
+await writeFile(
+  join(dir, 'preview.html'),
+  `<!-- Shown on this tool's card. Build it from the .pv-* pieces in assets/css/style.css; see other tools for examples. -->
+<div class="pv-row"><span class="pv-file">before</span><span class="pv-arrow">→</span><span class="pv-file hot">after</span></div>
+`,
+);
+console.log(`Created tools/${slug}/tool.mjs, script.js and preview.html. Run npm run build to see it at /tools/${slug}/.`);

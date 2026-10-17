@@ -2,6 +2,7 @@
 //   tools/<slug>/tool.mjs   page copy + SEO metadata (required)
 //   tools/<slug>/script.js  page behaviour (required)
 //   tools/<slug>/style.css  extra styles for this tool's page only (optional)
+//   tools/<slug>/preview.html  small illustration shown on the tool's card (optional; see .pv-* styles)
 //   tools/<slug>/icon.svg   24×24 line icon, stroked with currentColor (optional; falls back to the category icon)
 //   tools/<slug>/og.png     1200×630 social preview (optional, `npm run og` makes them)
 //   tools/<slug>/*          anything else (workers, images) is copied alongside
@@ -39,7 +40,9 @@ export async function loadTools() {
     if (t.description.length > 165) warnings.push(`${dir}: description is ${t.description.length} chars; Google shows about 160`);
     const iconFile = join(root, 'tools', dir, 'icon.svg');
     const icon = (await exists(iconFile)) ? (await readFile(iconFile, 'utf8')).trim() : null;
-    tools.push({ ...t, fullTitle, icon, hasCss: await exists(join(root, 'tools', dir, 'style.css')), hasOg: await exists(join(root, 'tools', dir, 'og.png')) });
+    const previewFile = join(root, 'tools', dir, 'preview.html');
+    const preview = (await exists(previewFile)) ? (await readFile(previewFile, 'utf8')).trim() : null;
+    tools.push({ ...t, fullTitle, icon, preview, hasCss: await exists(join(root, 'tools', dir, 'style.css')), hasOg: await exists(join(root, 'tools', dir, 'og.png')) });
   }
   return tools.sort((a, b) => (a.order ?? 99) - (b.order ?? 99) || a.name.localeCompare(b.name));
 }
@@ -68,7 +71,7 @@ await cp(join(root, 'assets'), join(out, 'assets'), { recursive: true });
 for (const t of tools) {
   const cat = catOf(t);
   const path = `/tools/${t.slug}/`;
-  await cp(join(root, 'tools', t.slug), join(out, 'tools', t.slug), { recursive: true, filter: (src) => !/(tool\.mjs|icon\.svg)$/.test(src) });
+  await cp(join(root, 'tools', t.slug), join(out, 'tools', t.slug), { recursive: true, filter: (src) => !/(tool\.mjs|icon\.svg|preview\.html)$/.test(src) });
   const related = tools.filter((o) => o.category === t.category && o.slug !== t.slug);
   const graph = [
     {

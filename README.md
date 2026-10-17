@@ -23,6 +23,7 @@ tools/
     tool.mjs        ← page copy + SEO: title, description, how-to, FAQ, category, order
     script.js       ← what the page does
     icon.svg        ← the tool's own 24×24 line icon (falls back to the category icon)
+    preview.html    ← the little illustration on the tool's card (uses the .pv-* styles)
     style.css       ← optional styles for this tool's page only
     *.js            ← any other modules or workers the tool needs, copied alongside
     og.png          ← social preview card (generated)

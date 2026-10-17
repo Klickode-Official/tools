@@ -1,4 +1,6 @@
 // Shared HTML shell: <head> SEO tags, header, footer.
+import { categoryIcon } from './categories.mjs';
+
 export const SITE_NAME = 'Klickode Tools';
 export const REPO_URL = 'https://github.com/faiqworkstudio/klickode-tools';
 
@@ -76,6 +78,6 @@ export const breadcrumbs = (items) =>
   `<nav class="crumbs" aria-label="Breadcrumb"><ol>${items.map(([href, label], i) => (i === items.length - 1 ? `<li aria-current="page">${esc(label)}</li>` : `<li><a href="${href}">${esc(label)}</a></li>`)).join('')}</ol></nav>`;
 
 export const toolCard = (t, cat) =>
-  `<a class="tool-card" href="/tools/${t.slug}/" data-search="${esc(`${t.name} ${t.short} ${t.slug} ${cat?.name ?? ''}`.toLowerCase())}"><strong>${esc(t.name)}</strong><span class="desc">${esc(t.short)}</span></a>`;
+  `<a class="tool-card" href="/tools/${t.slug}/" data-search="${esc(`${t.name} ${t.short} ${t.slug} ${cat?.name ?? ''}`.toLowerCase())}">${cat ? `<span class="tool-icon">${categoryIcon(cat)}</span>` : ''}<strong>${esc(t.name)}</strong><span class="desc">${esc(t.short)}</span></a>`;
 
 export const toolGrid = (list, catOf) => `<div class="tool-grid">${list.map((t) => toolCard(t, catOf(t))).join('')}</div>`;

@@ -10,7 +10,7 @@
 import { cp, mkdir, readdir, rm, writeFile, stat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { categories, categoryById } from './categories.mjs';
+import { categories, categoryById, categoryIcon } from './categories.mjs';
 import { layout, breadcrumbs, toolGrid, esc, SITE_NAME } from './layout.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -103,7 +103,7 @@ for (const t of tools) {
       jsonLd: { '@context': 'https://schema.org', '@graph': graph },
       body: `${breadcrumbs([['/', 'Tools'], [`/${cat.slug}/`, cat.name], [path, t.name]])}
 <header class="page-head">
-  <h1>${esc(t.name)}</h1>
+  <div class="title-row"><span class="tool-icon lg">${categoryIcon(cat, 24)}</span><h1>${esc(t.name)}</h1></div>
   <p class="lede">${esc(t.description)}</p>
   <ul class="pills"><li>Runs in your browser</li><li>Free, no sign-up</li><li>No upload</li></ul>
 </header>
@@ -140,7 +140,7 @@ for (const c of categories) {
         hasPart: list.map((t) => ({ '@type': 'WebApplication', name: t.name, ...(siteUrl && { url: abs(`/tools/${t.slug}/`) }) })),
       },
       body: `${breadcrumbs([['/', 'Tools'], [path, c.name]])}
-<header class="page-head"><h1>${esc(c.name)}</h1><p class="lede">${esc(c.description)}</p></header>
+<header class="page-head"><div class="title-row"><span class="tool-icon lg">${categoryIcon(c, 24)}</span><h1>${esc(c.name)}</h1></div><p class="lede">${esc(c.description)}</p></header>
 ${toolGrid(list, catOf)}`,
     }),
   );
@@ -156,17 +156,24 @@ await page(
     description: `${tools.length} free online tools that run entirely in your browser: image converter and compressor, JSON formatter, regex tester, SEO checkers and more. No sign-up, no uploads.`,
     scripts: ['/assets/js/home.js'],
     jsonLd: { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE_NAME, ...(siteUrl && { url: abs('/') }) },
-    body: `<section class="hero">
+    body: `<div class="hero-wrap"><section class="hero">
   <p class="eyebrow">${tools.length} free tools · no sign-up</p>
   <h1>Online tools that never see your files.</h1>
   <p class="lede">Convert images, format JSON, test regexes and check SEO. Everything runs in your browser, so your photos, tokens and data stay on your device.</p>
   <div class="search"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     <input type="search" id="tool-search" placeholder="Search tools, e.g. “webp” or “json”" aria-label="Search tools" autocomplete="off"></div>
 </section>
+<div class="hero-art" aria-hidden="true">
+  <img src="/assets/brand/mark.svg" alt="" width="220" height="220" class="hero-mark">
+  <span class="chip c1">PNG → WebP <b>−68%</b></span>
+  <span class="chip c2">{ "valid": <b>true</b> }</span>
+  <span class="chip c3">/^[\\w.]+@/ <b>2 matches</b></span>
+  <span class="chip c4">GPS data <b>removed</b></span>
+</div></div>
 <div id="all-tools">
 ${categories
   .filter((c) => byCategory(c.id).length)
-  .map((c) => `<section class="cat-section" data-cat><div class="cat-head"><h2>${esc(c.name)}</h2><a href="/${c.slug}/">View all</a></div>${toolGrid(byCategory(c.id), catOf)}</section>`)
+  .map((c) => `<section class="cat-section" data-cat><div class="cat-head"><h2>${esc(c.name)} <span class="count">${byCategory(c.id).length}</span></h2><a href="/${c.slug}/">View all</a></div>${toolGrid(byCategory(c.id), catOf)}</section>`)
   .join('\n')}
 <p class="empty" id="no-results" hidden>No tools match that search.</p>
 </div>

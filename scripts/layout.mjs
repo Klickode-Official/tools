@@ -3,6 +3,7 @@ import { categoryIcon } from './categories.mjs';
 
 export const SITE_NAME = 'Klickode Tools';
 export const REPO_URL = 'https://github.com/faiqworkstudio/klickode-tools';
+export const STUDIO_URL = 'https://www.klickode.com/';
 
 export const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -45,30 +46,36 @@ ${styles.map((h) => `  <link rel="stylesheet" href="${h}">\n`).join('')}  <scrip
   ${jsonLd ? `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, '\\u003c')}</script>` : ''}
 </head>
 <body${bodyAttrs}>
+<!-- Same frame as klickode.com: the site sits in a rounded panel that scrolls inside the window. -->
+<div class="app-viewport"><div class="app-frame"><div class="app-scroll" id="scroller" tabindex="-1">
 <a class="skip" href="#main">Skip to content</a>
-<header class="site-header"><div class="wrap">
+<header class="site-header"><div class="wrap wrap-wide">
   <a class="brand" href="/" aria-label="${SITE_NAME} home">
-    <img src="/assets/brand/mark.svg" alt="" width="32" height="32">
-    <span class="brand-name">Klickode</span><span class="brand-tag">Tools</span>
+    <img src="/assets/brand/mark.svg" alt="" width="36" height="36">
+    <span class="brand-text"><span class="brand-name">Klickode</span><span class="brand-tag">Tools</span></span>
   </a>
   <nav aria-label="Categories">
     ${NAV.map(([href, label]) => `<a href="${href}"${active === href ? ' aria-current="page"' : ''}>${label}</a>`).join('\n    ')}
   </nav>
-  <button class="icon-btn" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">${THEME_ICON}</button>
+  <div class="header-actions">
+    <button class="icon-btn" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">${THEME_ICON}</button>
+    <a class="header-cta" href="${STUDIO_URL}">Klickode Studio <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  </div>
 </div></header>
 <main id="main"><div class="wrap">
 ${body}
 </div></main>
 <footer class="site-footer"><div class="wrap">
   <div class="footer-brand">
-    <img src="/assets/brand/mark.svg" alt="" width="28" height="28">
-    <div><strong>Klickode Tools</strong><span>Made by Klickode. Free to use, and your files stay on your device.</span></div>
+    <img src="/assets/brand/mark.svg" alt="" width="32" height="32">
+    <div><strong>Klickode Tools</strong><span>Made by <a href="${STUDIO_URL}">Klickode Studio</a>. Free to use, and your files stay on your device.</span></div>
   </div>
   <nav aria-label="Footer">
     ${NAV.map(([href, label]) => `<a href="${href}">${label}</a>`).join(' ')}
     <a href="/privacy/">Privacy</a> <a href="/terms/">Terms</a> <a href="${REPO_URL}">Source</a>
   </nav>
 </div></footer>
+</div></div></div>
 ${(scripts.length ? scripts : ['/assets/js/ui.js']).map((s) => `<script type="module" src="${s}"></script>`).join('\n')}
 </body>
 </html>

@@ -127,7 +127,7 @@ ${t.body}
 ${t.content || ''}
 ${faqHtml(t.faq)}
 </section>
-${related.length ? `<section class="related"><h2>More ${esc(cat.name.toLowerCase())}</h2>${toolGrid(related, catOf)}</section>` : ''}`,
+${related.length ? `<section class="related"><h2>More in ${esc(cat.name)}</h2>${toolGrid(related, catOf)}</section>` : ''}`,
     }),
   );
 }

@@ -139,5 +139,13 @@ export function debounce(fn, ms = 150) {
 
 export const escapeHtml = htmlEscape;
 
+// The page scrolls inside the framed panel, not the window. Focus that panel so arrow keys,
+// Page Down and Space scroll it straight away.
+function initScroller() {
+  const scroller = document.getElementById('scroller');
+  if (scroller && document.activeElement === document.body) scroller.focus({ preventScroll: true });
+}
+
 initTheme();
 initCopyButtons();
+initScroller();

@@ -2,12 +2,14 @@
   "name": "klickode-tools",
   "version": "0.1.0",
   "private": true,
-  "description": "Free, private, browser-only developer tools: JSON, CSV, regex, encoding and more.",
+  "description": "Free, private, browser-only online tools: images, JSON, regex, SEO, encoding and more.",
   "type": "module",
   "license": "MIT",
   "scripts": {
     "test": "node --test tests/*.test.js",
     "build": "node scripts/build.mjs",
+    "new-tool": "node scripts/new-tool.mjs",
+    "og": "node scripts/og-images.mjs",
     "serve": "npm run build && npx --yes serve dist"
   },
   "engines": {

@@ -34,3 +34,30 @@ export function stats(text) {
     readingMinutes: Math.max(wordCount ? 1 : 0, Math.round(wordCount / 230)),
   };
 }
+
+const STOPWORDS = new Set(
+  'a about above after again against all am an and any are as at be because been before being below between both but by can did do does doing down during each few for from further had has have having he her here hers herself him himself his how i if in into is it its itself just me more most my myself no nor not now of off on once only or other our ours ourselves out over own same she should so some such than that the their theirs them themselves then there these they this those through to too under until up very was we were what when where which while who whom why will with you your yours yourself yourselves'.split(' '),
+);
+
+// Top single words and phrases with their share of total words.
+export function keywordDensity(text, { minLength = 3, ignoreStopwords = true, top = 20 } = {}) {
+  const tokens = text.toLowerCase().match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) || [];
+  const total = tokens.length;
+  const keep = (w) => w.length >= minLength && !(ignoreStopwords && STOPWORDS.has(w)) && !/^\d+$/.test(w);
+  const count = (n) => {
+    const m = new Map();
+    for (let i = 0; i + n <= tokens.length; i++) {
+      const gram = tokens.slice(i, i + n);
+      // Phrases may contain stopwords in the middle ("return on investment") but not at the ends.
+      if (!keep(gram[0]) || !keep(gram[n - 1])) continue;
+      const k = gram.join(' ');
+      m.set(k, (m.get(k) || 0) + 1);
+    }
+    return [...m]
+      .filter(([, c]) => n === 1 || c > 1)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, top)
+      .map(([phrase, c]) => ({ phrase, count: c, density: total ? (100 * c * n) / total : 0 }));
+  };
+  return { total, single: count(1), double: count(2), triple: count(3) };
+}

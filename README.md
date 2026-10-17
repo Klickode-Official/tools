@@ -1,81 +1,107 @@
 # Klickode Tools
 
-Free, private developer tools that run entirely in the browser. No sign-up, no uploads, no trackers.
+Free online tools that run entirely in the browser: images, JSON, regex, SEO and encoding.
+No sign-up, no uploads, no trackers. Each tool has its own search-optimised page at
+`/tools/<slug>/` and lives in its own folder, so it can be edited, marketed and reviewed on its own.
 
-This is Phase 1 of the roadmap: the **JSON/Data Toolkit** and the **Regex & Text Suite**, the two
-high-value, low-complexity opportunities. Both ship as a static site that costs nothing to host.
+## Tools (21)
 
-## Tools
+| Category | Tools |
+| --- | --- |
+| **Image tools** `/image-tools/` | Image Converter (JPG/PNG/WebP/AVIF), Image Compressor (with target KB), Image Resizer, EXIF & GPS Remover (lossless) |
+| **JSON & data** `/json-tools/` | JSON Formatter & Validator, JSON Diff, CSV → JSON, JSON → CSV, JSON Schema Generator |
+| **SEO tools** `/seo-tools/` | Meta Tag Analyzer, SERP Snippet Preview, robots.txt Tester, Keyword Density Checker |
+| **Regex & text** `/text-tools/` | Regex Tester, Text Diff, Case Converter & Word Counter |
+| **Encoding & IDs** `/encoding-tools/` | Base64, URL Encoder, JWT Decoder, UUID Generator, Unix Timestamp Converter |
 
-| Category | Tool | Path |
-| --- | --- | --- |
-| JSON & Data | JSON Formatter & Validator (exact line/column errors, sort keys, minify) | `/tools/json-formatter/` |
-| | JSON Diff (structural, reports JSONPath of each change) | `/tools/json-diff/` |
-| | CSV → JSON (RFC 4180, type detection, safe for big integer IDs) | `/tools/csv-to-json/` |
-| | JSON → CSV (flattens nested objects to dot-notation columns) | `/tools/json-to-csv/` |
-| | JSON Schema Generator (draft 2020-12, merges array items, detects formats) | `/tools/json-schema-generator/` |
-| Regex & Text | Regex Tester (live highlight, groups, replace, runaway-pattern timeout) | `/tools/regex-tester/` |
-| | Text Diff (line-based LCS) | `/tools/text-diff/` |
-| | Case Converter & Word Counter | `/tools/case-converter/` |
-| Encoding & IDs | Base64 / Base64URL (UTF-8 safe) | `/tools/base64/` |
-| | URL Encoder / Decoder (+ query-param table) | `/tools/url-encoder/` |
-| | JWT Decoder (iat/nbf/exp, expiry status; input never persisted) | `/tools/jwt-decoder/` |
-| | UUID Generator (v4, v7) & Validator | `/tools/uuid-generator/` |
-| | Unix Timestamp Converter (s/ms/µs/ns auto-detect) | `/tools/timestamp-converter/` |
+## Project layout
 
-## Privacy by design
+```
+tools/
+  image-converter/
+    tool.mjs        ← page copy + SEO: title, description, how-to, FAQ, category, order
+    script.js       ← what the page does
+    og.png          ← social preview card (generated)
+  json-formatter/
+    …               ← one folder per tool, same shape
+assets/
+  js/lib/           ← pure logic shared by tools, unit-tested in Node
+  js/shared/        ← page code shared by several tools (image tools, CSV↔JSON, SERP width)
+  js/ui.js          ← copy/download/persist/share helpers, theme toggle
+  css/style.css     ← Klickode design system (colour tokens, light + dark)
+  fonts/            ← Inter + JetBrains Mono, self-hosted (OFL)
+  brand/            ← logo mark, default social card, touch icon
+scripts/
+  build.mjs         ← finds every tools/*/tool.mjs and renders the site to dist/
+  layout.mjs        ← shared <head>, header, footer
+  categories.mjs    ← category names, URLs and SEO copy
+  new-tool.mjs      ← scaffolds a new tool folder
+  og-images.mjs     ← renders the social cards
+tests/              ← node:test suites for assets/js/lib
+```
 
-- All processing is client-side JavaScript. The pages make no network requests beyond their own static assets.
-- The regex tester runs patterns in a Web Worker and kills it after 1.5s, so catastrophic backtracking can't freeze the tab.
-- Share links put state in the URL **fragment** (`#s=…`), which browsers never send to the server.
-- Inputs are remembered in `localStorage` for convenience, except in the JWT decoder, because tokens are credentials.
-- `netlify.toml` / `vercel.json` set a strict Content-Security-Policy (`connect-src 'self'`) so even a compromised script can't send data anywhere else.
+The build discovers tools automatically: there's no central list to edit. A tool's folder name is its URL.
+
+## What every tool page gets for SEO
+
+- Its own URL (`/tools/<slug>/`), `<title>`, meta description and canonical link
+- Breadcrumbs (`Tools / Image tools / Image Converter`) plus `BreadcrumbList` structured data
+- `WebApplication` structured data (free offer) and `FAQPage` structured data built from the tool's `faq`
+- A branded 1200×630 Open Graph / Twitter card (`tools/<slug>/og.png`)
+- Indexable how-to copy and an FAQ below the tool, and links to related tools in the same category
+- A category hub page (`/image-tools/` etc.) linking all tools in that category, plus sitemap.xml
+- Build-time warnings when a title or description is too long for Google to show in full
+
+## Adding a tool
+
+```sh
+npm run new-tool -- color-picker images   # creates tools/color-picker/{tool.mjs,script.js}
+# edit the two files, add logic to assets/js/lib/ with a test if it's non-trivial
+npm test && npm run build
+npm run og -- color-picker                 # render its social card (needs Playwright, see below)
+```
+
+Categories are `images`, `json`, `seo`, `text` and `encoding` (see `scripts/categories.mjs` to add more).
 
 ## Development
 
-Requires Node 20+. There are no dependencies.
+Requires Node 20+. The site itself has no dependencies.
 
 ```sh
-npm test                                   # unit tests for every lib module (node:test)
-SITE_URL=https://your.domain npm run build # generate dist/
+npm test                                   # unit tests
+SITE_URL=https://tools.klickode.com npm run build   # → dist/ (use your real domain)
 npx serve dist                             # preview locally
 ```
 
-`SITE_URL` enables canonical links, `og:url` and `sitemap.xml`. Set it in your host's environment variables.
+`SITE_URL` enables canonical links, absolute `og:image` URLs and `sitemap.xml`. Set it in your host's environment variables.
 
-### Layout
+Social cards: `npm i -D playwright && npx playwright install chromium && npm run og`, then commit the PNGs.
 
-```
-assets/js/lib/     Pure, DOM-free logic (tested in Node): json, csv, diff, schema, regex, encode, jwt, uuid, time, text
-assets/js/pages/   One module per tool page that wires the lib to the DOM
-assets/js/ui.js    Shared helpers: theme, copy, download, persistence, share links
-scripts/tools.mjs  Tool registry: markup, SEO title/description and FAQ copy for each page
-scripts/build.mjs  Static site generator → dist/ (pages, home, privacy, terms, 404, sitemap, robots)
-tests/             node:test suites
-```
+## Privacy by design
 
-### Adding a tool
-
-1. Put the logic in `assets/js/lib/<name>.js` and add tests in `tests/`.
-2. Add an entry to `scripts/tools.mjs` (slug, category, name, title, description, short, body, content).
-3. Create `assets/js/pages/<slug>.js` (or set `script` to share one, as CSV↔JSON does).
-4. `npm test && npm run build`.
+- All processing is client-side. Pages make no requests beyond their own static files; fonts are self-hosted rather than loaded from Google Fonts.
+- Image tools decode and encode on a canvas in the tab. The EXIF remover cuts metadata out of JPG/PNG/WebP files without touching the pixel data.
+- The regex tester runs patterns in a Web Worker and stops it after 1.5s, so a runaway pattern can't freeze the tab.
+- Share links keep state in the URL fragment (`#s=…`), which browsers never send to the server.
+- Text inputs are remembered in `localStorage`, except in the JWT decoder (tokens are credentials). Images are never stored.
+- `netlify.toml` / `vercel.json` set a strict Content-Security-Policy (`connect-src 'self'`).
 
 ## Deploying (free tiers)
 
-- **Netlify**: import the repo; `netlify.toml` already sets the build command, publish dir and security headers.
+- **Netlify**: import the repo; `netlify.toml` sets the build command, publish dir and security headers.
 - **Vercel**: import the repo; `vercel.json` does the same.
-- **Cloudflare Pages / GitHub Pages**: build command `npm run build`, output directory `dist`. Add the CSP from `netlify.toml` as a `_headers` file on Cloudflare.
+- **Cloudflare Pages**: build command `npm run build`, output `dist`; copy the CSP from `netlify.toml` into a `_headers` file.
 
 ## Roadmap
 
-- [x] Phase 1: JSON/Data toolkit + Regex & Text suite (static, client-side)
-- [ ] Privacy-respecting, cookieless analytics to see which tools to invest in
-- [ ] SEO content: one how-to article per tool (e.g. "Debugging JWTs", "Regex for email validation")
-- [ ] YAML ↔ JSON, XML formatter, SQL formatter, JSONPath query tester
-- [ ] Mermaid diagram editor, GraphQL/API playground
-- [ ] Code playground and AI code explainer (these need a backend, so they come later)
+- [x] JSON/data toolkit, regex & text suite, encoding tools
+- [x] Image converter, compressor, resizer, EXIF remover (client-side, batch, ZIP)
+- [x] On-page SEO tools (meta tags, SERP preview, robots.txt, keyword density)
+- [ ] Cookieless analytics to see which tools to invest in
+- [ ] QR code generator, PDF merge/compress (pdf-lib, in-browser), YAML ↔ JSON, SQL/CSS formatter
+- [ ] In-browser background remover (ONNX model, cached after first load)
+- [ ] URL-based SEO audit (needs a small fetch proxy) and AI tools (need a backend)
 
 ## License
 
-MIT
+MIT. Fonts: Inter and JetBrains Mono under the SIL Open Font License (see `assets/fonts/`).

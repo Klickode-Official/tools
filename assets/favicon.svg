@@ -1,1 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#3d5afe"/><path d="M12 10l-6 6 6 6M20 10l6 6-6 6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  
+  <svg x="0" y="0" width="1024" height="1024" viewBox="45 45 1160 1160">
+  <!-- Klickode mark: red rounded square with the running click cursor. Single source for the site logo, favicon and brand kit (scripts/generate-brand-assets.mjs). -->
+  <rect x="45" y="45" width="1160" height="1160" rx="240" fill="#E03131"/>
+  <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
+    <!-- click burst -->
+    <path d="M268 222 L336 280" stroke-width="36"/>
+    <path d="M392 182 L389 256" stroke-width="36"/>
+    <path d="M230 340 L318 330" stroke-width="36"/>
+    <!-- speed lines -->
+    <path d="M170 770 C 215 715, 290 668, 356 643" stroke-width="12"/>
+    <path d="M164 876 C 195 835, 240 795, 290 770" stroke-width="12"/>
+    <!-- arms -->
+    <path d="M452 652 C 405 668, 378 700, 372 742" stroke-width="44"/>
+    <path d="M880 632 C 925 615, 955 585, 975 548" stroke-width="44"/>
+    <!-- legs -->
+    <path d="M540 862 C 545 900, 510 920, 470 910" stroke-width="44"/>
+    <path d="M850 830 C 870 840, 885 850, 895 865" stroke-width="44"/>
+  </g>
+  <g fill="#fff">
+    <!-- cursor body -->
+    <path d="M382 348 C 372 300, 425 272, 462 298 L 868 575 C 902 598, 900 640, 864 648 L 770 684 L 870 818 C 895 850, 880 900, 845 920 L 830 928 C 800 945, 770 935, 752 910 L 647 760 L 595 832 C 575 862, 540 872, 515 860 C 500 853, 494 840, 492 826 Z"/>
+    <!-- hands -->
+    <circle cx="978" cy="537" r="56"/>
+    <circle cx="378" cy="768" r="52"/>
+    <!-- feet -->
+    <ellipse cx="415" cy="925" rx="48" ry="72" transform="rotate(25 415 925)"/>
+    <ellipse cx="935" cy="895" rx="118" ry="68" transform="rotate(-42 935 895)"/>
+  </g>
+  <!-- face -->
+  <circle cx="578" cy="594" r="33" fill="#111"/>
+  <path d="M688 588 C 700 555, 730 540, 748 548" fill="none" stroke="#111" stroke-width="22" stroke-linecap="round"/>
+</svg>
+</svg>

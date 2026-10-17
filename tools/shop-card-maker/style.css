@@ -1,0 +1,70 @@
+/* Shop Card Maker editor. Card styles themselves live in card.js (they ship with the embed code). */
+.scm-platforms { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; margin-bottom: 18px; }
+.scm-platforms button { display: flex; align-items: center; gap: 9px; height: 46px; padding: 0 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; text-align: left; transition: border-color 0.15s, background 0.15s, box-shadow 0.15s; }
+.scm-platforms button:hover { border-color: var(--faint); }
+.scm-platforms button[aria-checked='true'] { border-color: var(--red); box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 14%, transparent); background: color-mix(in srgb, var(--red) 4%, var(--surface)); }
+.pf-logo { display: inline-grid; place-items: center; width: 24px; height: 24px; flex: none; overflow: hidden; }
+.pf-logo.wide { width: 28px; }
+.pf-chip { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-weight: 800; font-size: 14px; line-height: 1; }
+:root[data-theme='dark'] .pf-logo svg path[fill='#000000'] { fill: #fff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .pf-logo svg path[fill='#000000'] { fill: #fff; } }
+
+.scm-stage { border: 1px solid var(--border-strong); border-radius: 14px; overflow: clip; margin-bottom: 18px; }
+.scm-stage-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 10px; border-bottom: 1px solid var(--border); background: var(--bar); }
+.scm-canvas { padding: 32px 24px; min-height: 280px; display: grid; place-items: center; overflow-x: auto;
+  background: var(--surface) radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 1.4px) 0 0 / 18px 18px; }
+.scm-frame { width: 100%; max-width: 1180px; transition: max-width 0.25s ease; display: flex; justify-content: center; }
+.scm-frame > .ksc-l-banner { width: 100%; }
+.scm-frame.mobile { max-width: 390px; }
+.scm-frame.mobile .ksc-l-banner { padding: 24px; gap: 24px; }
+.scm-frame.mobile .ksc-title { font-size: 30px; }
+.scm-frame.mobile .ksc-side { min-width: 0; }
+
+.seg { display: inline-flex; padding: 3px; gap: 2px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); flex-wrap: wrap; }
+.seg button { border: 0; background: none; color: var(--muted); font: inherit; font-size: 13.5px; font-weight: 500; height: 32px; padding: 0 14px; border-radius: 7px; cursor: pointer; }
+.seg button:hover { color: var(--text); }
+.seg button[aria-pressed='true'] { background: var(--text); color: var(--bg); }
+
+.scm-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; }
+.scm-tabs::-webkit-scrollbar { display: none; }
+.scm-tabs button { border: 0; background: none; font: inherit; font-size: 14.5px; font-weight: 500; color: var(--muted); padding: 10px 14px; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; white-space: nowrap; }
+.scm-tabs button:hover { color: var(--text); }
+.scm-tabs button[aria-selected='true'] { color: var(--text); border-bottom-color: var(--red); }
+
+.scm-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px 18px; align-items: start; }
+.fld { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.fld.wide { grid-column: 1 / -1; }
+.fld > span:first-child { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.fld > span em { font-style: normal; font-weight: 400; color: var(--faint); font-size: 12.5px; }
+.fld input[type='text'], .fld select { width: 100%; }
+.fld textarea { min-height: 0; font-family: var(--sans); font-size: 14px; padding: 9px 12px; resize: vertical; }
+.fld input[type='range'] { width: 100%; height: 38px; }
+.fld-note { font-size: 13px; color: var(--muted); margin: -6px 0 0; word-break: break-all; }
+.fld-note.wide { grid-column: 1 / -1; }
+.stat-rows { display: grid; grid-template-columns: 90px 1fr; gap: 6px; }
+.checks { display: flex; flex-wrap: wrap; gap: 8px; }
+.checks label { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 13.5px; color: var(--muted); cursor: pointer; }
+.checks label:has(input:checked) { color: var(--text); border-color: color-mix(in srgb, var(--red) 40%, var(--border)); background: color-mix(in srgb, var(--red) 5%, var(--surface)); }
+.color-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.color-row input[type='color'] { width: 44px; height: 38px; }
+
+.scm-pics { display: flex; gap: 10px; flex-wrap: wrap; }
+.pic-slot { position: relative; width: 104px; height: 104px; border: 1.5px dashed var(--border-strong); border-radius: 12px; display: grid; place-items: center; text-align: center; font-size: 12.5px; color: var(--muted); cursor: pointer; background: var(--bar) center / cover no-repeat; transition: border-color 0.15s; }
+.pic-slot:hover, .pic-slot:focus-visible { border-color: var(--red); }
+.pic-slot.avatar { border-radius: 50%; }
+.pic-slot.filled { border-style: solid; border-color: var(--border); }
+.pic-slot.filled > span { display: none; }
+.pic-remove { position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 15px; line-height: 1; cursor: pointer; display: none; }
+.pic-slot.filled .pic-remove { display: grid; place-items: center; }
+
+#code { min-height: 380px; font-size: 12px; }
+.scm-export h2:first-child { margin-top: 0; }
+.scm-export .toolbar { margin-bottom: 12px; }
+.paste-list { padding-left: 18px; margin: 0; font-size: 14px; color: var(--muted); }
+.paste-list li { margin: 4px 0; }
+.paste-list strong { color: var(--text); }
+
+@media (max-width: 760px) {
+  .scm-canvas { padding: 18px 10px; }
+  .scm-platforms { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+}

@@ -1,6 +1,7 @@
 // Static site generator. Every folder in tools/ becomes its own page at /tools/<slug>/:
 //   tools/<slug>/tool.mjs   page copy + SEO metadata (required)
 //   tools/<slug>/script.js  page behaviour (required)
+//   tools/<slug>/style.css  extra styles for this tool's page only (optional)
 //   tools/<slug>/icon.svg   24×24 line icon, stroked with currentColor (optional; falls back to the category icon)
 //   tools/<slug>/og.png     1200×630 social preview (optional, `npm run og` makes them)
 //   tools/<slug>/*          anything else (workers, images) is copied alongside
@@ -38,7 +39,7 @@ export async function loadTools() {
     if (t.description.length > 165) warnings.push(`${dir}: description is ${t.description.length} chars; Google shows about 160`);
     const iconFile = join(root, 'tools', dir, 'icon.svg');
     const icon = (await exists(iconFile)) ? (await readFile(iconFile, 'utf8')).trim() : null;
-    tools.push({ ...t, fullTitle, icon, hasOg: await exists(join(root, 'tools', dir, 'og.png')) });
+    tools.push({ ...t, fullTitle, icon, hasCss: await exists(join(root, 'tools', dir, 'style.css')), hasOg: await exists(join(root, 'tools', dir, 'og.png')) });
   }
   return tools.sort((a, b) => (a.order ?? 99) - (b.order ?? 99) || a.name.localeCompare(b.name));
 }
@@ -102,6 +103,7 @@ for (const t of tools) {
       active: `/${cat.slug}/`,
       ogImage: t.hasOg ? `${path}og.png` : undefined,
       scripts: [`${path}script.js`],
+      styles: t.hasCss ? [`${path}style.css`] : [],
       bodyAttrs: Object.entries(t.data || {}).map(([k, v]) => ` data-${k}="${esc(v)}"`).join(''),
       jsonLd: { '@context': 'https://schema.org', '@graph': graph },
       body: `${breadcrumbs([['/', 'Tools'], [`/${cat.slug}/`, cat.name], [path, t.name]])}

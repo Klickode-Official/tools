@@ -2,6 +2,14 @@
 // its tools together, which helps both visitors and search engines.
 export const categories = [
   {
+    id: 'business',
+    icon: '<path d="M3 10.5 4.6 4h14.8l1.6 6.5"/><path d="M3 10.5a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M5 12.5V20h14v-7.5"/><path d="M10 20v-4.5h4V20"/>',
+    slug: 'business-tools',
+    name: 'Business & social',
+    title: 'Free Tools for Small Businesses and Social Media',
+    description: 'Make shop cards, buttons and social images that send people to your Etsy, TikTok, WhatsApp, Shopee or Instagram page. Free, no account needed.',
+  },
+  {
     id: 'images',
     icon: '<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.6"/><path d="m21 15-5-5L5 21"/>',
     slug: 'image-tools',

@@ -4,10 +4,11 @@ Free online tools that run entirely in the browser: images, JSON, regex, SEO and
 No sign-up, no uploads, no trackers. Each tool has its own search-optimised page at
 `/tools/<slug>/` and lives in its own folder, so it can be edited, marketed and reviewed on its own.
 
-## Tools (21)
+## Tools (22)
 
 | Category | Tools |
 | --- | --- |
+| **Business & social** `/business-tools/` | Shop Card Maker: “find us on Etsy / TikTok / WhatsApp / Shopee…” banners, cards and buttons for 14 platforms, as embed code or a PNG for social media |
 | **Image tools** `/image-tools/` | Image Converter (JPG/PNG/WebP/AVIF), Image Compressor (with target KB), Image Resizer, EXIF & GPS Remover (lossless) |
 | **JSON & data** `/json-tools/` | JSON Formatter & Validator, JSON Diff, CSV → JSON, JSON → CSV, JSON Schema Generator |
 | **SEO tools** `/seo-tools/` | Meta Tag Analyzer, SERP Snippet Preview, robots.txt Tester, Keyword Density Checker |
@@ -22,6 +23,8 @@ tools/
     tool.mjs        ← page copy + SEO: title, description, how-to, FAQ, category, order
     script.js       ← what the page does
     icon.svg        ← the tool's own 24×24 line icon (falls back to the category icon)
+    style.css       ← optional styles for this tool's page only
+    *.js            ← any other modules or workers the tool needs, copied alongside
     og.png          ← social preview card (generated)
   json-formatter/
     …               ← one folder per tool, same shape
@@ -67,7 +70,7 @@ npm test && npm run build
 npm run og -- color-picker                 # render its social card (needs Playwright, see below)
 ```
 
-Categories are `images`, `json`, `seo`, `text` and `encoding` (see `scripts/categories.mjs` to add more).
+Categories are `business`, `images`, `json`, `seo`, `text` and `encoding` (see `scripts/categories.mjs` to add more).
 
 ## Development
 
@@ -107,6 +110,10 @@ Social cards: `npm i -D playwright && npx playwright install chromium && npm run
 - [ ] QR code generator, PDF merge/compress (pdf-lib, in-browser), YAML ↔ JSON, SQL/CSS formatter
 - [ ] In-browser background remover (ONNX model, cached after first load)
 - [ ] URL-based SEO audit (needs a small fetch proxy) and AI tools (need a backend)
+
+## Brand logos
+
+The Shop Card Maker uses platform logos from [Simple Icons](https://simpleicons.org) (CC0 data, v16.35.0), stored in `tools/shop-card-maker/logos.js`. The logos remain trademarks of their owners and are only offered for linking to the user's own page on that platform. Amazon and Lazada aren't in Simple Icons, so their cards use a text label. To refresh the logos, regenerate `logos.js` from a newer `simple-icons` package.
 
 ## License
 

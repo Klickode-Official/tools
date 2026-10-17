@@ -7,6 +7,7 @@ export const REPO_URL = 'https://github.com/faiqworkstudio/klickode-tools';
 export const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const NAV = [
+  ['/business-tools/', 'Business'],
   ['/image-tools/', 'Images'],
   ['/json-tools/', 'JSON'],
   ['/seo-tools/', 'SEO'],
@@ -16,7 +17,7 @@ const NAV = [
 
 const THEME_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg>';
 
-export function layout({ siteUrl, path, title, description, body, scripts = [], bodyAttrs = '', jsonLd, ogImage = '/assets/brand/og.png', active = '' }) {
+export function layout({ siteUrl, path, title, description, body, scripts = [], styles = [], bodyAttrs = '', jsonLd, ogImage = '/assets/brand/og.png', active = '' }) {
   const abs = (p) => (siteUrl ? `${siteUrl}${p}` : p);
   return `<!doctype html>
 <html lang="en">
@@ -40,7 +41,7 @@ export function layout({ siteUrl, path, title, description, body, scripts = [], 
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
   <link rel="preload" href="/assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/css/style.css">
-  <script>try{var t=localStorage.getItem('kt-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+${styles.map((h) => `  <link rel="stylesheet" href="${h}">\n`).join('')}  <script>try{var t=localStorage.getItem('kt-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
   ${jsonLd ? `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, '\\u003c')}</script>` : ''}
 </head>
 <body${bodyAttrs}>

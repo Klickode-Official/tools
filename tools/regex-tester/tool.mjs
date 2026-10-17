@@ -9,11 +9,11 @@ export default {
   description: 'Type a regular expression and see what it matches as you go, with capture groups and a replace preview. Uses the same JavaScript engine as your code.',
   // One line for the tool cards on the home and category pages.
   short: 'Try a regex and see what it matches.',
-  body: `<div class="toolbar" style="flex-wrap:nowrap">
-  <span class="mono" aria-hidden="true">/</span>
-  <input type="text" id="pattern" class="mono" style="flex:1;min-width:0" spellcheck="false" placeholder="pattern" aria-label="Regular expression">
-  <span class="mono" aria-hidden="true">/</span>
-  <input type="text" id="flags" class="mono" style="width:5.5em" spellcheck="false" value="g" aria-label="Flags">
+  body: `<div class="regex-field">
+  <span class="slash" aria-hidden="true">/</span>
+  <input type="text" id="pattern" class="mono" spellcheck="false" placeholder="your pattern here" aria-label="Regular expression">
+  <span class="slash" aria-hidden="true">/</span>
+  <input type="text" id="flags" class="mono flags" spellcheck="false" value="g" aria-label="Flags">
 </div>
 <p class="hint">Flags: <code>g</code> global · <code>i</code> ignore case · <code>m</code> multiline · <code>s</code> dotAll · <code>u</code> unicode · <code>y</code> sticky</p>
 <div class="toolbar">

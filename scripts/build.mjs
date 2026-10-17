@@ -108,10 +108,15 @@ for (const t of tools) {
 <header class="page-head">
   <div class="title-row"><span class="tool-icon lg">${toolIcon(t, cat, 24)}</span><h1>${esc(t.name)}</h1></div>
   <p class="lede">${esc(t.description)}</p>
-  <ul class="pills"><li>Runs in your browser</li><li>No sign-up</li></ul>
 </header>
 <section class="tool" aria-label="${esc(t.name)}">
+  <div class="tool-bar">
+    <span class="tool-bar-name">${toolIcon(t, cat, 16)}${esc(t.name)}</span>
+    <span class="tool-bar-note"><span class="live-dot" aria-hidden="true"></span>Runs locally · No sign-up</span>
+  </div>
+  <div class="tool-body">
 ${t.body}
+  </div>
 </section>
 <section class="content">
 ${t.content || ''}

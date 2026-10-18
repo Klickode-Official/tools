@@ -136,9 +136,9 @@ export function resolveTheme(state) {
 }
 
 const FONTS = {
-  sans: "Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+  sans: "Inter, 'Noto Sans Thai', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
   serif: "'Cormorant Garamond', 'Playfair Display', Georgia, 'Times New Roman', serif",
-  rounded: "ui-rounded, 'SF Pro Rounded', Nunito, 'Varela Round', Inter, system-ui, sans-serif",
+  rounded: "ui-rounded, 'SF Pro Rounded', Nunito, 'Varela Round', Inter, 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
 };
 

@@ -16,5 +16,7 @@ Third-party components keep their own licences:
   see assets/fonts/LICENSE-Inter.txt
 - JetBrains Mono (assets/fonts/jetbrains-mono-*.woff2): SIL Open Font License 1.1,
   see assets/fonts/LICENSE-JetBrainsMono.txt
+- Noto Sans Thai (assets/fonts/noto-sans-thai-*.woff2): SIL Open Font License 1.1,
+  see assets/fonts/LICENSE-NotoSansThai.txt
 - Brand logo paths in tools/shop-card-maker/logos.js: from Simple Icons
   (https://simpleicons.org), CC0 1.0. The logos remain trademarks of their owners.

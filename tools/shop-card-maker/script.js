@@ -398,6 +398,7 @@ function fontCss() {
     [
       ['Inter', '100 900', '/assets/fonts/inter-latin-wght-normal.woff2'],
       ['JetBrains Mono', '100 800', '/assets/fonts/jetbrains-mono-latin-wght-normal.woff2'],
+      ['Noto Sans Thai', '100 900', '/assets/fonts/noto-sans-thai-thai-wght-normal.woff2'],
     ].map(async ([family, weight, href]) => {
       const blob = await (await fetch(href)).blob();
       const data = await new Promise((res) => {

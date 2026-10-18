@@ -1,4 +1,4 @@
-import { $, persist, setStatus, download, copyText, toast, debounce } from '/assets/js/ui.js';
+import { $, persist, setStatus, download, copyText, toast, debounce, t } from '/assets/js/ui.js';
 import { encodeQr } from '/assets/js/lib/qr.js';
 import { qrArt } from '/assets/js/lib/qr-art.js';
 import { promptPayPayload, parseTarget, validThaiId } from '/assets/js/lib/promptpay.js';
@@ -17,12 +17,12 @@ const detect = $('#detect');
 persist(target, amount, shop, account, accent, mask);
 
 const COLOURS = [
-  ['#0f3b62', 'Navy'],
-  ['#0f766e', 'Teal'],
-  ['#15803d', 'Green'],
-  ['#e03131', 'Red'],
-  ['#6d28d9', 'Purple'],
-  ['#18181b', 'Black'],
+  ['#0f3b62', t('Navy')],
+  ['#0f766e', t('Teal')],
+  ['#15803d', t('Green')],
+  ['#e03131', t('Red')],
+  ['#6d28d9', t('Purple')],
+  ['#18181b', t('Black')],
 ];
 const colours = $('#colours');
 colours.innerHTML = COLOURS.map(([c, name]) => `<button type="button" role="radio" data-c="${c}" aria-label="${name}" title="${name}" style="--c:${c}"></button>`).join('');
@@ -53,7 +53,7 @@ function displayNumber(t, hide) {
 function parseAmount() {
   const raw = amount.value.replace(/[,\s฿]/g, '');
   if (!raw) return { value: undefined };
-  if (!/^\d+(\.\d{1,2})?$/.test(raw) || Number(raw) <= 0) return { error: 'Type the amount as a number, like 350 or 99.50' };
+  if (!/^\d+(\.\d{1,2})?$/.test(raw) || Number(raw) <= 0) return { error: t('Type the amount as a number, like 350 or 99.50') };
   return { value: Number(raw) };
 }
 
@@ -94,7 +94,7 @@ async function drawCard() {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
   ctx.font = font(800, 76);
-  ctx.fillText(shop.value.trim() || 'Scan to pay', W / 2, 150, W - 120);
+  ctx.fillText(shop.value.trim() || t('Scan to pay'), W / 2, 150, W - 120);
   ctx.font = font(500, 38);
   ctx.globalAlpha = 0.85;
   ctx.fillText('PromptPay · สแกนจ่ายด้วยแอปธนาคาร', W / 2, 222, W - 120);
@@ -118,7 +118,7 @@ async function drawCard() {
     ctx.fill();
     ctx.fillStyle = '#94a3b8';
     ctx.font = font(500, 36);
-    ctx.fillText('Your QR code appears here', W / 2, ty + 40 + QR / 2);
+    ctx.fillText(t('Your QR code appears here'), W / 2, ty + 40 + QR / 2);
   }
 
   // Amount
@@ -131,7 +131,7 @@ async function drawCard() {
   } else {
     ctx.font = font(600, 44);
     ctx.fillStyle = '#475569';
-    ctx.fillText('Type the amount in your banking app', W / 2, y - 24);
+    ctx.fillText(t('Type the amount in your banking app'), W / 2, y - 24);
   }
 
   // Account details
@@ -152,24 +152,24 @@ async function drawCard() {
 }
 
 async function render() {
-  const t = parseTarget(target.value);
+  const tg = parseTarget(target.value);
   const amt = parseAmount();
   state = null;
   if (!target.value.trim()) {
     detect.textContent = '';
     setStatus(status, '');
-  } else if (!t) {
+  } else if (!tg) {
     detect.textContent = '';
-    setStatus(status, 'That doesn’t look like a PromptPay number. Use a 10-digit mobile number, a 13-digit ID or tax number, or a 15-digit e-wallet ID.', false);
+    setStatus(status, t('That doesn’t look like a PromptPay number. Use a 10-digit mobile number, a 13-digit ID or tax number, or a 15-digit e-wallet ID.'), false);
   } else if (amt.error) {
     setStatus(status, amt.error, false);
   } else {
-    const label = { phone: `Mobile number ${displayNumber(t, false)}`, id: 'Citizen ID or tax number', ewallet: 'e-Wallet ID' }[t.type];
+    const label = { phone: t('Mobile number {n}', { n: displayNumber(tg, false) }), id: t('Citizen ID or tax number'), ewallet: t('e-Wallet ID') }[tg.type];
     detect.textContent = `✓ ${label}`;
     const payload = promptPayPayload(target.value, { amount: amt.value });
-    state = { payload, target: t, qr: encodeQr(payload, { ecl: 'M', boostEcl: true }) };
-    if (t.type === 'id' && !validThaiId(t.value)) setStatus(status, 'The last digit of that ID doesn’t check out. Look for a typo, then test the code with your banking app.', false);
-    else setStatus(status, amt.value ? 'Customers will see this amount filled in.' : 'Customers type the amount themselves.', true);
+    state = { payload, target: tg, qr: encodeQr(payload, { ecl: 'M', boostEcl: true }) };
+    if (tg.type === 'id' && !validThaiId(tg.value)) setStatus(status, t('The last digit of that ID doesn’t check out. Look for a typo, then test the code with your banking app.'), false);
+    else setStatus(status, amt.value ? t('Customers will see this amount filled in.') : t('Customers type the amount themselves.'), true);
   }
   const key = state?.payload ?? '';
   if (key !== qrKey) {
@@ -185,7 +185,7 @@ async function render() {
       if (qrKey !== key) return; // a newer render took over while the image loaded
     }
   }
-  await document.fonts?.load(font(800, 76)).catch(() => {});
+  await Promise.all([font(800, 76), font(500, 38)].map((f) => document.fonts?.load(f, 'Aก฿'))).catch(() => {});
   drawCard();
 }
 const renderSoon = debounce(render, 80);
@@ -194,7 +194,7 @@ document.querySelector('.ppq-form').addEventListener('change', renderSoon);
 
 async function ready() {
   await render();
-  if (!state) toast('Type a PromptPay number first');
+  if (!state) toast(t('Type a PromptPay number first'));
   return state;
 }
 

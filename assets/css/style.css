@@ -17,6 +17,15 @@
   src: url('/assets/fonts/inter-latin-ext-wght-normal.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+/* Thai letters. Inter has none, so Thai text uses Noto Sans Thai (latin is still Inter). */
+@font-face {
+  font-family: 'Noto Sans Thai';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/assets/fonts/noto-sans-thai-thai-wght-normal.woff2') format('woff2');
+  unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC;
+}
 @font-face {
   font-family: 'JetBrains Mono';
   font-style: normal;
@@ -812,3 +821,22 @@ textarea.drop-over { outline: 2px dashed var(--red); outline-offset: -6px; backg
   .tool-card:is(:hover, :focus-visible) .pv-swatches i:nth-child(3) { animation-delay: 0.12s; }
   .tool-card:is(:hover, :focus-visible) .pv-swatches i:nth-child(4) { animation-delay: 0.18s; }
 }
+
+/* --- language switch, notices, studio box ------------------------------------------------- */
+.lang-btn { display: inline-grid; place-items: center; min-width: 36px; height: 36px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--border); background: color-mix(in srgb, var(--mist) 55%, transparent); color: var(--text); text-decoration: none; font-size: 13px; font-weight: 600; }
+.lang-btn:hover { background: var(--mist); }
+.notice { position: fixed; left: 16px; bottom: 16px; z-index: 20; display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 32px); padding: 10px 10px 10px 16px; border-radius: 14px; background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); box-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.35); font-size: 14px; animation: palette-in 0.2s ease-out; }
+.notice-x { width: 30px; height: 30px; border: 0; border-radius: 50%; background: none; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; }
+.notice-x:hover { background: var(--mist); color: var(--text); }
+.studio-cta { display: flex; align-items: center; justify-content: space-between; gap: 18px 32px; flex-wrap: wrap; margin-top: 56px; padding: 26px 28px; border-radius: 18px; border: 1px solid color-mix(in srgb, var(--red) 22%, var(--border)); background: radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--red) 10%, transparent), transparent 60%), var(--surface); }
+.studio-cta h2 { margin: 0 0 6px; font-size: 19px; }
+.studio-cta p { margin: 0; color: var(--muted); max-width: 60ch; }
+.studio-cta .btn { flex: none; text-decoration: none; }
+
+/* Thai reads better with more line height and no negative letter spacing. */
+:lang(th) body, :lang(th) .lede, :lang(th) .content p, :lang(th) .content li { line-height: 1.75; }
+:lang(th) h1, :lang(th) h2, :lang(th) h3, :lang(th) .brand-name ~ *, :lang(th) .site-header nav a { letter-spacing: 0; }
+:lang(th) .site-header nav a { text-transform: none; font-size: 13.5px; }
+:lang(th) .hero h1 { line-height: 1.25; }
+/* Monospace labels have wide tracking; Thai falls back to the sans font there and needs none. */
+:lang(th) :is(.eyebrow, .crumbs ol, .tool-bar-name, .tool-bar-note, .footer-col h2, .panel-head label, .panel-head .label, .label) { letter-spacing: 0; font-family: var(--sans); text-transform: none; }

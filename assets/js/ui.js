@@ -3,6 +3,23 @@ import { base64Encode, base64Decode, htmlEscape } from './lib/encode.js';
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 
+// --- language ---------------------------------------------------------------------------------
+// Thai pages carry their translations in <script id="kt-strings">. t('Copied {n} rows', { n: 3 })
+// returns the Thai text when there is one, otherwise the English it was given.
+export const lang = document.documentElement.lang || 'en';
+let strings = {};
+try {
+  strings = JSON.parse(document.getElementById('kt-strings')?.textContent || '{}');
+} catch {
+  strings = {};
+}
+export function t(text, vars) {
+  const out = strings[text] ?? text;
+  return vars ? out.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m)) : out;
+}
+// Where a tool lives in this page's language.
+export const toolHref = (slug) => (lang === 'th' ? `/th/tools/${slug}/` : `/tools/${slug}/`);
+
 const storage = {
   get(key) {
     try {
@@ -61,7 +78,7 @@ export async function copyText(text) {
     document.execCommand('copy');
     ta.remove();
   }
-  toast('Copied to clipboard');
+  toast(t('Copied to clipboard'));
 }
 
 export function download(filename, text, type = 'text/plain') {
@@ -112,11 +129,11 @@ export function persist(...elements) {
 export function shareLink(state) {
   const url = `${location.origin}${location.pathname}#s=${base64Encode(JSON.stringify(state), { urlSafe: true })}`;
   if (url.length > 32000) {
-    toast('Input is too large to share as a link');
+    toast(t('Input is too large to share as a link'));
     return;
   }
   history.replaceState(null, '', url);
-  copyText(url).then(() => toast('Share link copied'));
+  copyText(url).then(() => toast(t('Share link copied')));
 }
 
 export function readShared() {
@@ -159,13 +176,13 @@ function signConsole() {
 // --- tool index: names and categories of every tool, written by the build ---------------
 let indexPromise;
 export function toolIndex() {
-  indexPromise ??= fetch('/assets/tools-index.json')
+  indexPromise ??= fetch(lang === 'th' ? '/assets/tools-index.th.json' : '/assets/tools-index.json')
     .then((r) => (r.ok ? r.json() : []))
     .catch(() => []);
   return indexPromise;
 }
 
-const currentSlug = (/^\/tools\/([\w-]+)\//.exec(location.pathname) || [])[1];
+const currentSlug = (/^(?:\/th)?\/tools\/([\w-]+)\//.exec(location.pathname) || [])[1];
 
 // --- recently used tools (shown on the home page) ----------------------------------------
 export function recentTools() {
@@ -190,9 +207,9 @@ function openPalette() {
     palette.setAttribute('aria-label', 'Find a tool');
     palette.innerHTML = `<div class="palette-box">
   <div class="palette-search"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-  <input type="text" placeholder="Find a tool…" aria-label="Find a tool" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="palette-list"><kbd>Esc</kbd></div>
+  <input type="text" placeholder="${t('Find a tool…')}" aria-label="${t('Find a tool')}" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="palette-list"><kbd>Esc</kbd></div>
   <ul class="palette-list" id="palette-list" role="listbox"></ul>
-  <p class="palette-foot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>Enter</kbd> open</span><span><kbd>${/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'}</kbd><kbd>Enter</kbd> runs a tool</span></p>
+  <p class="palette-foot"><span><kbd>↑</kbd><kbd>↓</kbd> ${t('move')}</span><span><kbd>Enter</kbd> ${t('open')}</span><span><kbd>${/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'}</kbd><kbd>Enter</kbd> ${t('runs a tool')}</span></p>
 </div>`;
     document.body.append(palette);
     const input = palette.querySelector('input');
@@ -211,12 +228,12 @@ function openPalette() {
       const words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
       const recent = recentTools();
       items = all
-        .filter((t) => words.every((w) => t.search.includes(w)))
+        .filter((x) => words.every((w) => x.search.includes(w)))
         .sort((a, b) => (words.length ? 0 : (recent.indexOf(a.slug) + 1 || 99) - (recent.indexOf(b.slug) + 1 || 99)));
       active = 0;
       list.innerHTML = items.length
-        ? items.map((t, i) => `<li id="pal-${i}" role="option"><a href="/tools/${t.slug}/" tabindex="-1"><strong>${htmlEscape(t.name)}</strong><span>${htmlEscape(t.short)}</span><em>${htmlEscape(t.cat)}</em></a></li>`).join('')
-        : '<li class="palette-empty">No tools match that.</li>';
+        ? items.map((x, i) => `<li id="pal-${i}" role="option"><a href="${x.href}" tabindex="-1"><strong>${htmlEscape(x.name)}</strong><span>${htmlEscape(x.short)}</span><em>${htmlEscape(x.cat)}</em></a></li>`).join('')
+        : `<li class="palette-empty">${t('No tools match that.')}</li>`;
       paint();
     };
     input.addEventListener('input', render);
@@ -227,7 +244,7 @@ function openPalette() {
         paint();
       } else if (e.key === 'Enter' && items[active]) {
         e.preventDefault();
-        location.href = `/tools/${items[active].slug}/`;
+        location.href = items[active].href;
       }
     });
     list.addEventListener('mousemove', (e) => {
@@ -303,11 +320,11 @@ function initTextDrop() {
     ta.classList.remove('drop-over');
     const file = e.dataTransfer.files[0];
     if (!file) return;
-    if (file.size > TEXT_LIMIT) return toast('That file is over 20 MB');
-    if (/^(image|video|audio)\//.test(file.type)) return toast('That box takes text files');
+    if (file.size > TEXT_LIMIT) return toast(t('That file is over 20 MB'));
+    if (/^(image|video|audio)\//.test(file.type)) return toast(t('That box takes text files'));
     ta.value = await file.text();
     ta.dispatchEvent(new Event('input', { bubbles: true }));
-    toast(`Loaded ${file.name}`);
+    toast(t('Loaded {name}', { name: file.name }));
   });
 }
 
@@ -321,7 +338,7 @@ function initSendTo() {
     if (!head) continue;
     const wrap = document.createElement('div');
     wrap.className = 'send-to';
-    wrap.innerHTML = `<button class="btn small" type="button" aria-haspopup="true" aria-expanded="false">Send to <span aria-hidden="true">▾</span></button><div class="send-menu" role="menu" hidden></div>`;
+    wrap.innerHTML = `<button class="btn small" type="button" aria-haspopup="true" aria-expanded="false">${t('Send to')} <span aria-hidden="true">▾</span></button><div class="send-menu" role="menu" hidden></div>`;
     const btn = wrap.firstElementChild;
     const menu = wrap.lastElementChild;
     (head.querySelector('[data-copy]') ?? head.lastElementChild)?.before(wrap);
@@ -332,9 +349,9 @@ function initSendTo() {
     toolIndex().then((all) => {
       const slugs = out.dataset.sendTo.split(',').map((s) => s.trim());
       menu.innerHTML = slugs
-        .map((s) => all.find((t) => t.slug === s))
+        .map((s) => all.find((x) => x.slug === s))
         .filter(Boolean)
-        .map((t) => `<button type="button" role="menuitem" data-slug="${t.slug}">${htmlEscape(t.name)}</button>`)
+        .map((x) => `<button type="button" role="menuitem" data-slug="${x.slug}">${htmlEscape(x.name)}</button>`)
         .join('');
     });
     btn.addEventListener('click', () => {
@@ -347,15 +364,15 @@ function initSendTo() {
       const text = 'value' in out && out.tagName !== 'PRE' ? out.value : out.textContent;
       if (!text.trim()) {
         close();
-        return toast('Nothing to send yet');
+        return toast(t('Nothing to send yet'));
       }
       try {
         sessionStorage.setItem(HANDOFF, JSON.stringify({ to: slug, text }));
       } catch {
         close();
-        return toast('Too large to send. Copy it instead.');
+        return toast(t('Too large to send. Copy it instead.'));
       }
-      location.href = `/tools/${slug}/`;
+      location.href = toolHref(slug);
     });
     document.addEventListener('click', (e) => !wrap.contains(e.target) && close());
     wrap.addEventListener('keydown', (e) => e.key === 'Escape' && (close(), btn.focus()));
@@ -379,14 +396,42 @@ function receiveHandoff() {
   setTimeout(() => {
     input.dispatchEvent(new Event('input', { bubbles: true }));
     document.querySelector('.tool-body .btn.primary')?.click();
-    toast('Brought over from the last tool');
+    toast(t('Brought over from the last tool'));
   });
 }
 
 // --- offline support ------------------------------------------------------------------------
+// A small note in the corner with one action and a close button.
+function notice(text, action, href, onAction) {
+  const el = document.createElement('div');
+  el.className = 'notice';
+  el.setAttribute('role', 'status');
+  el.innerHTML = `<span>${htmlEscape(text)}</span><a class="btn small primary" href="${href}">${htmlEscape(action)}</a><button type="button" class="notice-x" aria-label="${htmlEscape(t('Dismiss'))}">×</button>`;
+  if (onAction) el.querySelector('a').addEventListener('click', (e) => (e.preventDefault(), onAction()));
+  el.querySelector('.notice-x').addEventListener('click', () => {
+    el.remove();
+    if (onAction === undefined) storage.set('kt-lang-hint', 'off');
+  });
+  document.body.append(el);
+}
+
 function initOffline() {
   if (!('serviceWorker' in navigator) || !isSecureContext) return;
+  // A deploy installs a new service worker, which takes over straight away. Tell people already
+  // on the page, so they can reload into the new version.
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController) notice(t('A new version of the site is ready.'), t('Refresh'), '#', () => location.reload());
+  });
   addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+
+// Thai readers on an English page get a one-time pointer to the Thai version.
+function suggestThai() {
+  if (lang !== 'en' || storage.get('kt-lang-hint') === 'off') return;
+  const th = document.querySelector('link[rel="alternate"][hreflang="th"]');
+  if (!th || !(navigator.languages || [navigator.language]).some((l) => /^th\b/i.test(l))) return;
+  notice('อ่านหน้านี้เป็นภาษาไทย', 'ภาษาไทย', new URL(th.href, location.href).pathname);
 }
 
 initTheme();
@@ -398,4 +443,5 @@ initSendTo();
 receiveHandoff();
 rememberTool();
 initOffline();
+suggestThai();
 signConsole();

@@ -42,7 +42,7 @@ scripts/
   categories.mjs    ← category names, URLs and SEO copy
   new-tool.mjs      ← scaffolds a new tool folder
   og-images.mjs     ← renders the social cards
-tests/              ← node:test suites for assets/js/lib
+tests/              ← node:test suites for assets/js/lib; tests/e2e has the browser tests
 ```
 
 The build discovers tools automatically: there's no central list to edit. A tool's folder name is its URL.
@@ -79,6 +79,8 @@ Requires Node 20+. The site itself has no dependencies.
 
 ```sh
 npm test                                   # unit tests
+npm ci && npx playwright install chromium  # once, for the browser tests
+npm run test:e2e                           # builds, serves with the real CSP, runs tests/e2e in Chromium
 SITE_URL=https://tools.klickode.com npm run build   # → dist/ (use your real domain)
 npx serve dist                             # preview locally
 ```

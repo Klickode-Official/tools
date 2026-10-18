@@ -10,9 +10,13 @@
     "build": "node scripts/build.mjs",
     "new-tool": "node scripts/new-tool.mjs",
     "og": "node scripts/og-images.mjs",
-    "serve": "npm run build && npx --yes serve dist"
+    "serve": "npm run build && npx --yes serve dist",
+    "test:e2e": "node tests/e2e/run.mjs"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
   }
 }

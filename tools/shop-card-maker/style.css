@@ -68,3 +68,24 @@
   .scm-canvas { padding: 18px 10px; }
   .scm-platforms { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
 }
+
+/* Looks and seasons pickers */
+.scm-looks, .scm-seasons { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 8px; }
+.scm-looks button, .scm-seasons button { display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding: 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); font: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer; text-align: left; transition: border-color 0.15s, box-shadow 0.15s; }
+.scm-looks button:hover, .scm-seasons button:hover { border-color: var(--faint); }
+.scm-looks button[aria-pressed='true'], .scm-seasons button[aria-pressed='true'] { border-color: var(--red); box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 14%, transparent); }
+.look-swatch, .season-swatch { position: relative; display: block; height: 52px; border-radius: 8px; overflow: hidden; background: var(--bar); border: 1px solid var(--border); }
+.look-swatch i { position: absolute; left: 10px; top: 12px; width: 58%; height: 9px; border-radius: 3px; background: var(--text); }
+.look-swatch b { position: absolute; left: 10px; bottom: 10px; width: 40%; height: 12px; border-radius: 6px; background: var(--red); }
+.look-minimal i { height: 5px; width: 50%; opacity: 0.7; }
+.look-minimal b { background: none; border: 1px solid var(--text); border-radius: 3px; }
+.look-bold i { height: 13px; width: 66%; }
+.look-bold b { border: 2px solid var(--text); box-shadow: 2px 2px 0 var(--text); border-radius: 4px; }
+.look-luxury { outline: 1px solid color-mix(in srgb, var(--red) 40%, transparent); outline-offset: -5px; }
+.look-luxury i { height: 6px; width: 48%; top: 14px; border-radius: 0; }
+.look-luxury b { height: 9px; border-radius: 1px; width: 46%; }
+.look-festival { background: radial-gradient(circle at 80% 25%, #ffb800 0 3px, transparent 4px), radial-gradient(circle at 90% 70%, var(--red) 0 4px, transparent 5px), radial-gradient(circle at 65% 85%, #2ec4b6 0 3px, transparent 4px), var(--bar); }
+.look-festival i { border-radius: 6px; transform: rotate(-2deg); }
+.look-festival b { border-radius: 999px; }
+.season-swatch i { position: absolute; right: 8px; bottom: 8px; width: 34px; height: 12px; border-radius: 4px; transform: rotate(-4deg); }
+#season-badge-field[hidden] { display: none; }

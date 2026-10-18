@@ -3,18 +3,21 @@
 export const categories = [
   {
     id: 'business',
-    intro: `<p>If you sell on Etsy, Shopee, TikTok Shop or through WhatsApp, your website and your social posts should point people to the place they can actually buy. These tools make the little cards, buttons and images that do that, in your colours, without a designer.</p>`,
+    intro: `<p>If you sell on Etsy, Shopee, TikTok Shop or through WhatsApp, your website and your social posts should point people to the place they can actually buy. These tools make the cards, QR codes, pay signs and link pages that do that, in your colours, without a designer.</p>`,
     // “Which tool do I need?”: a question people actually have, and the tool that answers it.
     guide: [
       ["I want a “shop us on Etsy” box for my website", 'shop-card-maker'],
       ["I need an image for an Instagram or Facebook post that links to my shop", 'shop-card-maker'],
       ["I want WhatsApp or LINE buttons on my contact page", 'shop-card-maker'],
+      ["I need a QR code for my menu, Wi-Fi or LINE account", 'qr-code-generator'],
+      ["Customers should be able to pay me by PromptPay", 'promptpay-qr'],
+      ["I want one page with all my links for my Instagram or TikTok bio", 'link-in-bio'],
     ],
     icon: '<path d="M3 10.5 4.6 4h14.8l1.6 6.5"/><path d="M3 10.5a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M5 12.5V20h14v-7.5"/><path d="M10 20v-4.5h4V20"/>',
     slug: 'business-tools',
     name: 'Business & social',
     title: 'Free Tools for Small Businesses and Social Media',
-    description: 'Make shop cards, buttons and social images that send people to your Etsy, TikTok, WhatsApp, Shopee or Instagram page. Free, no account needed.',
+    description: 'Shop cards, QR codes, PromptPay pay signs and link-in-bio pages for small businesses on Etsy, TikTok, Shopee, LINE and Instagram. Free, no account needed.',
   },
   {
     id: 'images',
@@ -26,6 +29,8 @@ export const categories = [
       ["I need exact pixel sizes, like 1080 × 1080", 'image-resizer'],
       ["I want to post a photo without giving away where I live", 'exif-remover'],
       ["My website is slow because the images are huge", 'image-compressor'],
+      ["One photo needs to fit Instagram, Facebook and a story", 'social-image-resizer'],
+      ["What are the exact colours in my logo?", 'brand-palette'],
     ],
     icon: '<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.6"/><path d="m21 15-5-5L5 21"/>',
     slug: 'image-tools',

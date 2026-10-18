@@ -4,12 +4,12 @@ Free online tools that run entirely in the browser: images, JSON, regex, SEO and
 No sign-up, no uploads, no trackers. Each tool has its own search-optimised page at
 `/tools/<slug>/` and lives in its own folder, so it can be edited, marketed and reviewed on its own.
 
-## Tools (22)
+## Tools (27)
 
 | Category | Tools |
 | --- | --- |
-| **Business & social** `/business-tools/` | Shop Card Maker: “find us on Etsy / TikTok / WhatsApp / Shopee…” banners, cards and buttons for 14 platforms, as embed code or a PNG for social media |
-| **Image tools** `/image-tools/` | Image Converter (JPG/PNG/WebP/AVIF), Image Compressor (with target KB), Image Resizer, EXIF & GPS Remover (lossless) |
+| **Business & social** `/business-tools/` | Shop Card Maker (“find us on Etsy / TikTok / WhatsApp / Shopee…” banners, cards and buttons for 14 platforms, with looks, seasonal themes and an optional QR), QR Code Generator (links, Wi-Fi, WhatsApp, LINE, contact cards; logo, styles, PNG/SVG), PromptPay QR Generator (printable pay card), Link in Bio Page Builder (one self-contained HTML file) |
+| **Image tools** `/image-tools/` | Image Converter (JPG/PNG/WebP/AVIF), Image Compressor (with target KB), Image Resizer, EXIF & GPS Remover (lossless), Social Media Image Resizer (every platform size, focus-point crop, ZIP), Brand Colour Palette from Logo |
 | **JSON & data** `/json-tools/` | JSON Formatter & Validator, JSON Diff, CSV → JSON, JSON → CSV, JSON Schema Generator |
 | **SEO tools** `/seo-tools/` | Meta Tag Analyzer, SERP Snippet Preview, robots.txt Tester, Keyword Density Checker |
 | **Regex & text** `/text-tools/` | Regex Tester, Text Diff, Case Converter & Word Counter |
@@ -117,7 +117,8 @@ Social cards: `npm i -D playwright && npx playwright install chromium && npm run
 - [x] Image converter, compressor, resizer, EXIF remover (client-side, batch, ZIP)
 - [x] On-page SEO tools (meta tags, SERP preview, robots.txt, keyword density)
 - [ ] Cookieless analytics to see which tools to invest in
-- [ ] QR code generator, PDF merge/compress (pdf-lib, in-browser), YAML ↔ JSON, SQL/CSS formatter
+- [x] QR code generator (own encoder, tested module for module against segno), PromptPay QR, link-in-bio pages, social image sizes, brand palettes
+- [ ] PDF merge/compress (pdf-lib, in-browser), YAML ↔ JSON, SQL/CSS formatter
 - [ ] In-browser background remover (ONNX model, cached after first load)
 - [ ] URL-based SEO audit (needs a small fetch proxy) and AI tools (need a backend)
 

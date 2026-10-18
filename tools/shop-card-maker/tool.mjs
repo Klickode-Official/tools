@@ -32,6 +32,7 @@ export default {
     <button type="button" role="tab" aria-selected="true" data-tab="business">Your business</button>
     <button type="button" role="tab" aria-selected="false" data-tab="words">Words</button>
     <button type="button" role="tab" aria-selected="false" data-tab="style">Style</button>
+    <button type="button" role="tab" aria-selected="false" data-tab="extras">Season &amp; QR</button>
     <button type="button" role="tab" aria-selected="false" data-tab="export">Get the code or image</button>
   </div>
 
@@ -80,6 +81,9 @@ export default {
 
   <section class="scm-panel" data-panel="style" hidden>
     <div class="scm-form">
+      <div class="fld wide"><span>Look <em>a starting point; everything below still works after you pick one</em></span>
+        <div class="scm-looks" id="look" role="radiogroup" aria-label="Look"></div>
+      </div>
       <div class="fld"><span>Colours</span>
         <div class="seg" id="theme" role="radiogroup" aria-label="Colours">
           <button type="button" data-v="brand" aria-pressed="true">Platform</button>
@@ -119,6 +123,30 @@ export default {
       <div class="fld wide"><span>Platform logo</span>
         <div class="color-row"><button type="button" class="btn small" id="logo-upload">Upload a different logo</button><button type="button" class="btn small" id="logo-reset" hidden>Back to the standard logo</button></div>
       </div>
+    </div>
+  </section>
+
+  <section class="scm-panel" data-panel="extras" hidden>
+    <div class="scm-form">
+      <div class="fld wide"><span>Season <em>new colours and decorations; your platform’s logo and button stay the same</em></span>
+        <div class="scm-seasons" id="season" role="radiogroup" aria-label="Season"></div>
+      </div>
+      <label class="fld" id="season-badge-field"><span>Sticker text</span><input type="text" data-k="seasonBadge" maxlength="24" placeholder="e.g. 11.11 SALE"></label>
+    </div>
+    <h2>QR code</h2>
+    <div class="scm-form">
+      <div class="fld"><span>&nbsp;</span><div class="checks"><label><input type="checkbox" id="f-qr"> Add a QR code to the card</label></div></div>
+      <div class="fld"><span>Where</span>
+        <div class="seg" id="qrPos" role="radiogroup" aria-label="QR code position">
+          <button type="button" data-v="cta" aria-pressed="true">Next to the button</button>
+          <button type="button" data-v="card" aria-pressed="false">On the shop card</button>
+        </div>
+      </div>
+      <label class="fld"><span>Words next to it</span><input type="text" data-k="qrCaption" maxlength="30" placeholder="Scan to visit"></label>
+      <div class="fld"><span>QR colour</span>
+        <div class="color-row"><input type="color" id="f-qr-color" aria-label="QR code colour"><button type="button" class="btn small" id="qr-color-reset">Black</button></div>
+      </div>
+      <p class="fld-note wide" id="qr-note" aria-live="polite"></p>
     </div>
   </section>
 
@@ -165,6 +193,9 @@ export default {
 <p>If you sell on Etsy, Shopee or TikTok Shop, or take orders over WhatsApp or LINE, your website should send people there in one tap. This makes a tidy block for that, in the platform’s own colours, so visitors recognise it straight away.</p>
 <h2>How to make one</h2>
 <ol><li>Pick the platform at the top.</li><li>Type your business name and your shop link, username or phone number. The link is worked out for you.</li><li>Change the words, colours and pictures until it looks right.</li><li>Copy the code into your website, or download a PNG for Instagram, Facebook or a story.</li></ol>
+<h2>Looks, seasons and QR codes</h2>
+<p>Under <strong>Style</strong>, a look gives the card a different feel in one click: Minimal is quiet and airy, Bold has chunky borders and big type, Luxury uses a serif and fine lines, and Festival is rounder and a bit playful. You can still change the font, corners and colours afterwards.</p>
+<p>For a sale or holiday, pick a season under <strong>Season &amp; QR</strong>. There are themes for Songkran, Loy Krathong, 11.11, Black Friday, Lunar New Year and Christmas, each with its own decorations and a sticker you can reword. The QR code points to the same link as the buttons, which is handy on posters, menus and Instagram stories where people can’t tap.</p>
 <h2>About the logos</h2>
 <p>The platform logos come from <a href="https://simpleicons.org" rel="noopener">Simple Icons</a> and belong to their companies. Use them to point people to your own shop or profile on that platform, which is what the brands allow, and don’t change them to look like your own logo. Amazon and Lazada don’t make their logos available for this, so those cards show the name in text instead. If you have permission to use a logo, you can upload it under Style.</p>`,
   faq: [
@@ -179,6 +210,14 @@ export default {
     {
       q: 'Do I need to update the numbers by hand?',
       a: 'Yes. The card shows whatever you type, so it can’t go out of date on its own. Pop back and change your sales or follower count every so often.',
+    },
+    {
+      q: 'Will the QR code scan?',
+      a: 'It should. It’s drawn dark on a white square with the blank border scanners need, and it uses the same link as your buttons. If you pick a QR colour that’s too pale to scan, the card uses black instead and tells you. Test it with your own phone before you print anything.',
+    },
+    {
+      q: 'Can I switch the season back off after the sale?',
+      a: 'Yes. Set the season to None and the card goes back to your normal colours. Your words and pictures stay as they were.',
     },
     {
       q: 'Is this made by Etsy, TikTok or WhatsApp?',

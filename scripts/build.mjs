@@ -30,6 +30,11 @@ export async function loadTools() {
   const dirs = (await readdir(join(root, 'tools'), { withFileTypes: true })).filter((d) => d.isDirectory()).map((d) => d.name).sort();
   const tools = [];
   for (const dir of dirs) {
+    // A folder without tool.mjs is a tool still being written; leave it out of the site.
+    if (!(await exists(join(root, 'tools', dir, 'tool.mjs')))) {
+      warnings.push(`tools/${dir} has no tool.mjs yet, so it was skipped`);
+      continue;
+    }
     const { default: t } = await import(pathToFileURL(join(root, 'tools', dir, 'tool.mjs')).href);
     for (const key of ['slug', 'category', 'name', 'title', 'description', 'short', 'body']) {
       if (!t[key]) throw new Error(`tools/${dir}/tool.mjs is missing "${key}"`);

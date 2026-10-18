@@ -1,0 +1,23 @@
+/* PromptPay QR: details on the left, the pay card on the right. */
+.ppq { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 28px; align-items: start; }
+.ppq-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px 18px; align-items: start; }
+.ppq-detect { grid-column: 1 / -1; margin: -8px 0 0; font-size: 13px; font-weight: 500; color: var(--ok); }
+.ppq-detect:empty { display: none; }
+.ppq-colours { display: flex; gap: 8px; min-height: 38px; align-items: center; }
+.ppq-colours button { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--surface); background: var(--c); box-shadow: 0 0 0 1px var(--border-strong); cursor: pointer; transition: transform 0.15s; }
+.ppq-colours button:hover { transform: scale(1.08); }
+.ppq-colours button[aria-checked='true'] { box-shadow: 0 0 0 2px var(--text); }
+.ppq-note { grid-column: 1 / -1; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--warn) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--warn) 30%, var(--border)); font-size: 14px; color: var(--text); line-height: 1.5; }
+.ppq-note strong { color: var(--warn); }
+.ppq-side { position: sticky; top: 92px; display: flex; flex-direction: column; gap: 12px; }
+.ppq-preview { padding: 16px; border: 1px solid var(--border-strong); border-radius: 16px; background: var(--surface) radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 1.4px) 0 0 / 16px 16px; }
+.ppq-preview canvas { display: block; width: 100%; height: auto; border-radius: 12px; box-shadow: 0 14px 36px -16px rgba(0, 0, 0, 0.35); }
+.ppq-side .status { margin: 0; }
+.ppq-side .status:empty { display: none; }
+.ppq-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.ppq-actions #png { flex: 1 1 100%; }
+@media (max-width: 900px) {
+  .ppq { grid-template-columns: 1fr; }
+  .ppq-side { position: static; }
+  .ppq-preview { max-width: 360px; width: 100%; margin: 0 auto; }
+}

@@ -1,6 +1,7 @@
 import { $, toast, download, debounce } from '/assets/js/ui.js';
 import { PLATFORMS, PLATFORM_ORDER } from './platforms.js';
-import { renderCard, embedCode, defaults, buildUrl, resolveTheme, logoHtml, shortUrl, CARD_CSS } from './card.js';
+import { renderCard, embedCode, defaults, buildUrl, resolveTheme, logoHtml, shortUrl, CARD_CSS, qrReadable, QR_DEFAULT_COLOR } from './card.js';
+import { LOOKS, LOOK_ORDER, SEASONS, SEASON_ORDER } from './looks.js';
 
 const STORE_KEY = 'kt:shop-card';
 const COPY_FIELDS = ['badge', 'headline', 'text', 'bullets', 'button', 'cardLabel', 'cardButton', 'stats'];
@@ -31,6 +32,13 @@ function freshState() {
     radius: 20,
     productCount: 4,
     shadow: true,
+    look: 'classic',
+    season: 'none',
+    seasonBadge: '',
+    qr: false,
+    qrPos: 'cta',
+    qrColor: QR_DEFAULT_COLOR,
+    qrCaption: 'Scan to visit',
     show: { badge: true, bullets: true, note: true, card: true, rating: true, stats: true },
   };
 }
@@ -43,13 +51,16 @@ try {
   // Nothing saved, or storage is blocked: start fresh.
 }
 
-const save = debounce(() => {
+function saveNow() {
   try {
     localStorage.setItem(STORE_KEY, JSON.stringify(state));
   } catch {
     // Probably over the storage quota because of pictures; the card still works, it just won't be remembered.
   }
-}, 400);
+}
+const save = debounce(saveNow, 400);
+// A refresh straight after a change would otherwise beat the debounce.
+addEventListener('pagehide', saveNow);
 
 const currentUrl = () => buildUrl(state.platform, state.handles[state.platform] || '', state.message);
 
@@ -67,10 +78,30 @@ function render() {
   code.value = embedCode(full);
   const kb = new Blob([code.value]).size / 1024;
   $('#code-size').textContent = `The code is ${kb < 10 ? kb.toFixed(1) : Math.round(kb)} KB${kb > 60 ? '. Pictures make up most of that; remove some if your site limits HTML length.' : '.'}`;
+  $('#qr-note').textContent = qrNote(url);
   $('#url-out').innerHTML = url
     ? `Buttons link to <a href="${url.replace(/"/g, '&quot;')}" target="_blank" rel="noopener">${shortUrl(url).replace(/</g, '&lt;')}</a>`
     : 'Add your link above so the buttons go somewhere.';
   save();
+}
+
+function qrNote(url) {
+  if (!state.qr) return 'The QR code uses the same link as your buttons.';
+  if (!url) return 'Add your shop link under “Your business” and the QR code will appear.';
+  if (state.layout === 'button') return 'Buttons are too small for a QR code. Switch to Banner or Card to show it.';
+  if (state.qrPos === 'card' && state.layout === 'banner' && state.show.card === false) return 'The shop card is hidden, so the QR code sits next to the button instead.';
+  if (!qrReadable(state.qrColor)) return 'That colour is too pale for phones to scan reliably, so the code is drawn in black. Pick a darker colour.';
+  return 'Scan it with your phone to check it opens the right page, especially before you print.';
+}
+
+function renderLooks() {
+  $('#look').innerHTML = LOOK_ORDER.map((id) => `<button type="button" data-v="${id}" aria-pressed="${id === state.look}"><span class="look-swatch look-${id}" aria-hidden="true"><i></i><b></b></span>${LOOKS[id].name}</button>`).join('');
+  $('#season').innerHTML = SEASON_ORDER.map((id) => {
+    const s = SEASONS[id];
+    const bg = s.theme ? s.theme.bg : 'repeating-linear-gradient(135deg, var(--mist) 0 6px, var(--surface) 6px 12px)';
+    const dot = s.tag ? `<i style="background:${s.tag.bg}"></i>` : '';
+    return `<button type="button" data-v="${id}" aria-pressed="${id === state.season}"><span class="season-swatch" style="background:${bg}" aria-hidden="true">${dot}</span>${s.name}</button>`;
+  }).join('');
 }
 
 function renderPlatforms() {
@@ -107,7 +138,10 @@ function fillForm() {
   $('#f-accent').value = state.accent || (/^#[0-9a-f]{6}$/i.test(t.button) ? t.button : '#e03131');
   $('#f-bg').value = /^#[0-9a-f]{6}$/i.test(state.background) ? state.background : '#ffffff';
   $('#logo-reset').hidden = !state.customLogo;
-  for (const seg of ['layout', 'theme', 'headingFont']) setSeg(seg, state[seg]);
+  for (const seg of ['layout', 'theme', 'headingFont', 'look', 'season', 'qrPos']) setSeg(seg, state[seg]);
+  $('#f-qr').checked = !!state.qr;
+  $('#f-qr-color').value = /^#[0-9a-f]{6}$/i.test(state.qrColor) ? state.qrColor : QR_DEFAULT_COLOR;
+  $('#season-badge-field').hidden = !SEASONS[state.season]?.theme;
   for (const slot of document.querySelectorAll('[data-img]')) {
     const src = getImg(slot.dataset.img);
     slot.style.backgroundImage = src ? `url("${src}")` : '';
@@ -271,6 +305,44 @@ for (const id of ['layout', 'theme', 'headingFont']) {
     render();
   });
 }
+$('#look').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-v]');
+  if (!b) return;
+  state.look = b.dataset.v;
+  Object.assign(state, LOOKS[state.look].settings);
+  fillForm();
+  render();
+});
+$('#season').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-v]');
+  if (!b) return;
+  const before = SEASONS[state.season]?.badge || '';
+  // Swap the sticker text too, unless it's been reworded.
+  if (!state.seasonBadge || state.seasonBadge === before) state.seasonBadge = SEASONS[b.dataset.v].badge || '';
+  state.season = b.dataset.v;
+  fillForm();
+  render();
+});
+$('#qrPos').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-v]');
+  if (!b) return;
+  state.qrPos = b.dataset.v;
+  setSeg('qrPos', state.qrPos);
+  render();
+});
+$('#f-qr').addEventListener('change', (e) => {
+  state.qr = e.target.checked;
+  render();
+});
+$('#f-qr-color').addEventListener('input', (e) => {
+  state.qrColor = e.target.value;
+  render();
+});
+$('#qr-color-reset').addEventListener('click', () => {
+  state.qrColor = QR_DEFAULT_COLOR;
+  fillForm();
+  render();
+});
 $('#device').addEventListener('click', (e) => {
   const b = e.target.closest('[data-v]');
   if (!b) return;
@@ -405,5 +477,6 @@ async function exportPng() {
 $('#dl-png').addEventListener('click', exportPng);
 
 renderPlatforms();
+renderLooks();
 fillForm();
 render();

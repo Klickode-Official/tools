@@ -31,7 +31,7 @@ const ORGANIZATION = {
 
 const FOOTER_COLUMNS = [
   ['Categories', NAV.map(([href, label]) => [href, label === 'Text' ? 'Regex & text' : label === 'Business' ? 'Business & social' : label])],
-  ['Popular', [['/tools/image-converter/', 'Image Converter'], ['/tools/image-compressor/', 'Image Compressor'], ['/tools/json-formatter/', 'JSON Formatter'], ['/tools/shop-card-maker/', 'Shop Card Maker'], ['/tools/regex-tester/', 'Regex Tester']]],
+  ['Popular', [['/tools/image-converter/', 'Image Converter'], ['/tools/image-compressor/', 'Image Compressor'], ['/tools/json-formatter/', 'JSON Formatter'], ['/tools/shop-card-maker/', 'Shop Card Maker'], ['/tools/qr-code-generator/', 'QR Code Generator']]],
   ['Company', [[STUDIO_URL, 'Klickode Studio'], [CONTACT_URL, 'Contact'], ['mailto:klickode@gmail.com', 'klickode@gmail.com']]],
   ['Legal', [['/terms/', 'Terms of Use'], ['/privacy/', 'Privacy Policy'], ['/disclaimer/', 'Disclaimer'], ['/copyright/', 'Copyright']]],
 ];
@@ -124,7 +124,7 @@ export const toolIcon = (t, cat, size = 20) =>
 
 // Tool card: an illustration of what the tool does (tools/<slug>/preview.html), then its name.
 export const toolCard = (t, cat) =>
-  `<a class="tool-card" href="/tools/${t.slug}/" data-search="${esc(`${t.name} ${t.short} ${t.slug} ${cat?.name ?? ''}`.toLowerCase())}">${
+  `<a class="tool-card" href="/tools/${t.slug}/" data-search="${esc(`${t.name} ${t.short} ${t.slug} ${cat?.name ?? ''} ${(t.keywords || []).join(' ')}`.toLowerCase())}">${
     t.preview ? `<div class="tc-preview" aria-hidden="true">${t.preview}</div>` : ''
   }<div class="tc-body"><span class="tc-title"><span class="tool-icon">${toolIcon(t, cat, 16)}</span><strong>${esc(t.name)}</strong></span><span class="desc">${esc(t.short)}</span></div></a>`;
 

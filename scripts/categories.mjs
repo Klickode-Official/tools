@@ -37,7 +37,8 @@ export const categories = [
     intro: `<p>Most image problems come down to three things: the wrong format, a file that’s too big, or dimensions that don’t fit. A fourth one people forget about is the hidden data in photos, like where they were taken. Every tool here works on your device, so you can use them on private photos too.</p>`,
     // “Which tool do I need?”: a question people actually have, and the tool that answers it.
     guide: [
-      ["A form won’t take my file because it’s HEIC, AVIF or WebP", 'image-converter'],
+      ["My iPhone photos are HEIC and nothing will open them", 'heic-to-jpg'],
+      ["A form won’t take my file because it’s AVIF or WebP", 'image-converter'],
       ["My photo is over the upload limit (say 200 KB or 2 MB)", 'image-compressor'],
       ["I need exact pixel sizes, like 1080 × 1080", 'image-resizer'],
       ["I want to post a photo without giving away where I live", 'exif-remover'],
@@ -56,7 +57,8 @@ export const categories = [
       description: "แปลงไฟล์รูป ย่อขนาดไฟล์ ปรับขนาด และลบข้อมูลตำแหน่งออกจากรูปถ่าย ทุกอย่างทำงานในเบราว์เซอร์ รูปของคุณจึงไม่ถูกอัปโหลด",
       intro: `<p>ปัญหาเรื่องรูปส่วนใหญ่มีอยู่ไม่กี่อย่าง คือไฟล์ผิดนามสกุล ไฟล์ใหญ่เกิน หรือขนาดรูปไม่พอดี อีกเรื่องที่คนมักลืมคือข้อมูลที่ซ่อนอยู่ในรูป เช่นตำแหน่งที่ถ่าย เครื่องมือทั้งหมดในหมวดนี้ทำงานบนเครื่องของคุณ จึงใช้กับรูปส่วนตัวได้อย่างสบายใจ</p>`,
       guide: [
-        ["เว็บไม่รับไฟล์ HEIC, AVIF หรือ WebP", 'image-converter'],
+        ["รูปจาก iPhone เป็นไฟล์ HEIC เปิดที่ไหนก็ไม่ได้", 'heic-to-jpg'],
+        ["เว็บไม่รับไฟล์ AVIF หรือ WebP", 'image-converter'],
         ["รูปใหญ่เกินที่ระบบกำหนด เช่น 200 KB หรือ 2 MB", 'image-compressor'],
         ["ต้องการขนาดพิกเซลที่แน่นอน เช่น 1080 × 1080", 'image-resizer'],
         ["อยากโพสต์รูปโดยไม่บอกว่าบ้านอยู่ที่ไหน", 'exif-remover'],

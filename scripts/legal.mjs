@@ -121,6 +121,7 @@ export const legalPages = [
 </ul>
 <p>The site also remembers which tools you used last (to list them on the home page), and when you use <strong>Send to</strong> to move a result into another tool, the text is held for a moment in this tab’s session storage, which is cleared when you close the tab.</p>
 <p>So the tools keep working without a connection, your browser keeps a copy of the site’s own pages, scripts and fonts (a “service worker” cache). It holds only our files, never anything you put into a tool.</p>
+<p>To open iPhone photos (HEIC) in browsers that can’t read them, the image tools download a decoder from this site the first time you add one. The photo is decoded in your browser and is not uploaded.</p>
 <p>Images you convert, compress or resize are never stored. To clear what’s saved, use a tool’s Clear button or clear this site’s data in your browser settings.</p>`,
         ],
         [

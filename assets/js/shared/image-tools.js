@@ -4,6 +4,7 @@ import { $, persist, setStatus, download, escapeHtml, debounce } from '/assets/j
 import { FORMATS, targetSize, outputName, formatBytes, searchQuality } from '/assets/js/lib/images.js';
 import { inspectMetadata, describeMetadata, stripMetadata } from '/assets/js/lib/metadata.js';
 import { createZip } from '/assets/js/lib/zip.js';
+import { isHeic, decodeHeic } from '/assets/js/shared/heic.js';
 
 const mode = document.body.dataset.mode; // convert | compress | resize | exif
 const filesInput = $('#files');
@@ -65,8 +66,15 @@ async function decode(file) {
       if (!img.naturalWidth) throw new Error();
       return img;
     } catch {
-      const kind = inspectMetadata(new Uint8Array(await file.slice(0, 64).arrayBuffer())).format;
-      throw new Error(kind === 'heic' ? 'This browser can’t decode HEIC. Open it in Safari, or export it as JPG from the Photos app.' : 'This file couldn’t be decoded as an image.');
+      // Not something the browser can open itself. iPhone photos (HEIC) go to our own decoder.
+      if (await isHeic(file)) {
+        try {
+          return await decodeHeic(file);
+        } catch {
+          throw new Error('This HEIC photo couldn’t be decoded. Try exporting it as JPG from the Photos app.');
+        }
+      }
+      throw new Error('This file couldn’t be decoded as an image.');
     } finally {
       URL.revokeObjectURL(url);
     }
@@ -223,6 +231,12 @@ async function runAll() {
       const out = await process(it);
       if (token !== runToken) return; // options changed mid-run; a newer run owns the list
       it.out = out;
+      // Browsers that can't show HEIC can't show its thumbnail either, so use the converted copy.
+      if (it.meta.format === 'heic' && !it.heicThumb && /^image\/(jpeg|png|webp)$/.test(out.blob.type)) {
+        URL.revokeObjectURL(it.thumb);
+        it.thumb = URL.createObjectURL(out.blob);
+        it.heicThumb = true;
+      }
     } catch (e) {
       if (token !== runToken) return;
       it.error = e.message;

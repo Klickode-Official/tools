@@ -45,5 +45,18 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Files: serve the copy straight away. A new deploy replaces the whole cache anyway.
-  event.respondWith(caches.match(request, { ignoreSearch: true }).then((hit) => hit || fetch(request)));
+  // Optional parts that aren't in the list (like the HEIC decoder) are kept once they've loaded.
+  event.respondWith(
+    caches.match(request, { ignoreSearch: true }).then(
+      (hit) =>
+        hit ||
+        fetch(request).then((res) => {
+          if (res.ok && url.pathname.startsWith('/assets/vendor/')) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(request, copy));
+          }
+          return res;
+        }),
+    ),
+  );
 });

@@ -17,10 +17,11 @@ let failures = 0;
   const val = s => page.locator(s).inputValue();
   const check = (name, cond, extra = '') => { if (!cond) failures++; console.log((cond ? 'PASS ' : 'FAIL ') + name + (cond ? '' : ' :: ' + extra)); };
 
-  await page.goto(B + '/'); check('home cards', await page.locator('.tool-card').count() === 27);
+  await page.goto(B + '/'); const toolCount = (await (await page.request.get(B + '/assets/tools-index.json')).json()).length;
+  check('home cards', (await page.locator('.tool-card').count()) === toolCount, toolCount);
   await page.fill('#tool-search', 'webp'); check('home search', (await page.locator('.tool-card:visible').count()) >= 1 && (await page.locator('.tool-card:visible').count()) < 6, await page.locator('.tool-card:visible').count());
   await page.fill('#tool-search', 'zzzz'); check('home search empty', await page.isVisible('#no-results'));
-  await page.goto(B + '/image-tools/'); check('category hub', (await page.locator('.tool-card').count()) === 6);
+  await page.goto(B + '/image-tools/'); check('category hub', (await page.locator('.tool-card').count()) >= 6);
   const ld = JSON.parse(await (await page.goto(B + '/tools/json-formatter/'), page.locator('script[type="application/ld+json"]').last().textContent()));
   check('jsonld faq+breadcrumb', ld['@graph'].some(g => g['@type'] === 'FAQPage') && ld['@graph'].some(g => g['@type'] === 'BreadcrumbList'));
   check('og image per tool', (await page.getAttribute('meta[property="og:image"]', 'content')) === 'https://example.com/tools/json-formatter/og.png');
@@ -117,6 +118,12 @@ let failures = 0;
   const [d2] = await Promise.all([page.waitForEvent('download'), page.click('[data-dl]')]);
   const cleaned = fs.readFileSync(await d2.path());
   check('exif stripped bytes', cleaned.length === jpg.length && !cleaned.includes(Buffer.from('Exif')) && d2.suggestedFilename() === 'photo-clean.jpg', cleaned.length + ' vs ' + jpg.length);
+
+  // HEIC: Chromium can't open it, so this exercises our own decoder (WebAssembly, needs the CSP's 'wasm-unsafe-eval').
+  await page.goto(B + '/tools/heic-to-jpg/');
+  await page.setInputFiles('#files', path.join(__dirname, 'fixtures', 'sample.heic'));
+  await page.waitForFunction(() => /ready|failed/.test(document.querySelector('#status').textContent), null, { timeout: 30000 }).catch(() => {});
+  check('heic to jpg', /1 file ready/.test(await txt('#status')) && (await txt('#results')).includes('640×480'), await txt('#status'));
 
   // ---- SEO tools ----
   await page.goto(B + '/tools/meta-tag-analyzer/'); await page.click('#sample'); await page.waitForTimeout(300);

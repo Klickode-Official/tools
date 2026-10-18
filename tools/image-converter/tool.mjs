@@ -12,7 +12,7 @@ export default {
   data: { mode: 'convert' },
   body: `<label class="dropzone" id="dropzone" for="files">
   <strong>Drop images here, paste, or click to choose</strong>
-  <span>JPG, PNG, WebP, AVIF, GIF, BMP, SVG (and HEIC in Safari) · batch supported · files stay on your device</span>
+  <span>JPG, PNG, WebP, AVIF, HEIC, GIF, BMP, SVG · batch supported · files stay on your device</span>
   <input type="file" id="files" multiple accept="image/*,.heic,.heif,.avif">
 </label>
 <div class="toolbar">
@@ -44,7 +44,7 @@ export default {
     },
     {
       q: 'Can I convert HEIC photos from my iPhone?',
-      a: 'In Safari, yes. Chrome and Firefox can’t read HEIC files yet, so on those browsers export the photo as JPG from the Photos app first, or set your iPhone camera to “Most Compatible”.',
+      a: 'Yes, in any browser. Safari opens them itself; in Chrome, Edge and Firefox the page loads a HEIC decoder the first time you add one (about 1.5 MB, and it stays in your browser). The photo is still never uploaded. There’s also a page just for <a href="/tools/heic-to-jpg/">HEIC to JPG</a>.',
     },
     {
       q: 'Does it keep the photo’s location and camera info?',

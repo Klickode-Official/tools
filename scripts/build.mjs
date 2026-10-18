@@ -315,7 +315,9 @@ await writeFile(
 async function signFiles(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
-    if (entry.isDirectory()) await signFiles(full);
+    if (entry.isDirectory()) {
+      if (entry.name !== 'vendor') await signFiles(full); // third-party files ship unmodified
+    }
     else if (/\.(css|js)$/.test(entry.name)) await writeFile(full, `/*! ${BRAND_NOTICE} */\n${await readFile(full, 'utf8')}`);
   }
 }
@@ -367,6 +369,8 @@ async function listFiles(dir, base = '') {
 }
 const cacheList = (await listFiles(out))
   .filter((f) => !/(og\.png|robots\.txt|sitemap\.xml|404\.html|\.webmanifest)$/.test(f))
+  // Big optional parts (the HEIC decoder) are cached the first time they're used instead.
+  .filter((f) => !f.startsWith('/assets/vendor/'))
   .map((f) => f.replace(/index\.html$/, ''));
 const hash = createHash('sha256');
 for (const f of cacheList.sort()) hash.update(f).update(await readFile(join(out, f.endsWith('/') ? `${f}index.html` : f)));

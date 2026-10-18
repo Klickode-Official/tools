@@ -185,6 +185,23 @@ let failures = 0;
   check('promptpay detect', /Mobile number 081-234-5678/.test(await txt('#detect')), await txt('#detect'));
   await page.click('#copy');
 
+  // ---- accessibility: axe-core on every page in the sitemap, light and dark ----
+  const axe = fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
+  const sitemap = await (await page.request.get(B + '/sitemap.xml')).text();
+  const pages = [...sitemap.matchAll(/<loc>https?:\/\/[^/]+([^<]*)<\/loc>/g)].map((m) => m[1]);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const a11y = new Map();
+  for (const scheme of ['light', 'dark']) {
+    await page.emulateMedia({ colorScheme: scheme });
+    for (const p of pages) {
+      await page.goto(B + p);
+      await page.addScriptTag({ content: axe });
+      const found = await page.evaluate(async () => (await window.axe.run(document, { resultTypes: ['violations'] })).violations.map((v) => `${v.id} (${v.impact}) ${v.nodes[0]?.target.join(' ')}`));
+      for (const v of found) a11y.set(v, `${scheme} ${p}`);
+    }
+  }
+  check(`accessibility (${pages.length} pages × 2 themes)`, a11y.size === 0, [...a11y].map(([v, where]) => `${where}: ${v}`).join('\n  '));
+
   console.log('errors:', errors); console.log('external requests:', external);
   if (errors.length || external.length) failures++;
   await b.close();

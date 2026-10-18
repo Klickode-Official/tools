@@ -2,6 +2,7 @@
 // downloaded file are the same markup. The downloaded page needs no JavaScript and makes no
 // requests: styles are inline and pictures are data: URLs.
 import { LOGOS } from '../shop-card-maker/logos.js';
+import { COPY_TH } from '../shop-card-maker/copy-th.js';
 import { PLATFORMS, PLATFORM_ORDER } from '../shop-card-maker/platforms.js';
 import { esc, safeUrl, safeImage, buildUrl } from '../shop-card-maker/card.js';
 
@@ -73,15 +74,19 @@ export function linkUrl(link) {
   return u === '#' ? '' : u;
 }
 
-export function linkTitle(link) {
+// lang 'th' gives the Thai default wording (from the Shop Card Maker's copy-th.js).
+export function linkTitle(link, lang = 'en') {
   if (link.title && String(link.title).trim()) return String(link.title).trim();
   const p = link.type === 'platform' && PLATFORMS[link.platform];
+  const th = lang === 'th';
   if (p) {
-    const text = p.copy.button.replace(/\{name\}/g, '').replace(/\s+/g, ' ').trim();
+    const button = (th && COPY_TH[link.platform]?.button) || p.copy.button;
+    const text = button.replace(/\{name\}/g, '').replace(/\s+/g, ' ').trim();
     // "Add us as a friend" needs to say where.
-    return text.toLowerCase().includes(p.name.toLowerCase()) ? text : `${text} on ${p.name}`;
+    if (text.toLowerCase().includes(p.name.toLowerCase())) return text;
+    return th ? `${text} บน ${p.name}` : `${text} on ${p.name}`;
   }
-  return link.url ? String(link.url).replace(/^https?:\/\//, '').replace(/\/$/, '') : 'My link';
+  return link.url ? String(link.url).replace(/^https?:\/\//, '').replace(/\/$/, '') : th ? 'ลิงก์ของฉัน' : 'My link';
 }
 
 // Brand colour behind a platform logo, for the round icon on each button.
@@ -165,8 +170,8 @@ export function pageBody(state, { preview = false, creditUrl = '' } = {}) {
       const icon = state.icons === 'none' ? '' : linkIcon(l, state.icons === 'mono' ? 'mono' : 'brand', t.buttonText.startsWith('#') ? t.buttonText : 'currentColor');
       const pad = icon ? '' : ' style="padding:10px 20px"';
       return url
-        ? `<li><a class="kb-link" href="${esc(url)}" target="_blank" rel="noopener"${pad}>${icon}<span>${esc(linkTitle(l))}</span></a></li>`
-        : `<li><span class="kb-link kb-off" title="Add a link so this button goes somewhere"${pad}>${icon}<span>${esc(linkTitle(l))}</span></span></li>`;
+        ? `<li><a class="kb-link" href="${esc(url)}" target="_blank" rel="noopener"${pad}>${icon}<span>${esc(linkTitle(l, state.lang))}</span></a></li>`
+        : `<li><span class="kb-link kb-off" title="${state.lang === 'th' ? 'ใส่ลิงก์เพื่อให้ปุ่มนี้ใช้งานได้' : 'Add a link so this button goes somewhere'}"${pad}>${icon}<span>${esc(linkTitle(l, state.lang))}</span></span></li>`;
     })
     .join('');
   const credit = state.credit !== false && safeUrl(creditUrl) !== '#' ? `<p class="kb-foot"><a href="${esc(safeUrl(creditUrl))}" target="_blank" rel="noopener">Made with Klickode Tools</a></p>` : '';

@@ -1,4 +1,4 @@
-import { $, persist, setStatus, escapeHtml } from '/assets/js/ui.js';
+import { $, persist, setStatus, escapeHtml, t } from '/assets/js/ui.js';
 import { textDiff, wordDiff } from '/assets/js/lib/diff.js';
 
 const left = $('#left');
@@ -42,7 +42,7 @@ function compare() {
     const ops = textDiff(norm(left.value), norm(right.value));
     const added = ops.filter((o) => o.type === 'added').length;
     const removed = ops.filter((o) => o.type === 'removed').length;
-    setStatus(status, added || removed ? `${added} line${added === 1 ? '' : 's'} added, ${removed} removed` : 'The texts are identical.', true);
+    setStatus(status, added || removed ? t(added === 1 ? '{added} line added, {removed} removed' : '{added} lines added, {removed} removed', { added, removed }) : t('The texts are identical.'), true);
     result.innerHTML = render(ops);
   } catch (e) {
     setStatus(status, e.message, false);

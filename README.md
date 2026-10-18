@@ -24,6 +24,8 @@ tools/
     script.js       ← what the page does
     icon.svg        ← the tool's own 24×24 line icon (falls back to the category icon)
     preview.html    ← the little illustration on the tool's card (uses the .pv-* styles)
+    preview.css     ← optional styles for that illustration (the build adds them to style.css)
+    th.mjs          ← the Thai page: same fields as tool.mjs, plus `strings` for runtime messages
     style.css       ← optional styles for this tool's page only
     *.js            ← any other modules or workers the tool needs, copied alongside
     og.png          ← social preview card (generated)

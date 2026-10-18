@@ -1,5 +1,6 @@
 // Social Media Image Resizer: every image is drawn on a canvas in this tab. Nothing is uploaded.
-import { $, persist, setStatus, download, escapeHtml, debounce } from '/assets/js/ui.js';
+import { isHeic, decodeHeic } from '/assets/js/shared/heic.js';
+import { $, persist, setStatus, download, escapeHtml, debounce, t } from '/assets/js/ui.js';
 import { PRESETS, coverRect, containRect, upscaleFactor, outputFileName } from '/assets/js/lib/social.js';
 import { formatBytes } from '/assets/js/lib/images.js';
 import { createZip } from '/assets/js/lib/zip.js';
@@ -40,7 +41,9 @@ async function decode(file) {
       if (!img.naturalWidth) throw new Error();
       return img;
     } catch {
-      throw new Error(/\.hei[cf]$/i.test(file.name) ? 'This browser can’t open HEIC. Try Safari, or export the photo as JPG first.' : 'This file couldn’t be opened as an image.');
+      // iPhone photos (HEIC) go to the shared decoder, loaded only when needed.
+      if (await isHeic(file)) return decodeHeic(file);
+      throw new Error(t('This file couldn’t be opened as an image.'));
     } finally {
       URL.revokeObjectURL(url);
     }
@@ -114,7 +117,7 @@ function renderCanvas(item, preset, opts) {
 }
 
 const toBlob = (canvas, mime, q) =>
-  new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('The browser couldn’t save this image.'))), mime, q));
+  new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(t('The browser couldn’t save this image.')))), mime, q));
 
 const options = () => ({ mode: mode.value, fill: fill.value, colour: colour.value, mime: format.value, q: Number(quality.value) / 100 });
 const selected = () => PRESETS.filter((p, i) => checks[i].checked);
@@ -127,16 +130,16 @@ function releaseOutputs(item) {
 
 function sourceHtml(item) {
   if (item.error) {
-    return `<section class="sr-source" data-id="${item.id}"><div class="sr-source-head"><strong>${escapeHtml(item.name)}</strong><span class="sr-err">${escapeHtml(item.error)}</span><button class="btn small" data-remove="${item.id}">Remove</button></div></section>`;
+    return `<section class="sr-source" data-id="${item.id}"><div class="sr-source-head"><strong>${escapeHtml(item.name)}</strong><span class="sr-err">${escapeHtml(item.error)}</span><button class="btn small" data-remove="${item.id}">${t('Remove')}</button></div></section>`;
   }
   const crop = mode.value === 'crop';
   return `<section class="sr-source" data-id="${item.id}">
-  <div class="sr-source-head"><strong>${escapeHtml(item.name)}</strong><span class="sr-dim">${item.w} × ${item.h}</span><button class="btn small" data-remove="${item.id}">Remove</button></div>
+  <div class="sr-source-head"><strong>${escapeHtml(item.name)}</strong><span class="sr-dim">${item.w} × ${item.h}</span><button class="btn small" data-remove="${item.id}">${t('Remove')}</button></div>
   <div class="sr-source-body">
-    <div class="sr-focus${crop ? '' : ' off'}" data-focus="${item.id}"${crop ? ' tabindex="0" role="group" aria-label="Focus point. Click, drag or use the arrow keys."' : ''}>
+    <div class="sr-focus${crop ? '' : ' off'}" data-focus="${item.id}"${crop ? ` tabindex="0" role="group" aria-label="${escapeHtml(t('Focus point. Click, drag or use the arrow keys.'))}"` : ''}>
       <img src="${item.url}" alt="" draggable="false">
       <span class="sr-dot" style="left:${item.focus.x * 100}%;top:${item.focus.y * 100}%"></span>
-      <p class="sr-hint">${crop ? 'Click or drag to set what stays in frame' : 'The whole photo is kept in “Fit inside”'}</p>
+      <p class="sr-hint">${crop ? t('Click or drag to set what stays in frame') : t('The whole photo is kept in “Fit inside”')}</p>
     </div>
     <ul class="sr-results" data-results="${item.id}">${selected().map((p) => resultHtml(item, p)).join('')}</ul>
   </div>
@@ -147,9 +150,9 @@ function resultHtml(item, p) {
   const out = item.outputs.get(p.id);
   const up = upscaleFactor(item.w, item.h, p.w, p.h, mode.value);
   return `<li class="sr-result" data-preset="${p.id}">
-  <div class="sr-thumb">${out ? `<img src="${out.url}" alt="${escapeHtml(p.name)} preview" width="${p.w}" height="${p.h}">` : '<span class="sr-wait"></span>'}</div>
-  <div class="sr-meta"><b>${escapeHtml(p.name)}</b><small>${p.w} × ${p.h}${out ? ` · ${formatBytes(out.blob.size)}` : ''}</small>${up > 1.25 ? `<small class="sr-warn">Enlarged ${up.toFixed(1)}×, may look soft</small>` : ''}</div>
-  <button class="btn small" data-dl="${item.id}:${p.id}"${out ? '' : ' disabled'} aria-label="Download ${escapeHtml(p.name)}">Save</button>
+  <div class="sr-thumb">${out ? `<img src="${out.url}" alt="${escapeHtml(t('{name} preview', { name: t(p.name) }))}" width="${p.w}" height="${p.h}">` : '<span class="sr-wait"></span>'}</div>
+  <div class="sr-meta"><b>${escapeHtml(t(p.name))}</b><small>${p.w} × ${p.h}${out ? ` · ${formatBytes(out.blob.size)}` : ''}</small>${up > 1.25 ? `<small class="sr-warn">${t('Enlarged {n}×, may look soft', { n: up.toFixed(1) })}</small>` : ''}</div>
+  <button class="btn small" data-dl="${item.id}:${p.id}"${out ? '' : ' disabled'} aria-label="${escapeHtml(t('Download {name}', { name: t(p.name) }))}">${t('Save')}</button>
 </li>`;
 }
 
@@ -166,7 +169,7 @@ function updateResult(item, p) {
 function syncButtons() {
   const done = items.reduce((n, i) => n + i.outputs.size, 0);
   downloadAll.disabled = !done;
-  downloadAll.textContent = done ? `Download all ${done} (ZIP)` : 'Download all (ZIP)';
+  downloadAll.textContent = done ? t('Download all {n} (ZIP)', { n: done }) : t('Download all (ZIP)');
   clearBtn.disabled = !items.length;
   $('#fill-wrap').hidden = mode.value !== 'fit';
   colour.hidden = fill.value !== 'colour' && !(fill.value === 'transparent' && format.value === 'image/jpeg');
@@ -183,7 +186,7 @@ async function run(only = items) {
   }
   renderAll();
   if (!items.length) return setStatus(status, '');
-  if (!presets.length) return setStatus(status, 'Tick at least one size.', false);
+  if (!presets.length) return setStatus(status, t('Tick at least one size.'), false);
   let stale = false;
   for (const item of only) {
     if (item.error) continue;
@@ -212,13 +215,13 @@ async function run(only = items) {
   syncButtons();
   const total = items.reduce((n, i) => n + i.outputs.size, 0);
   const bad = items.filter((i) => i.error).length;
-  setStatus(status, `${total} image${total === 1 ? '' : 's'} ready${bad ? ` · ${bad} file${bad === 1 ? '' : 's'} couldn’t be opened` : ''}`, true);
+  setStatus(status, (total === 1 ? t('1 image ready') : t('{n} images ready', { n: total })) + (bad ? ` · ${bad === 1 ? t('1 file couldn’t be opened') : t('{n} files couldn’t be opened', { n: bad })}` : ''), true);
 }
 
 async function add(files) {
   const list = [...files].filter((f) => f.type.startsWith('image/') || /\.(hei[cf]|avif)$/i.test(f.name)).slice(0, MAX_FILES - items.length);
-  if (!list.length) return setStatus(status, items.length >= MAX_FILES ? `That’s the limit of ${MAX_FILES} photos at once.` : 'Those don’t look like images.', false);
-  setStatus(status, 'Opening…', true);
+  if (!list.length) return setStatus(status, items.length >= MAX_FILES ? t('That’s the limit of {n} photos at once.', { n: MAX_FILES }) : t('Those don’t look like images.'), false);
+  setStatus(status, t('Opening…'), true);
   const added = [];
   for (const file of list) {
     const item = { id: nextId++, name: file.name, focus: { x: 0.5, y: 0.5 }, outputs: new Map() };
@@ -226,7 +229,7 @@ async function add(files) {
       item.src = await decode(file);
       item.w = item.src.naturalWidth || item.src.width;
       item.h = item.src.naturalHeight || item.src.height;
-      if (item.w * item.h > MAX_PIXELS) throw new Error(`This photo is ${Math.round((item.w * item.h) / 1e6)} megapixels; the limit is ${MAX_PIXELS / 1e6}.`);
+      if (item.w * item.h > MAX_PIXELS) throw new Error(t('This photo is {n} megapixels; the limit is {max}.', { n: Math.round((item.w * item.h) / 1e6), max: MAX_PIXELS / 1e6 }));
       item.url = URL.createObjectURL(file);
     } catch (e) {
       item.error = e.message;

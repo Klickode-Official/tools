@@ -1,7 +1,8 @@
-import { $, toast, download, debounce } from '/assets/js/ui.js';
+import { $, toast, download, debounce, t, lang } from '/assets/js/ui.js';
 import { PLATFORMS, PLATFORM_ORDER } from './platforms.js';
 import { renderCard, embedCode, defaults, buildUrl, resolveTheme, logoHtml, shortUrl, CARD_CSS, qrReadable, QR_DEFAULT_COLOR } from './card.js';
 import { LOOKS, LOOK_ORDER, SEASONS, SEASON_ORDER } from './looks.js';
+import { SEASON_BADGE_TH } from './copy-th.js';
 
 const STORE_KEY = 'kt:shop-card';
 const COPY_FIELDS = ['badge', 'headline', 'text', 'bullets', 'button', 'cardLabel', 'cardButton', 'stats'];
@@ -13,11 +14,11 @@ const code = $('#code');
 
 function freshState() {
   return {
-    ...defaults('etsy', 'Your Shop'),
+    ...defaults('etsy', t('Your Shop'), lang),
     handles: {},
     message: '',
     shopName: 'yourshop',
-    location: 'Bangkok, Thailand',
+    location: t('Bangkok, Thailand'),
     rating: '4.9',
     reviews: '65',
     avatar: '',
@@ -38,7 +39,7 @@ function freshState() {
     qr: false,
     qrPos: 'cta',
     qrColor: QR_DEFAULT_COLOR,
-    qrCaption: 'Scan to visit',
+    qrCaption: t('Scan to visit'),
     show: { badge: true, bullets: true, note: true, card: true, rating: true, stats: true },
   };
 }
@@ -72,45 +73,45 @@ document.head.append(cardStyle);
 
 function render() {
   const url = currentUrl();
-  const full = { ...state, url };
+  const full = { ...state, url, lang };
   preview.innerHTML = renderCard(full);
   preview.dataset.layout = state.layout;
   code.value = embedCode(full);
   const kb = new Blob([code.value]).size / 1024;
-  $('#code-size').textContent = `The code is ${kb < 10 ? kb.toFixed(1) : Math.round(kb)} KB${kb > 60 ? '. Pictures make up most of that; remove some if your site limits HTML length.' : '.'}`;
+  $('#code-size').textContent = t(kb > 60 ? 'The code is {kb} KB. Pictures make up most of that; remove some if your site limits HTML length.' : 'The code is {kb} KB.', { kb: kb < 10 ? kb.toFixed(1) : Math.round(kb) });
   $('#qr-note').textContent = qrNote(url);
   $('#url-out').innerHTML = url
-    ? `Buttons link to <a href="${url.replace(/"/g, '&quot;')}" target="_blank" rel="noopener">${shortUrl(url).replace(/</g, '&lt;')}</a>`
-    : 'Add your link above so the buttons go somewhere.';
+    ? `${t('Buttons link to')} <a href="${url.replace(/"/g, '&quot;')}" target="_blank" rel="noopener">${shortUrl(url).replace(/</g, '&lt;')}</a>`
+    : t('Add your link above so the buttons go somewhere.');
   save();
 }
 
 function qrNote(url) {
-  if (!state.qr) return 'The QR code uses the same link as your buttons.';
-  if (!url) return 'Add your shop link under “Your business” and the QR code will appear.';
-  if (state.layout === 'button') return 'Buttons are too small for a QR code. Switch to Banner or Card to show it.';
-  if (state.qrPos === 'card' && state.layout === 'banner' && state.show.card === false) return 'The shop card is hidden, so the QR code sits next to the button instead.';
-  if (!qrReadable(state.qrColor)) return 'That colour is too pale for phones to scan reliably, so the code is drawn in black. Pick a darker colour.';
-  return 'Scan it with your phone to check it opens the right page, especially before you print.';
+  if (!state.qr) return t('The QR code uses the same link as your buttons.');
+  if (!url) return t('Add your shop link under “Your business” and the QR code will appear.');
+  if (state.layout === 'button') return t('Buttons are too small for a QR code. Switch to Banner or Card to show it.');
+  if (state.qrPos === 'card' && state.layout === 'banner' && state.show.card === false) return t('The shop card is hidden, so the QR code sits next to the button instead.');
+  if (!qrReadable(state.qrColor)) return t('That colour is too pale for phones to scan reliably, so the code is drawn in black. Pick a darker colour.');
+  return t('Scan it with your phone to check it opens the right page, especially before you print.');
 }
 
 function renderLooks() {
-  $('#look').innerHTML = LOOK_ORDER.map((id) => `<button type="button" data-v="${id}" aria-pressed="${id === state.look}"><span class="look-swatch look-${id}" aria-hidden="true"><i></i><b></b></span>${LOOKS[id].name}</button>`).join('');
+  $('#look').innerHTML = LOOK_ORDER.map((id) => `<button type="button" data-v="${id}" aria-pressed="${id === state.look}"><span class="look-swatch look-${id}" aria-hidden="true"><i></i><b></b></span>${t(LOOKS[id].name)}</button>`).join('');
   $('#season').innerHTML = SEASON_ORDER.map((id) => {
     const s = SEASONS[id];
     const bg = s.theme ? s.theme.bg : 'repeating-linear-gradient(135deg, var(--mist) 0 6px, var(--surface) 6px 12px)';
     const dot = s.tag ? `<i style="background:${s.tag.bg}"></i>` : '';
-    return `<button type="button" data-v="${id}" aria-pressed="${id === state.season}"><span class="season-swatch" style="background:${bg}" aria-hidden="true">${dot}</span>${s.name}</button>`;
+    return `<button type="button" data-v="${id}" aria-pressed="${id === state.season}"><span class="season-swatch" style="background:${bg}" aria-hidden="true">${dot}</span>${t(s.name)}</button>`;
   }).join('');
 }
 
 function renderPlatforms() {
   $('#platforms').innerHTML = PLATFORM_ORDER.map((id) => {
     const p = PLATFORMS[id];
-    const t = resolveTheme({ platform: id, theme: 'brand' });
+    const pal = resolveTheme({ platform: id, theme: 'brand' });
     const logo = p.chip
       ? `<span class="pf-chip" style="background:${p.chip.bg};color:${p.chip.color}">${p.chip.letter}</span>`
-      : logoHtml({ platform: id }, { ...t, dark: false, logoColor: t.dark ? '#000000' : t.logoColor }, p.wideLogo ? 13 : 22);
+      : logoHtml({ platform: id }, { ...pal, dark: false, logoColor: pal.dark ? '#000000' : pal.logoColor }, p.wideLogo ? 13 : 22);
     return `<button type="button" role="radio" data-p="${id}" aria-checked="${id === state.platform}"><span class="pf-logo${p.wideLogo ? ' wide' : ''}">${logo}</span><span>${p.name}</span></button>`;
   }).join('');
 }
@@ -125,7 +126,7 @@ function fillForm() {
   }
   $('#f-handle').value = state.handles[state.platform] || '';
   $('#f-handle').placeholder = p.handle.placeholder;
-  $('#handle-label').textContent = p.handle.label;
+  $('#handle-label').textContent = t(p.handle.label);
   $('#msg-field').hidden = !p.handle.message;
   for (const el of document.querySelectorAll('[data-stat]')) {
     const [row, col] = el.dataset.stat.split('.').map(Number);
@@ -134,8 +135,8 @@ function fillForm() {
   for (const el of document.querySelectorAll('[data-show]')) el.checked = state.show[el.dataset.show] !== false;
   $('[data-shadow]').checked = state.shadow !== false;
   $('#radius-val').textContent = state.radius;
-  const t = resolveTheme({ ...state, accent: '', background: '' });
-  $('#f-accent').value = state.accent || (/^#[0-9a-f]{6}$/i.test(t.button) ? t.button : '#e03131');
+  const pal = resolveTheme({ ...state, accent: '', background: '' });
+  $('#f-accent').value = state.accent || (/^#[0-9a-f]{6}$/i.test(pal.button) ? pal.button : '#e03131');
   $('#f-bg').value = /^#[0-9a-f]{6}$/i.test(state.background) ? state.background : '#ffffff';
   $('#logo-reset').hidden = !state.customLogo;
   for (const seg of ['layout', 'theme', 'headingFont', 'look', 'season', 'qrPos']) setSeg(seg, state[seg]);
@@ -153,6 +154,9 @@ function setSeg(id, value) {
   for (const b of document.querySelectorAll(`#${id} [data-v]`)) b.setAttribute('aria-pressed', String(b.dataset.v === value));
 }
 
+// The season sticker's default words in this page's language.
+const seasonBadge = (id) => (lang === 'th' && SEASON_BADGE_TH[id]) || SEASONS[id]?.badge || '';
+
 // --- platform switching -------------------------------------------------------------
 
 const pickCopy = (s) => Object.fromEntries(COPY_FIELDS.map((k) => [k, structuredClone(s[k])]));
@@ -160,7 +164,7 @@ const pickCopy = (s) => Object.fromEntries(COPY_FIELDS.map((k) => [k, structured
 function switchPlatform(id) {
   if (id === state.platform) return;
   state.copies[state.platform] = pickCopy(state);
-  Object.assign(state, state.copies[id] || pickCopy(defaults(id, state.name)), { platform: id, customLogo: '' });
+  Object.assign(state, state.copies[id] || pickCopy(defaults(id, state.name, lang)), { platform: id, customLogo: '' });
   renderPlatforms();
   fillForm();
   render();
@@ -168,8 +172,8 @@ function switchPlatform(id) {
 
 // Changing the business name rewrites any text that's still the untouched default.
 function renameBusiness(oldName, newName) {
-  const before = defaults(state.platform, oldName);
-  const after = defaults(state.platform, newName);
+  const before = defaults(state.platform, oldName, lang);
+  const after = defaults(state.platform, newName, lang);
   for (const k of COPY_FIELDS) {
     if (k !== 'stats' && state[k] === before[k]) state[k] = after[k];
   }
@@ -240,7 +244,7 @@ picInput.addEventListener('change', async () => {
     fillForm();
     render();
   } catch {
-    toast('That file couldn’t be opened as an image');
+    toast(t('That file couldn’t be opened as an image'));
   }
 });
 // Small × on filled slots.
@@ -316,9 +320,9 @@ $('#look').addEventListener('click', (e) => {
 $('#season').addEventListener('click', (e) => {
   const b = e.target.closest('[data-v]');
   if (!b) return;
-  const before = SEASONS[state.season]?.badge || '';
+  const before = seasonBadge(state.season);
   // Swap the sticker text too, unless it's been reworded.
-  if (!state.seasonBadge || state.seasonBadge === before) state.seasonBadge = SEASONS[b.dataset.v].badge || '';
+  if (!state.seasonBadge || state.seasonBadge === before) state.seasonBadge = seasonBadge(b.dataset.v);
   state.season = b.dataset.v;
   fillForm();
   render();
@@ -368,18 +372,18 @@ $('#bg-reset').addEventListener('click', () => {
   render();
 });
 $('#reset-words').addEventListener('click', () => {
-  Object.assign(state, pickCopy(defaults(state.platform, state.name)));
+  Object.assign(state, pickCopy(defaults(state.platform, state.name, lang)));
   delete state.copies[state.platform];
   fillForm();
   render();
-  toast('Words reset');
+  toast(t('Words reset'));
 });
 
 // Tabs
 const tabs = [...document.querySelectorAll('[data-tab]')];
 for (const tab of tabs) {
   tab.addEventListener('click', () => {
-    for (const t of tabs) t.setAttribute('aria-selected', String(t === tab));
+    for (const other of tabs) other.setAttribute('aria-selected', String(other === tab));
     for (const panel of document.querySelectorAll('[data-panel]')) panel.hidden = panel.dataset.panel !== tab.dataset.tab;
   });
 }
@@ -424,7 +428,7 @@ async function exportPng() {
     // Tall formats get a narrower stacked layout, so it grows to fill the frame instead of floating in it.
     const stackWidth = H0 / W0 > 1.6 ? 540 : H0 / W0 > 1.15 ? 620 : 700;
     const cardWidth = state.layout === 'banner' ? (stack ? stackWidth : 1100) : state.layout === 'card' ? 440 : null;
-    const html = renderCard({ ...state, url: currentUrl(), stack }, { forExport: true });
+    const html = renderCard({ ...state, url: currentUrl(), stack, lang }, { forExport: true });
 
     // Measure the card at its natural size off-screen.
     const probe = document.createElement('div');
@@ -450,8 +454,8 @@ async function exportPng() {
       const pad = Math.round(W * 0.07);
       scale = Math.min((W - pad * 2) / cw, (H - pad * 2) / ch, 2.4);
     }
-    const t = resolveTheme(state);
-    const background = behind === 'transparent' ? 'transparent' : behind === 'white' ? '#ffffff' : t.dark ? '#0b0b0f' : t.bg;
+    const pal = resolveTheme(state);
+    const background = behind === 'transparent' ? 'transparent' : behind === 'white' ? '#ffffff' : pal.dark ? '#0b0b0f' : pal.bg;
 
     const root = document.createElement('div');
     root.innerHTML = `<style>${await fontCss()}${CARD_CSS}</style><div style="width:${W}px;height:${H}px;display:flex;align-items:center;justify-content:center;background:${background}"><div style="flex:none;${cardWidth ? `width:${cw}px` : ''};transform:scale(${scale})">${html}</div></div>`;
@@ -470,7 +474,7 @@ async function exportPng() {
     const blob = await new Promise((res, rej) => canvas.toBlob((b) => (b ? res(b) : rej(new Error('empty'))), 'image/png'));
     download(`shop-card-${state.platform}${size === 'auto' ? '' : `-${size}`}.png`, blob, 'image/png');
   } catch {
-    toast('Your browser couldn’t draw the image. Try Chrome or Edge, or take a screenshot of the preview.');
+    toast(t('Your browser couldn’t draw the image. Try Chrome or Edge, or take a screenshot of the preview.'));
   } finally {
     btn.disabled = false;
   }

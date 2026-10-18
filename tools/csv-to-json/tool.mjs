@@ -27,7 +27,7 @@ export default {
 Ada,36"></textarea>
   </div>
   <div class="panel">
-    <div class="panel-head"><span class="label">JSON</span><button class="btn small" data-copy="#output">Copy</button></div>
+    <div class="panel-head"><label class="label" for="output">JSON</label><button class="btn small" data-copy="#output">Copy</button></div>
     <textarea id="output" spellcheck="false" readonly data-send-to="json-formatter,json-schema-generator"></textarea>
   </div>
 </div>`,

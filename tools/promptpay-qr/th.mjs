@@ -18,7 +18,7 @@ export default {
       <strong>ก่อนพิมพ์:</strong> ลองสแกนด้วยแอปธนาคารของคุณเอง แล้วตรวจชื่อบัญชีและยอดเงินที่แสดง เราไม่เห็นและตรวจสอบไม่ได้ว่าหมายเลขนี้เป็นบัญชีของใคร
     </div>
   </div>
-  <aside class="ppq-side">
+  <div class="ppq-side">
     <div class="ppq-preview"><canvas id="card" width="1200" height="1460" aria-label="ตัวอย่างป้ายรับเงินพร้อมเพย์"></canvas></div>
     <div class="status" id="status" aria-live="polite"></div>
     <div class="ppq-actions">
@@ -26,7 +26,7 @@ export default {
       <button class="btn" id="qr-png">เฉพาะ QR</button>
       <button class="btn" id="copy">คัดลอกข้อความ QR</button>
     </div>
-  </aside>
+  </div>
 </div>`,
   content: `<h2>วิธีสร้าง QR พร้อมเพย์</h2>
 <ol><li>ใส่เบอร์มือถือหรือเลขบัตรที่ผูกพร้อมเพย์ไว้</li><li>ถ้าลูกค้าทุกคนจ่ายเท่ากัน ใส่ยอดเงินไว้เลย ถ้าไม่ใช่ เว้นว่างไว้ให้ลูกค้าพิมพ์ยอดในแอปเอง</li><li>ดาวน์โหลดป้ายรับเงินไปพิมพ์ตั้งไว้หน้าร้าน หรือเลือกเฉพาะ QR ไปใส่ในงานออกแบบของคุณเอง</li><li>สแกนด้วยแอปธนาคารของคุณก่อน แล้วตรวจชื่อที่แสดง</li></ol>

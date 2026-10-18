@@ -321,6 +321,28 @@ async function signFiles(dir) {
     else if (/\.(css|js)$/.test(entry.name)) await writeFile(full, `/*! ${BRAND_NOTICE} */\n${await readFile(full, 'utf8')}`);
   }
 }
+// Minify the CSS and JS we wrote (third-party files in assets/vendor ship as they are).
+// esbuild is a dev dependency; without it the site still builds, just unminified.
+let esbuild = null;
+try {
+  esbuild = await import('esbuild');
+} catch {
+  warnings.push('esbuild is not installed, so CSS and JS were not minified (npm install)');
+}
+async function minifyFiles(dir) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name !== 'vendor') await minifyFiles(full);
+    } else if (/\.(css|js)$/.test(entry.name)) {
+      const loader = entry.name.endsWith('.css') ? 'css' : 'js';
+      const { code } = await esbuild.transform(await readFile(full, 'utf8'), { loader, minify: true, legalComments: 'inline', ...(loader === 'js' && { target: 'es2022' }) });
+      await writeFile(full, code);
+    }
+  }
+}
+if (esbuild && process.env.MINIFY !== '0') await minifyFiles(out);
+
 await signFiles(out);
 
 // --- tool index (command palette, "Send to…"), one per language --------------------------------

@@ -16,7 +16,7 @@ export default {
   short: 'One photo, every social size, cropped where you want.',
   body: `<label class="dropzone" id="dropzone" for="files">
   <strong>Drop images here, paste, or click to choose</strong>
-  <span>JPG, PNG, WebP, AVIF, GIF (and HEIC in Safari) · several at once · files stay on your device</span>
+  <span>JPG, PNG, WebP, AVIF, HEIC, GIF · several at once · files stay on your device</span>
   <input type="file" id="files" multiple accept="image/*,.heic,.heif,.avif">
 </label>
 <div class="sr-presets" role="group" aria-labelledby="sr-presets-label">

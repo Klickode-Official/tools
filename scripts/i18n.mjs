@@ -10,7 +10,7 @@ export const UI = {
   en: {
     tools: 'Tools',
     nav: { business: 'Business', images: 'Images', json: 'JSON', seo: 'SEO', text: 'Text', encoding: 'Encoding' },
-    navLabel: 'Categories',
+    navLabel: 'Main',
     skip: 'Skip to content',
     findTool: 'Find a tool',
     findToolLabel: 'Find a tool (Ctrl+K)',
@@ -47,7 +47,7 @@ export const UI = {
   th: {
     tools: 'เครื่องมือ',
     nav: { business: 'ธุรกิจ', images: 'รูปภาพ', json: 'JSON', seo: 'SEO', text: 'ข้อความ', encoding: 'เข้ารหัส' },
-    navLabel: 'หมวดหมู่',
+    navLabel: 'เมนูหลัก',
     skip: 'ข้ามไปที่เนื้อหา',
     findTool: 'ค้นหาเครื่องมือ',
     findToolLabel: 'ค้นหาเครื่องมือ (Ctrl+K)',
@@ -83,9 +83,13 @@ export const UI = {
   },
 };
 
-// Words used by the shared browser code (assets/js/ui.js, home.js). English is the key itself.
+import imageToolsTh from './i18n-image-tools.mjs';
+
+// Words used by the shared browser code (assets/js/ui.js, home.js, shared/image-tools.js).
+// English is the key itself.
 export const RUNTIME = {
   th: {
+    ...imageToolsTh,
     'Copied to clipboard': 'คัดลอกแล้ว',
     'Share link copied': 'คัดลอกลิงก์แชร์แล้ว',
     'Input is too large to share as a link': 'ข้อมูลยาวเกินกว่าจะแชร์เป็นลิงก์ได้',

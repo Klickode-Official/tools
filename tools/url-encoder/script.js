@@ -1,4 +1,4 @@
-import { $, persist, setStatus, escapeHtml } from '/assets/js/ui.js';
+import { $, persist, setStatus, escapeHtml, t } from '/assets/js/ui.js';
 import { urlEncode, urlDecode } from '/assets/js/lib/encode.js';
 
 const input = $('#input');
@@ -22,13 +22,13 @@ function run(fn, label) {
     setStatus(status, label, true);
   } catch (e) {
     output.value = '';
-    setStatus(status, e instanceof URIError ? 'Malformed percent-encoding (e.g. a stray % not followed by two hex digits)' : e.message, false);
+    setStatus(status, e instanceof URIError ? t('Malformed percent-encoding (e.g. a stray % not followed by two hex digits)') : e.message, false);
   }
   showParams(input.value);
 }
 
-$('#encode').addEventListener('click', () => run(() => urlEncode(input.value, { component: !full.checked }), 'Encoded'));
-$('#decode').addEventListener('click', () => run(() => urlDecode(input.value), 'Decoded'));
+$('#encode').addEventListener('click', () => run(() => urlEncode(input.value, { component: !full.checked }), t('Encoded')));
+$('#decode').addEventListener('click', () => run(() => urlDecode(input.value), t('Decoded')));
 $('#swap').addEventListener('click', () => ([input.value, output.value] = [output.value, input.value]));
 input.addEventListener('input', () => showParams(input.value));
 $('#clear').addEventListener('click', () => {

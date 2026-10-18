@@ -1,5 +1,6 @@
 // Brand colour palette: the image is read on a canvas in this tab. Nothing is uploaded.
-import { $, setStatus, download, copyText, escapeHtml, persist } from '/assets/js/ui.js';
+import { isHeic, decodeHeic } from '/assets/js/shared/heic.js';
+import { $, setStatus, download, copyText, escapeHtml, persist, t } from '/assets/js/ui.js';
 import { extractPalette, edgeColour, assignRoles, rgbToHsl, contrast, textColour, toCssVars, toTailwind, toJson } from '/assets/js/lib/palette.js';
 
 const fileInput = $('#file');
@@ -36,7 +37,18 @@ async function loadImage(src) {
 }
 
 async function open(blobOrUrl, name) {
-  setStatus(status, 'Reading colours…', true);
+  setStatus(status, t('Reading colours…'), true);
+  // iPhone photos (HEIC) are turned into a PNG first by the shared decoder.
+  if (typeof blobOrUrl !== 'string' && (await isHeic(blobOrUrl).catch(() => false)) && !(await createImageBitmap(blobOrUrl).then(() => true, () => false))) {
+    try {
+      const bmp = await decodeHeic(blobOrUrl);
+      const c = Object.assign(document.createElement('canvas'), { width: bmp.width, height: bmp.height });
+      c.getContext('2d').drawImage(bmp, 0, 0);
+      blobOrUrl = await new Promise((r) => c.toBlob(r, 'image/png'));
+    } catch {
+      // fall through to the normal error below
+    }
+  }
   const url = typeof blobOrUrl === 'string' ? blobOrUrl : URL.createObjectURL(blobOrUrl);
   try {
     const img = await loadImage(url);
@@ -59,7 +71,7 @@ async function open(blobOrUrl, name) {
     analyse();
   } catch {
     if (typeof blobOrUrl !== 'string') URL.revokeObjectURL(url);
-    setStatus(status, 'That file couldn’t be opened as an image. Try a PNG, JPG or SVG.', false);
+    setStatus(status, t('That file couldn’t be opened as an image. Try a PNG, JPG or SVG.'), false);
   }
 }
 
@@ -73,21 +85,23 @@ function analyse() {
   if (!colours.length) {
     result.hidden = exportPanel.hidden = true;
     pngBtn.disabled = true;
-    return setStatus(status, 'No solid colours found. Is the image fully transparent?', false);
+    return setStatus(status, t('No solid colours found. Is the image fully transparent?'), false);
   }
   roles = assignRoles(colours);
   render();
-  const note = edge ? ` · skipped the ${hex(edge)} background` : '';
-  setStatus(status, `Found ${colours.length} colour${colours.length === 1 ? '' : 's'}${note}`, true);
+  const note = edge ? ` · ${t('skipped the {hex} background', { hex: hex(edge) })}` : '';
+  setStatus(status, (colours.length === 1 ? t('Found 1 colour') : t('Found {n} colours', { n: colours.length })) + note, true);
 }
 
 const hex = (rgb) => `#${rgb.map((v) => v.toString(16).padStart(2, '0')).join('')}`.toUpperCase();
 const ratio = (n) => `${(Math.floor(n * 10) / 10).toFixed(1)}:1`;
+// Role names stay English in the exported code; on the page they're shown in the page's language.
+const roleLabel = (role) => role.replace(/^([a-z]+)(-\d+)?$/, (m, base, n) => t(base) + (n ? ` ${n.slice(1)}` : ''));
 
 function contrastBadge(rgb, against, label) {
   const r = contrast(rgb, against);
-  const grade = r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : r >= 3 ? 'Large' : 'Fail';
-  return `<span class="bp-cr ${r >= 4.5 ? 'ok' : r >= 3 ? 'mid' : 'bad'}" title="${label} text: ${ratio(r)}"><i style="background:${label === 'White' ? '#fff' : '#111'}"></i>${ratio(r)} <b>${grade}</b></span>`;
+  const grade = r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : r >= 3 ? t('Large') : t('Fail');
+  return `<span class="bp-cr ${r >= 4.5 ? 'ok' : r >= 3 ? 'mid' : 'bad'}" title="${escapeHtml(t(label === 'White' ? 'White text: {r}' : 'Black text: {r}', { r: ratio(r) }))}"><i style="background:${label === 'White' ? '#fff' : '#111'}"></i>${ratio(r)} <b>${grade}</b></span>`;
 }
 
 function render() {
@@ -101,7 +115,7 @@ function render() {
       return `<li class="bp-swatch">
   <span class="bp-chip" style="background:${c.hex};color:${textColour(c.rgb)}">Aa</span>
   <div class="bp-info">
-    <div class="bp-top"><b class="bp-role">${escapeHtml(roles[i])}</b><span class="bp-share">${Math.max(1, Math.round(c.share * 100))}%</span></div>
+    <div class="bp-top"><b class="bp-role">${escapeHtml(roleLabel(roles[i]))}</b><span class="bp-share">${Math.max(1, Math.round(c.share * 100))}%</span></div>
     <div class="bp-values">${values.map((v, k) => `<button type="button" class="bp-val${k ? '' : ' hex'}" data-val="${escapeHtml(v)}">${escapeHtml(v)}</button>`).join('')}</div>
     <div class="bp-contrast">${contrastBadge(c.rgb, [255, 255, 255], 'White')}${contrastBadge(c.rgb, [17, 17, 17], 'Black')}</div>
   </div>
@@ -141,8 +155,8 @@ async function palettePng() {
       ctx.stroke();
     }
     ctx.fillStyle = textColour(c.rgb);
-    ctx.font = '600 22px Inter, system-ui, sans-serif';
-    ctx.fillText(roles[i], x + 22, pad + 44);
+    ctx.font = "600 22px Inter, 'Noto Sans Thai', system-ui, sans-serif";
+    ctx.fillText(roleLabel(roles[i]), x + 22, pad + 44);
     ctx.fillStyle = '#18181b';
     ctx.font = '700 30px Inter, system-ui, sans-serif';
     ctx.fillText(c.hex, x + 4, pad + 330 + 52);
@@ -162,7 +176,7 @@ $('.bp-tabs').addEventListener('click', (e) => {
   const tab = e.target.closest('[data-fmt]');
   if (!tab) return;
   fmt = tab.dataset.fmt;
-  for (const t of document.querySelectorAll('.bp-tab')) t.setAttribute('aria-selected', String(t === tab));
+  for (const el of document.querySelectorAll('.bp-tab')) el.setAttribute('aria-selected', String(el === tab));
   renderCode();
 });
 $('#dl-code').addEventListener('click', () => {

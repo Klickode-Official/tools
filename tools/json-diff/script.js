@@ -1,4 +1,5 @@
-import { $, persist, setStatus, escapeHtml } from '/assets/js/ui.js';
+import { $, persist, setStatus, escapeHtml, t } from '/assets/js/ui.js';
+import { jsonErrorText } from '/tools/json-formatter/json-error.js';
 import { parse, stringify } from '/assets/js/lib/json.js';
 import { jsonDiff } from '/assets/js/lib/diff.js';
 
@@ -16,21 +17,22 @@ function compare() {
   try {
     a = parse(left.value);
   } catch (e) {
-    return setStatus(status, `Original: ${e.message}`, false);
+    return setStatus(status, t('Original: {message}', { message: jsonErrorText(e) }), false);
   }
   try {
     b = parse(right.value);
   } catch (e) {
-    return setStatus(status, `Changed: ${e.message}`, false);
+    return setStatus(status, t('Changed: {message}', { message: jsonErrorText(e) }), false);
   }
   const diffs = jsonDiff(a, b);
-  if (!diffs.length) return setStatus(status, 'The documents are equivalent.', true);
+  if (!diffs.length) return setStatus(status, t('The documents are equivalent.'), true);
   const counts = diffs.reduce((c, d) => ((c[d.type] = (c[d.type] || 0) + 1), c), {});
-  setStatus(status, `${diffs.length} difference${diffs.length > 1 ? 's' : ''}: ${Object.entries(counts).map(([k, n]) => `${n} ${k}`).join(', ')}`, true);
+  const parts = Object.entries(counts).map(([k, n]) => t('{n} ' + k, { n }));
+  setStatus(status, t(diffs.length === 1 ? '1 difference: {parts}' : '{n} differences: {parts}', { n: diffs.length, parts: parts.join(', ') }), true);
   result.innerHTML = diffs
     .map((d) => {
       const detail = d.type === 'changed' ? `${show(d.from)} → ${show(d.to)}` : d.type === 'added' ? show(d.to) : show(d.from);
-      return `<li><span class="badge ${d.type}">${d.type}</span>${escapeHtml(d.path)}: ${detail}</li>`;
+      return `<li><span class="badge ${d.type}">${t(d.type)}</span>${escapeHtml(d.path)}: ${detail}</li>`;
     })
     .join('');
 }

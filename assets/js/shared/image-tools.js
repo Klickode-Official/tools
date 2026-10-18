@@ -1,6 +1,6 @@
 // Shared by the image converter, compressor, resizer and EXIF remover pages.
 // Everything happens on a canvas in this tab; files are never uploaded.
-import { $, persist, setStatus, download, escapeHtml, debounce } from '/assets/js/ui.js';
+import { $, persist, setStatus, download, escapeHtml, debounce, t } from '/assets/js/ui.js';
 import { FORMATS, targetSize, outputName, formatBytes, searchQuality } from '/assets/js/lib/images.js';
 import { inspectMetadata, describeMetadata, stripMetadata } from '/assets/js/lib/metadata.js';
 import { createZip } from '/assets/js/lib/zip.js';
@@ -44,7 +44,7 @@ async function detectEncoders() {
     for (const opt of [...format.options]) {
       if (opt.value !== 'keep' && !supported[opt.value]) {
         opt.disabled = true;
-        opt.textContent += ' (not supported by this browser)';
+        opt.textContent += t(' (not supported by this browser)');
       }
     }
     if (format.selectedOptions[0]?.disabled) format.value = supported['image/webp'] ? 'image/webp' : 'image/png';
@@ -71,10 +71,10 @@ async function decode(file) {
         try {
           return await decodeHeic(file);
         } catch {
-          throw new Error('This HEIC photo couldn’t be decoded. Try exporting it as JPG from the Photos app.');
+          throw new Error(t('This HEIC photo couldn’t be decoded. Try exporting it as JPG from the Photos app.'));
         }
       }
-      throw new Error('This file couldn’t be decoded as an image.');
+      throw new Error(t('This file couldn’t be decoded as an image.'));
     } finally {
       URL.revokeObjectURL(url);
     }
@@ -114,7 +114,7 @@ function draw(src, width, height, fill) {
 }
 
 const toBlob = (canvas, mime, q) =>
-  new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('The browser could not encode this image (it may be too large).'))), mime, q));
+  new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(t('The browser could not encode this image (it may be too large).')))), mime, q));
 
 function chooseMime(file) {
   const pick = format?.value ?? 'keep';
@@ -131,14 +131,14 @@ async function process(item) {
     const stripped = stripMetadata(item.bytes);
     if (stripped) {
       const mime = { jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' }[item.meta.format];
-      return { blob: new Blob([stripped], { type: mime }), name: sameFormatName(mime, '-clean'), ...(await dims(item)), note: 'Removed losslessly; pixels untouched' };
+      return { blob: new Blob([stripped], { type: mime }), name: sameFormatName(mime, '-clean'), ...(await dims(item)), note: t('Removed losslessly; pixels untouched') };
     }
   }
 
   const src = await decode(file);
   try {
     const { w, h } = sourceSize(src);
-    if (w * h > MAX_PIXELS) throw new Error(`Image is ${Math.round((w * h) / 1e6)} megapixels; the limit is ${MAX_PIXELS / 1e6} MP.`);
+    if (w * h > MAX_PIXELS) throw new Error(t('Image is {n} megapixels; the limit is {max} MP.', { n: Math.round((w * h) / 1e6), max: MAX_PIXELS / 1e6 }));
     const resize = resizeMode
       ? { mode: resizeMode.value, width: Number(widthIn.value) || 0, height: Number(heightIn.value) || 0, percent: Number(percentIn.value) || 100 }
       : { mode: 'none' };
@@ -149,21 +149,21 @@ async function process(item) {
     const q = quality ? Number(quality.value) / 100 : 0.92;
     const name = sameFormatName(mime, mode === 'exif' ? '-clean' : mode === 'resize' ? `-${size.width}x${size.height}` : '');
     let blob;
-    let note = mode === 'exif' ? 'Re-encoded to apply rotation; metadata removed' : '';
+    let note = mode === 'exif' ? t('Re-encoded to apply rotation; metadata removed') : '';
 
     const target = (Number(targetKb?.value) || 0) * 1024;
     if (target && FORMATS[mime].lossy) {
       const r = await searchQuality(async (qq) => ({ size: (await toBlob(canvas, mime, qq)).size }), target);
       blob = await toBlob(canvas, mime, r.quality);
-      note = r.fits ? `Quality ${Math.round(r.quality * 100)} to fit ${formatBytes(target)}` : `Couldn’t reach ${formatBytes(target)}; try a smaller size`;
+      note = r.fits ? t('Quality {q} to fit {size}', { q: Math.round(r.quality * 100), size: formatBytes(target) }) : t('Couldn’t reach {size}; try a smaller size', { size: formatBytes(target) });
     } else {
       blob = await toBlob(canvas, mime, q);
-      if (target) note = `${FORMATS[mime].label} is lossless, so a target size can’t apply; choose JPG or WebP`;
+      if (target) note = t('{format} is lossless, so a target size can’t apply; choose JPG or WebP', { format: FORMATS[mime].label });
     }
 
     // Compressing can make an already-optimised file bigger; never hand back a worse file.
     if (mode === 'compress' && blob.size >= file.size && mime === file.type && size.width === w && size.height === h) {
-      return { blob: file, name: file.name, width: w, height: h, note: 'Already well compressed; original kept' };
+      return { blob: file, name: file.name, width: w, height: h, note: t('Already well compressed; original kept') };
     }
     return { blob, name, width: size.width, height: size.height, note };
   } finally {
@@ -183,13 +183,13 @@ async function dims(item) {
 function render() {
   list.innerHTML = items
     .map((it) => {
-      const metaList = describeMetadata(it.meta);
+      const metaList = describeMetadata(it.meta).map((m) => t(m));
       const metaHtml = metaList.length
-        ? `<span class="badge ${it.meta.gps ? 'removed' : 'changed'}">${mode === 'exif' && it.out ? 'removed' : 'contains'}: ${escapeHtml(metaList.join(', '))}</span>`
+        ? `<span class="badge ${it.meta.gps ? 'removed' : 'changed'}">${escapeHtml(t(mode === 'exif' && it.out ? 'removed: {list}' : 'contains: {list}', { list: metaList.join(', ') }))}</span>`
         : mode === 'exif'
-          ? '<span class="badge added">no metadata found</span>'
+          ? `<span class="badge added">${t('no metadata found')}</span>`
           : '';
-      let result = '<span class="check">Processing…</span>';
+      let result = `<span class="check">${t('Processing…')}</span>`;
       if (it.error) result = `<span class="err-text">${escapeHtml(it.error)}</span>`;
       else if (it.out) {
         const delta = it.out.blob.size - it.file.size;
@@ -199,7 +199,7 @@ function render() {
       return `<li class="file-row">
         <img src="${it.thumb}" alt="" class="thumb" loading="lazy">
         <div class="file-info"><strong>${escapeHtml(it.file.name)}</strong><span class="check">${formatBytes(it.file.size)}</span>${metaHtml}<div>${result}</div></div>
-        <button class="btn small" data-dl="${it.id}" ${it.out ? '' : 'disabled'}>Download</button>
+        <button class="btn small" data-dl="${it.id}" ${it.out ? '' : 'disabled'}>${t('Download')}</button>
       </li>`;
     })
     .join('');
@@ -214,8 +214,8 @@ function render() {
   setStatus(
     status,
     pending
-      ? `Processing ${done.length + errors + 1} of ${items.length}…`
-      : `${done.length} file${done.length === 1 ? '' : 's'} ready · ${formatBytes(before)} → ${formatBytes(after)}${before ? ` (${after <= before ? '−' : '+'}${Math.abs(Math.round((100 * (after - before)) / before))}%)` : ''}${errors ? ` · ${errors} failed` : ''}`,
+      ? t('Processing {i} of {n}…', { i: done.length + errors + 1, n: items.length })
+      : `${done.length === 1 ? t('1 file ready') : t('{n} files ready', { n: done.length })} · ${formatBytes(before)} → ${formatBytes(after)}${before ? ` (${after <= before ? '−' : '+'}${Math.abs(Math.round((100 * (after - before)) / before))}%)` : ''}${errors ? ` · ${t('{n} failed', { n: errors })}` : ''}`,
     !errors,
   );
 }
@@ -247,7 +247,7 @@ async function runAll() {
 
 async function add(files) {
   const images = [...files].filter((f) => f.type.startsWith('image/') || /\.(heic|heif|avif)$/i.test(f.name));
-  if (!images.length) return setStatus(status, 'No image files found in that selection.', false);
+  if (!images.length) return setStatus(status, t('No image files found in that selection.'), false);
   for (const file of images) {
     const bytes = new Uint8Array(await file.arrayBuffer());
     items.push({ id: nextId++, file, bytes, meta: inspectMetadata(bytes), thumb: URL.createObjectURL(file) });

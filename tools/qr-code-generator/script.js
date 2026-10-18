@@ -1,4 +1,4 @@
-import { $, persist, setStatus, download, toast, debounce } from '/assets/js/ui.js';
+import { $, persist, setStatus, download, toast, debounce, t } from '/assets/js/ui.js';
 import { encodeQr } from '/assets/js/lib/qr.js';
 import { qrArt, scanWarnings } from '/assets/js/lib/qr-art.js';
 import { TYPES, buildPayload } from './payloads.js';
@@ -32,7 +32,7 @@ persist(typeInput, styleInput, dark, light, transparent, caption, ecl, margin, s
 // --- type picker ---------------------------------------------------------------------------
 const types = $('#types');
 types.innerHTML = Object.entries(TYPES)
-  .map(([k, t]) => `<button type="button" role="radio" data-v="${k}" aria-checked="false">${t.label}</button>`)
+  .map(([k, type]) => `<button type="button" role="radio" data-v="${k}" aria-checked="false">${t(type.label)}</button>`)
   .join('');
 function showType(type) {
   if (!TYPES[type]) type = 'url';
@@ -82,15 +82,21 @@ function fields() {
   };
 }
 
+// scanWarnings() comes from the shared QR library in English; translate it here.
+function translateWarning(w) {
+  const m = /contrast ([\d.]+):1/.exec(w);
+  return m ? t('The colours are quite close (contrast {c}:1). Go darker on the code or lighter on the background, and test it with a phone.', { c: m[1] }) : t(w);
+}
+
 // --- render ----------------------------------------------------------------------------------
-const EMPTY = '<div class="qrg-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg><span>Fill in the details and your code appears here.</span></div>';
+const EMPTY = `<div class="qrg-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg><span>${t('Fill in the details and your code appears here.')}</span></div>`;
 
 function render() {
-  $('#margin-val').textContent = `${margin.value} module${margin.value === '1' ? '' : 's'}`;
+  $('#margin-val').textContent = margin.value === '1' ? t('1 module') : t('{n} modules', { n: margin.value });
   const text = buildPayload(typeInput.value, fields());
   payloadOut.textContent = text;
   const bg = transparent.checked ? null : light.value;
-  const warnings = scanWarnings(dark.value, bg ?? '#ffffff');
+  const warnings = scanWarnings(dark.value, bg ?? '#ffffff').map(translateWarning);
   if (!text) {
     current = null;
     preview.innerHTML = EMPTY;
@@ -106,15 +112,15 @@ function render() {
     preview.innerHTML = withCaption(svg, caption.value, { dark: dark.value, light: bg, px: 320 });
     preview.classList.toggle('see-through', !bg);
     const chars = [...text].length;
-    meta.textContent = `${qr.size} × ${qr.size} modules · level ${qr.ecl} · ${chars.toLocaleString()} character${chars === 1 ? '' : 's'}`;
-    if (logo && qr.ecl !== 'H') warnings.push('With a logo, use High error correction so the covered middle can be recovered.');
-    if (qr.version > 15) warnings.push('That’s a lot of data, so the code is dense. Print it large, or shorten the content.');
+    meta.textContent = t(chars === 1 ? '{size} × {size} modules · level {ecl} · 1 character' : '{size} × {size} modules · level {ecl} · {chars} characters', { size: qr.size, ecl: qr.ecl, chars: chars.toLocaleString() });
+    if (logo && qr.ecl !== 'H') warnings.push(t('With a logo, use High error correction so the covered middle can be recovered.'));
+    if (qr.version > 15) warnings.push(t('That’s a lot of data, so the code is dense. Print it large, or shorten the content.'));
     setStatus(status, warnings.join(' '), !warnings.length);
-    if (!warnings.length) setStatus(status, 'Ready. Test it with your phone camera before printing.', true);
+    if (!warnings.length) setStatus(status, t('Ready. Test it with your phone camera before printing.'), true);
   } catch (e) {
     current = null;
     preview.innerHTML = EMPTY;
-    setStatus(status, e.message, false);
+    setStatus(status, t(e.message), false);
   }
 }
 const renderSoon = debounce(render, 60);
@@ -131,16 +137,16 @@ logoInput.addEventListener('change', async () => {
   try {
     logo = await loadLogo(file);
     $('#logo-remove').hidden = false;
-    $('#logo-btn').textContent = 'Change logo';
+    $('#logo-btn').textContent = t('Change logo');
     render();
   } catch (e) {
-    toast(e.message);
+    toast(t(e.message));
   }
 });
 $('#logo-remove').addEventListener('click', () => {
   logo = null;
   $('#logo-remove').hidden = true;
-  $('#logo-btn').textContent = 'Add logo';
+  $('#logo-btn').textContent = t('Add logo');
   render();
 });
 
@@ -159,23 +165,23 @@ async function pngBlob() {
 }
 $('#png').addEventListener('click', async () => {
   render(); // in case a keystroke is still waiting on the debounce
-  if (!current) return toast('Fill in the details first');
+  if (!current) return toast(t('Fill in the details first'));
   const blob = await pngBlob();
   download(`${fileBase()}.png`, blob, 'image/png');
 });
 $('#svg').addEventListener('click', () => {
   render(); // in case a keystroke is still waiting on the debounce
-  if (!current) return toast('Fill in the details first');
+  if (!current) return toast(t('Fill in the details first'));
   download(`${fileBase()}.svg`, fullSvg(Number(size.value)), 'image/svg+xml');
 });
 $('#copy').addEventListener('click', async () => {
   render(); // in case a keystroke is still waiting on the debounce
-  if (!current) return toast('Fill in the details first');
+  if (!current) return toast(t('Fill in the details first'));
   try {
     await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob() })]);
-    toast('Image copied');
+    toast(t('Image copied'));
   } catch {
-    toast('Your browser won’t copy images here. Use Download PNG instead.');
+    toast(t('Your browser won’t copy images here. Use Download PNG instead.'));
   }
 });
 

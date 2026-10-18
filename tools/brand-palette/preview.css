@@ -1,0 +1,13 @@
+/* Card preview for the brand palette tool: a logo turning into swatches. */
+.pv-palette { gap: 10px; }
+.pv-logo { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border-strong); box-shadow: 0 2px 6px -3px rgba(24, 24, 27, 0.18); }
+.pv-logo i { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, #E03131 0 50%, #18181B 50% 100%); }
+.pv-swatches { display: flex; border-radius: 9px; overflow: hidden; border: 1px solid var(--border-strong); box-shadow: 0 2px 6px -3px rgba(24, 24, 27, 0.18); }
+.pv-swatches i { width: 26px; height: 38px; }
+@media (prefers-reduced-motion: no-preference) {
+  .pv-swatches i { transform-origin: bottom; }
+  .tool-card:is(:hover, :focus-visible) .pv-swatches i { animation: pv-rise 0.4s ease-out both; }
+  .tool-card:is(:hover, :focus-visible) .pv-swatches i:nth-child(2) { animation-delay: 0.06s; }
+  .tool-card:is(:hover, :focus-visible) .pv-swatches i:nth-child(3) { animation-delay: 0.12s; }
+  .tool-card:is(:hover, :focus-visible) .pv-swatches i:nth-child(4) { animation-delay: 0.18s; }
+}

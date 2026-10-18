@@ -24,7 +24,7 @@ export default {
       <strong>Before you print:</strong> scan the code with your own banking app and check the name and amount it shows. We can’t see or check which account the number belongs to.
     </div>
   </div>
-  <aside class="ppq-side">
+  <div class="ppq-side">
     <div class="ppq-preview"><canvas id="card" width="1200" height="1460" aria-label="PromptPay pay card preview"></canvas></div>
     <div class="status" id="status" aria-live="polite"></div>
     <div class="ppq-actions">
@@ -32,7 +32,7 @@ export default {
       <button class="btn" id="qr-png">QR only</button>
       <button class="btn" id="copy">Copy QR text</button>
     </div>
-  </aside>
+  </div>
 </div>`,
   content: `<h2>How to make a PromptPay QR code</h2>
 <ol><li>Type the mobile number or ID your PromptPay is registered to.</li><li>Add an amount if every customer pays the same, or leave it empty so they type it in their app.</li><li>Download the pay card to print and stand by the till, or the plain QR for your own designs.</li><li>Scan it with your own banking app first and check the name it shows.</li></ol>

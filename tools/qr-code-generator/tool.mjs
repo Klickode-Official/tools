@@ -66,7 +66,7 @@ export default {
     </div>
   </div>
 
-  <aside class="qrg-side">
+  <div class="qrg-side">
     <div class="qrg-preview" id="preview" aria-live="polite"></div>
     <div class="status" id="status" aria-live="polite"></div>
     <div class="qrg-actions">
@@ -77,7 +77,7 @@ export default {
     </div>
     <p class="qrg-meta" id="meta"></p>
     <details class="qrg-inside"><summary>What’s inside the code</summary><pre id="payload"></pre></details>
-  </aside>
+  </div>
 </div>`,
   content: `<h2>How to make a QR code</h2>
 <ol><li>Pick what the code should open: a link, your Wi-Fi, a WhatsApp chat, your LINE account, a contact card and so on.</li><li>Fill in the details. The preview updates as you type.</li><li>Choose a style and colours, and add your logo if you like.</li><li>Download a PNG for posts and screens, or an SVG for print. SVGs stay sharp at any size.</li></ol>

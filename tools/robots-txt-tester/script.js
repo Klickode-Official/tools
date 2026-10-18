@@ -1,4 +1,13 @@
-import { $, persist, setStatus, escapeHtml, debounce } from '/assets/js/ui.js';
+import { $, persist, setStatus, escapeHtml, debounce, t } from '/assets/js/ui.js';
+import { localise } from '/tools/json-formatter/json-error.js';
+
+// Sentences from /assets/js/lib/robots.js, as templates t() can translate.
+const MESSAGES = [
+  [/^Unrecognised line: (".*")$/, 'Unrecognised line: {line}', ['line']],
+  [/^(\S+) before any User-agent line is ignored$/, '{directive} before any User-agent line is ignored', ['directive']],
+  [/^Unknown directive (".*")$/, 'Unknown directive {name}', ['name']],
+  [/^Matched (Allow|Disallow): (.*) \(line (\d+)\)$/, 'Matched {type}: {path} (line {line})', ['type', 'path', 'line']],
+];
 import { parseRobots, isAllowed, selectGroups } from '/assets/js/lib/robots.js';
 
 const input = $('#input');
@@ -14,18 +23,18 @@ function run() {
   const parsed = parseRobots(input.value);
   const groups = selectGroups(parsed, ua.value || '*');
   summary.innerHTML = `<table class="kv">
-    <tr><th>Groups</th><td>${parsed.groups.length}</td></tr>
-    <tr><th>Applies to "${escapeHtml(ua.value || '*')}"</th><td>${groups.length ? groups.map((g) => `User-agent: ${escapeHtml(g.agents.join(', '))} (line ${g.line})`).join('<br>') : 'None, so everything is allowed'}</td></tr>
+    <tr><th>${t('Groups')}</th><td>${parsed.groups.length}</td></tr>
+    <tr><th>${t('Applies to "{ua}"', { ua: escapeHtml(ua.value || '*') })}</th><td>${groups.length ? groups.map((g) => `User-agent: ${escapeHtml(g.agents.join(', '))} ${t('(line {line})', { line: g.line })}`).join('<br>') : t('None, so everything is allowed')}</td></tr>
     <tr><th>Sitemaps</th><td>${parsed.sitemaps.map(escapeHtml).join('<br>') || '—'}</td></tr>
-    ${parsed.warnings.map((w) => `<tr><th>Line ${w.line}</th><td class="err-text">${escapeHtml(w.message)}</td></tr>`).join('')}
+    ${parsed.warnings.map((w) => `<tr><th>${t('Line {line}', { line: w.line })}</th><td class="err-text">${escapeHtml(localise(w.message, MESSAGES))}</td></tr>`).join('')}
   </table>`;
   const lines = urls.value.split('\n').map((s) => s.trim()).filter(Boolean);
   if (!lines.length) return setStatus(status, '');
   const rows = lines.map((u) => ({ u, r: isAllowed(parsed, ua.value || '*', u) }));
   const blocked = rows.filter((x) => !x.r.allowed).length;
-  setStatus(status, `${rows.length - blocked} allowed · ${blocked} blocked`, true);
+  setStatus(status, t('{allowed} allowed · {blocked} blocked', { allowed: rows.length - blocked, blocked }), true);
   results.innerHTML = rows
-    .map(({ u, r }) => `<li><span class="badge ${r.allowed ? 'added' : 'removed'}">${r.allowed ? 'allowed' : 'blocked'}</span>${escapeHtml(u)} <span class="check">(${escapeHtml(r.reason)})</span></li>`)
+    .map(({ u, r }) => `<li><span class="badge ${r.allowed ? 'added' : 'removed'}">${r.allowed ? t('allowed') : t('blocked')}</span>${escapeHtml(u)} <span class="check">(${escapeHtml(localise(r.reason, MESSAGES))})</span></li>`)
     .join('');
 }
 

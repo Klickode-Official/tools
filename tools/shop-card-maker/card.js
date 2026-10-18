@@ -1,6 +1,7 @@
 // Shop Card Maker renderer. Pure functions: state in, HTML/CSS strings out, so the live
 // preview, the copy-paste code and the PNG export are all the same markup.
 import { LOGOS } from './logos.js';
+import { COPY_TH } from './copy-th.js';
 import { PLATFORMS } from './platforms.js';
 import { LOOKS, SEASONS, LOOK_CSS, SEASON_CSS, QR_CSS, seasonDeco } from './looks.js';
 import { encodeQr, qrToSvg } from '../../assets/js/lib/qr.js';
@@ -51,11 +52,19 @@ export function shortUrl(url) {
   }
 }
 
+// The few words the card itself shows, for Thai cards (state.lang === 'th').
+const CARD_WORDS = {
+  th: { opens: 'เปิด {url} ในแท็บใหม่', camera: 'ด้วยกล้องมือถือ', outOf: '{r} จาก 5', qr: 'QR Code' },
+  en: { opens: 'Opens {url} in a new tab', camera: 'with your phone camera', outOf: '{r} out of 5', qr: 'QR code' },
+};
+const words = (state) => CARD_WORDS[state?.lang] || CARD_WORDS.en;
+
 const fill = (s, name) => String(s).replaceAll('{name}', name || 'Your Shop');
 
-export function defaults(platformId, name = 'Your Shop') {
+// Default wording for a platform. lang 'th' uses the Thai copy from copy-th.js.
+export function defaults(platformId, name = 'Your Shop', lang = 'en') {
   const p = PLATFORMS[platformId];
-  const c = p.copy;
+  const c = (lang === 'th' && COPY_TH[platformId]) || p.copy;
   return {
     platform: platformId,
     name,
@@ -208,10 +217,10 @@ const ICONS = {
 
 for (const k of Object.keys(ICONS)) ICONS[k] = hardenSvg(ICONS[k]);
 
-function stars(rating) {
+function stars(rating, label = CARD_WORDS.en.outOf) {
   const r = Math.max(0, Math.min(5, Number(rating) || 0));
   const full = Math.round(r);
-  return `<span class="ksc-stars" aria-label="${r} out of 5">${'★'.repeat(full)}<span class="ksc-stars-off">${'★'.repeat(5 - full)}</span></span>`;
+  return `<span class="ksc-stars" aria-label="${label.replace('{r}', r)}">${'★'.repeat(full)}<span class="ksc-stars-off">${'★'.repeat(5 - full)}</span></span>`;
 }
 
 const initials = (name) =>
@@ -268,7 +277,7 @@ function cardHtml(state, t, url, { qr = '', deco = '', tag = '' } = {}) {
       <div class="ksc-who">
         <strong class="ksc-shop">${esc(state.shopName || state.name)}</strong>
         ${state.location ? `<span class="ksc-sub">${esc(state.location)}</span>` : ''}
-        ${show.rating !== false && state.rating ? `<span class="ksc-rating">${stars(state.rating)} <b>${esc(state.rating)}</b>${state.reviews ? ` <span class="ksc-sub">(${esc(state.reviews)})</span>` : ''}</span>` : ''}
+        ${show.rating !== false && state.rating ? `<span class="ksc-rating">${stars(state.rating, words(state).outOf)} <b>${esc(state.rating)}</b>${state.reviews ? ` <span class="ksc-sub">(${esc(state.reviews)})</span>` : ''}</span>` : ''}
       </div>
     </div>
     ${show.stats !== false && stats.length ? `<div class="ksc-stats">${stats.map(([v, l]) => `<span><b>${esc(v)}</b> ${esc(l)}</span>`).join('')}</div>` : ''}
@@ -307,7 +316,7 @@ export function renderCard(state, { forExport = false } = {}) {
     .split('\n')
     .map((b) => b.trim())
     .filter(Boolean);
-  const note = show.note !== false && url !== '#' ? `<p class="ksc-note">Opens ${esc(shortUrl(url))} in a new tab</p>` : '';
+  const note = show.note !== false && url !== '#' ? `<p class="ksc-note">${words(state).opens.replace('{url}', esc(shortUrl(url)))}</p>` : '';
   const badge = show.badge !== false && state.badge ? `<span class="ksc-badge">${logoHtml(state, t, 16)}<span>${esc(state.badge)}</span></span>` : '';
   const btn = `<a class="ksc-btn" href="${esc(url)}" target="_blank" rel="noopener">${esc(state.button)} ${ICONS.arrow}</a>`;
   const caption = esc(String(state.qrCaption ?? '').trim() || 'Scan to visit');
@@ -317,7 +326,7 @@ export function renderCard(state, { forExport = false } = {}) {
     <h2 class="ksc-title">${headlineHtml(state.headline)}</h2>
     ${state.text ? `<p class="ksc-text">${richText(state.text)}</p>` : ''}
     ${show.bullets !== false && bullets.length ? `<ul class="ksc-list">${bullets.map((b) => `<li>${ICONS.check}<span>${richText(b)}</span></li>`).join('')}</ul>` : ''}
-    ${place === 'cta' ? `<div class="ksc-cta">${btn}<span class="ksc-qr">${qr}<span><b>${caption}</b>with your phone camera</span></span></div>` : btn}
+    ${place === 'cta' ? `<div class="ksc-cta">${btn}<span class="ksc-qr">${qr}<span><b>${caption}</b>${words(state).camera}</span></span></div>` : btn}
     ${note}
   </div>
   ${show.card !== false ? `<div class="ksc-side">${cardHtml(state, t, url, { qr: place === 'card' ? qr : '' })}</div>` : ''}

@@ -409,6 +409,8 @@ h3 { font-size: 16px; margin: 20px 0 6px; font-weight: 600; }
 .tool-body h2::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 .tool-body .panel > h2:first-child { margin-top: 0; }
 .tool-body .panel > h3:first-child { margin-top: 0; font-size: 14px; }
+.tool-body .panel > .panel-title { display: block; margin: 0 0 6px; font-family: var(--sans); font-size: 14px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--text); }
+.tool-body .panel > .panel-title::after { content: none; }
 
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -775,53 +777,6 @@ textarea.drop-over { outline: 2px dashed var(--red); outline-offset: -6px; backg
 .pv-qr.sm i:nth-child(1) { top: 4px; left: 4px; }
 .pv-qr.sm i:nth-child(2) { top: 4px; right: 4px; }
 .pv-qr.sm i:nth-child(3) { bottom: 4px; left: 4px; }
-.pv-pay { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 132px; padding: 0 0 8px; border-radius: 10px; overflow: hidden; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 6px 16px -8px rgba(24, 24, 27, 0.25); font-family: var(--sans); }
-.pv-pay-top { align-self: stretch; padding: 5px 0 16px; background: #0f3b62; color: #fff; font-size: 10.5px; font-weight: 700; text-align: center; }
-.pv-pay .pv-qr { margin-top: -12px; }
-.pv-pay b { font-size: 14px; color: var(--text); font-weight: 800; }
-.pv-pay .pv-dim { font-family: var(--mono); font-size: 9.5px; }
-@media (prefers-reduced-motion: no-preference) {
-  .tool-card:is(:hover, :focus-visible) .pv-pay b { animation: pv-pop 0.5s 0.1s cubic-bezier(.3, 1.6, .5, 1) both; }
-}
-/* Link in Bio card preview: a tiny phone page. Merge into assets/css/style.css next to the other .pv-* rules. */
-.pv-bio { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 132px; padding: 10px 10px 8px; border-radius: 14px 14px 0 0; border: 1px solid var(--border-strong); border-bottom: 0; background: var(--bar); font-family: var(--sans); margin-bottom: -16px; align-self: center; box-shadow: 0 2px 8px -4px rgba(24, 24, 27, 0.2); }
-.pv-bio-av { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--red); color: #fff; font-size: 11px; font-weight: 700; }
-.pv-bio > b { font-size: 10.5px; color: var(--text); margin-bottom: 2px; }
-.pv-bio-btn { position: relative; width: 100%; height: 18px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border); display: grid; place-items: center; font-size: 9px; font-weight: 600; color: var(--text); }
-.pv-bio-btn i { position: absolute; left: 3px; top: 2px; width: 12px; height: 12px; border-radius: 4px; }
-@media (prefers-reduced-motion: no-preference) {
-  .tool-card:is(:hover, :focus-visible) .pv-bio-btn { animation: pv-slide 0.4s ease-out both; }
-  .tool-card:is(:hover, :focus-visible) .pv-bio-btn:nth-of-type(3) { animation-delay: 0.08s; }
-  .tool-card:is(:hover, :focus-visible) .pv-bio-btn:nth-of-type(4) { animation-delay: 0.16s; }
-}
-/* Card preview for the social image resizer: one photo in four frame shapes. Merge into style.css. */
-.pv-social { align-items: flex-end; gap: 8px; }
-.pv-sq { position: relative; display: grid; place-items: center; width: 48px; height: 48px; border: 1.5px solid var(--border-strong); border-radius: 6px; background: linear-gradient(160deg, color-mix(in srgb, var(--red) 22%, var(--surface)), color-mix(in srgb, var(--red) 6%, var(--surface))); overflow: hidden; box-shadow: 0 2px 6px -3px rgba(24, 24, 27, 0.18); }
-.pv-sq.tall { height: 60px; }
-.pv-sq.story { width: 40px; height: 72px; border-color: color-mix(in srgb, var(--red) 55%, var(--border)); }
-.pv-sq.wide { width: 72px; height: 40px; }
-.pv-sq i { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--red); opacity: 0.8; top: 30%; }
-.pv-sq span { position: absolute; bottom: 3px; font-size: 9.5px; color: var(--text); font-weight: 600; }
-@media (prefers-reduced-motion: no-preference) {
-  .tool-card:is(:hover, :focus-visible) .pv-sq { animation: pv-pop 0.45s cubic-bezier(.3, 1.6, .5, 1) both; }
-  .tool-card:is(:hover, :focus-visible) .pv-sq:nth-child(2) { animation-delay: 0.06s; }
-  .tool-card:is(:hover, :focus-visible) .pv-sq:nth-child(3) { animation-delay: 0.12s; }
-  .tool-card:is(:hover, :focus-visible) .pv-sq:nth-child(4) { animation-delay: 0.18s; }
-}
-/* Card preview for the brand palette tool: a logo turning into swatches. Merge into style.css. */
-.pv-palette { gap: 10px; }
-.pv-logo { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border-strong); box-shadow: 0 2px 6px -3px rgba(24, 24, 27, 0.18); }
-.pv-logo i { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, #E03131 0 50%, #18181B 50% 100%); }
-.pv-swatches { display: flex; border-radius: 9px; overflow: hidden; border: 1px solid var(--border-strong); box-shadow: 0 2px 6px -3px rgba(24, 24, 27, 0.18); }
-.pv-swatches i { width: 26px; height: 38px; }
-@media (prefers-reduced-motion: no-preference) {
-  .pv-swatches i { transform-origin: bottom; }
-  .tool-card:is(:hover, :focus-visible) .pv-swatches i { animation: pv-rise 0.4s ease-out both; }
-  .tool-card:is(:hover, :focus-visible) .pv-swatches i:nth-child(2) { animation-delay: 0.06s; }
-  .tool-card:is(:hover, :focus-visible) .pv-swatches i:nth-child(3) { animation-delay: 0.12s; }
-  .tool-card:is(:hover, :focus-visible) .pv-swatches i:nth-child(4) { animation-delay: 0.18s; }
-}
-
 /* --- language switch, notices, studio box ------------------------------------------------- */
 .lang-btn { display: inline-grid; place-items: center; min-width: 36px; height: 36px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--border); background: color-mix(in srgb, var(--mist) 55%, transparent); color: var(--text); text-decoration: none; font-size: 13px; font-weight: 600; }
 .lang-btn:hover { background: var(--mist); }
@@ -840,3 +795,7 @@ textarea.drop-over { outline: 2px dashed var(--red); outline-offset: -6px; backg
 :lang(th) .hero h1 { line-height: 1.25; }
 /* Monospace labels have wide tracking; Thai falls back to the sans font there and needs none. */
 :lang(th) :is(.eyebrow, .crumbs ol, .tool-bar-name, .tool-bar-note, .footer-col h2, .panel-head label, .panel-head .label, .label) { letter-spacing: 0; font-family: var(--sans); text-transform: none; }
+@media (max-width: 760px) { :lang(th) .tool-bar-note::after { content: 'ในเครื่อง'; } }
+/* Thai has no spaces, so long headings can only wrap where the browser's dictionary finds a word
+   break. Keep them a little smaller on phones so the common names fit on one or two lines. */
+@media (max-width: 520px) { :lang(th) h1 { font-size: 27px; line-height: 1.3; } }

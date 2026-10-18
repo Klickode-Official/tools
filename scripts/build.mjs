@@ -50,6 +50,7 @@ export async function loadTools() {
 }
 
 const tools = await loadTools();
+for (const c of categories) for (const [, slug] of c.guide || []) if (!tools.some((t) => t.slug === slug)) throw new Error(`scripts/categories.mjs: guide for "${c.id}" points to unknown tool "${slug}"`);
 const catOf = (t) => categoryById[t.category];
 const byCategory = (id) => tools.filter((t) => t.category === id);
 
@@ -156,7 +157,11 @@ for (const c of categories) {
       },
       body: `${breadcrumbs([['/', 'Tools'], [path, c.name]])}
 <header class="page-head"><div class="title-row"><span class="tool-icon lg">${categoryIcon(c, 24)}</span><h1>${esc(c.name)}</h1></div><p class="lede">${esc(c.description)}</p></header>
-${toolGrid(list, catOf)}`,
+${toolGrid(list, catOf)}
+<section class="content cat-guide">
+${c.intro || ''}
+${c.guide?.length ? `<h2>Which tool do I need?</h2><ul class="guide-list">${c.guide.map(([q, slug]) => { const t = tools.find((x) => x.slug === slug); return `<li><a href="/tools/${slug}/"><span>${esc(q)}</span><b><span class="tool-icon">${toolIcon(t, c, 14)}</span>${esc(t.name)}</b></a></li>`; }).join('')}</ul>` : ''}
+</section>`,
     }),
   );
 }

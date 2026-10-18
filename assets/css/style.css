@@ -353,7 +353,7 @@ h3 { font-size: 16px; margin: 20px 0 6px; font-weight: 600; }
 .pv-uuids div:nth-child(2) { opacity: 0.75; }
 .pv-uuids div:nth-child(3) { opacity: 0.5; }
 .pv-big-num { font-size: 20px; font-weight: 600; color: var(--text); letter-spacing: 0.02em; }
-.pv-score { width: 64px; height: 64px; border-radius: 50%; display: grid; place-content: center; text-align: center; background: conic-gradient(var(--ok) 0 86%, var(--border) 86% 100%); position: relative; flex: none; }
+.pv-score { --pv-score: 86%; width: 64px; height: 64px; border-radius: 50%; display: grid; place-content: center; text-align: center; background: conic-gradient(var(--ok) 0 var(--pv-score), var(--border) var(--pv-score) 100%); position: relative; flex: none; }
 .pv-score::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: var(--surface); }
 .pv-score b, .pv-score span { position: relative; line-height: 1; }
 .pv-score b { font-size: 18px; color: var(--text); font-family: var(--sans); }
@@ -668,3 +668,64 @@ textarea.drop-over { outline: 2px dashed var(--red); outline-offset: -6px; backg
 .recent-list a { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px 7px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; box-shadow: var(--shadow); transition: border-color 0.15s; }
 .recent-list a:hover { border-color: color-mix(in srgb, var(--red) 45%, var(--border)); }
 .recent-list .tool-icon { width: 26px; height: 26px; margin: 0; border-radius: 50%; }
+
+/* Card previews play a short demo of the tool on hover (or keyboard focus). */
+@property --pv-score { syntax: '<percentage>'; inherits: false; initial-value: 86%; }
+@media (prefers-reduced-motion: no-preference) {
+  .tool-card:is(:hover, :focus-visible) .pv-row > .pv-arrow { animation: pv-nudge-x 1.1s ease-in-out infinite; }
+  .tool-card:is(:hover, :focus-visible) .pv-stack > .pv-arrow { animation: pv-nudge-y 1.1s ease-in-out infinite; }
+  .tool-card:is(:hover, :focus-visible) .pv-file.hot,
+  .tool-card:is(:hover, :focus-visible) .pv-tag { animation: pv-pop 0.5s cubic-bezier(.3, 1.6, .5, 1) both; }
+  .tool-card:is(:hover, :focus-visible) .pv-tag { animation-delay: 0.15s; }
+  .pv-bar > i { transform-origin: left; }
+  .tool-card:is(:hover, :focus-visible) .pv-bar > i { animation: pv-fill 0.7s cubic-bezier(.2, .7, .2, 1) both; }
+  .tool-card:is(:hover, :focus-visible) .pv-bar:nth-child(2) > i { animation-delay: 0.1s; }
+  .tool-card:is(:hover, :focus-visible) .pv-bar:nth-child(3) > i { animation-delay: 0.2s; }
+  .tool-card:is(:hover, :focus-visible) .pv-small { animation: pv-shrink 0.8s cubic-bezier(.2, .7, .2, 1) both; }
+  .tool-card:is(:hover, :focus-visible) .pv-lines > .del,
+  .tool-card:is(:hover, :focus-visible) .pv-lines > .add { animation: pv-slide 0.45s ease-out both; }
+  .tool-card:is(:hover, :focus-visible) .pv-lines > :nth-child(3) { animation-delay: 0.12s; }
+  .tool-card:is(:hover, :focus-visible) .pv-lines > :nth-child(4) { animation-delay: 0.24s; }
+  .tool-card:is(:hover, :focus-visible) .pv-text mark { animation: pv-pop 0.45s cubic-bezier(.3, 1.6, .5, 1) both; }
+  .tool-card:is(:hover, :focus-visible) .pv-text mark + mark { animation-delay: 0.15s; }
+  .tool-card:is(:hover, :focus-visible) .pv-meta s { animation: pv-strike 0.6s ease-out both; }
+  .tool-card:is(:hover, :focus-visible) .pv-meta div:nth-child(2) s { animation-delay: 0.12s; }
+  .tool-card:is(:hover, :focus-visible) .pv-meta div:nth-child(3) s { animation-delay: 0.24s; }
+  .tool-card:is(:hover, :focus-visible) .pv-score { animation: pv-score 0.9s ease-out both; }
+  .tool-card:is(:hover, :focus-visible) .pv-cases > div { animation: pv-slide 0.4s ease-out both; }
+  .tool-card:is(:hover, :focus-visible) .pv-cases > div:nth-child(2) { animation-delay: 0.08s; }
+  .tool-card:is(:hover, :focus-visible) .pv-cases > div:nth-child(3) { animation-delay: 0.16s; }
+  .tool-card:is(:hover, :focus-visible) .pv-uuids > div { animation: pv-rise 0.5s ease-out both; }
+  .tool-card:is(:hover, :focus-visible) .pv-uuids > div:nth-child(2) { animation-delay: 0.08s; }
+  .tool-card:is(:hover, :focus-visible) .pv-uuids > div:nth-child(3) { animation-delay: 0.16s; }
+  .tool-card:is(:hover, :focus-visible) .pv-shop-btn { animation: pv-pop 0.5s 0.1s cubic-bezier(.3, 1.6, .5, 1) both; }
+  .tool-card:is(:hover, :focus-visible) .pv-dots i { animation: pv-rise 0.4s ease-out both; }
+  .tool-card:is(:hover, :focus-visible) .pv-dots i:nth-child(2) { animation-delay: 0.05s; }
+  .tool-card:is(:hover, :focus-visible) .pv-dots i:nth-child(3) { animation-delay: 0.1s; }
+  .tool-card:is(:hover, :focus-visible) .pv-dots i:nth-child(4) { animation-delay: 0.15s; }
+  .tool-card:is(:hover, :focus-visible) .pv-dots i:nth-child(5) { animation-delay: 0.2s; }
+  .tool-card:is(:hover, :focus-visible) .pv-dots i:nth-child(6) { animation-delay: 0.25s; }
+}
+@keyframes pv-nudge-x { 50% { transform: translateX(4px); } }
+@keyframes pv-nudge-y { 50% { transform: translateY(3px); } }
+@keyframes pv-pop { from { transform: scale(0.82); opacity: 0.4; } }
+@keyframes pv-fill { from { transform: scaleX(0.05); } }
+@keyframes pv-shrink { from { width: 100%; height: 100%; } }
+@keyframes pv-slide { from { transform: translateX(-8px); opacity: 0; } }
+@keyframes pv-rise { from { transform: translateY(6px); opacity: 0; } }
+@keyframes pv-strike { from { text-decoration-color: transparent; } }
+@keyframes pv-score { from { --pv-score: 0%; } }
+
+/* --- category pages: "Which tool do I need?" ------------------------------------------- */
+.cat-guide { margin-top: 48px; max-width: 860px; }
+.cat-guide > p { color: var(--muted); font-size: 16.5px; }
+.guide-list { list-style: none; padding: 0; margin: 14px 0 0; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); overflow: hidden; box-shadow: var(--shadow); }
+.content .guide-list li { margin: 0; }
+.guide-list li + li { border-top: 1px solid var(--border); }
+.guide-list a { display: flex; align-items: center; justify-content: space-between; gap: 8px 20px; padding: 14px 18px; color: var(--text); text-decoration: none; transition: background 0.15s; }
+.guide-list a:hover { background: color-mix(in srgb, var(--red) 4%, var(--surface)); }
+.guide-list a > b { display: inline-flex; align-items: center; gap: 8px; flex: none; font-size: 13.5px; font-weight: 600; color: var(--red); }
+.guide-list a > b::after { content: '→'; transition: transform 0.15s; }
+.guide-list a:hover > b::after { transform: translateX(3px); }
+.guide-list .tool-icon { width: 24px; height: 24px; margin: 0; border-radius: 7px; }
+@media (max-width: 640px) { .guide-list a { flex-direction: column; align-items: flex-start; } }

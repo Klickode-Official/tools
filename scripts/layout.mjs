@@ -64,6 +64,7 @@ export function layout({ siteUrl, path, title, description, body, scripts = [], 
   <script type="application/ld+json">${JSON.stringify(ORGANIZATION).replace(/</g, '\\u003c')}</script>
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
   <link rel="preload" href="/assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/css/style.css">
 ${styles.map((h) => `  <link rel="stylesheet" href="${h}">\n`).join('')}  <script>try{var t=localStorage.getItem('kt-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -82,6 +83,7 @@ ${styles.map((h) => `  <link rel="stylesheet" href="${h}">\n`).join('')}  <scrip
     ${NAV.map(([href, label]) => `<a href="${href}"${active === href ? ' aria-current="page"' : ''}>${label}</a>`).join('\n    ')}
   </nav>
   <div class="header-actions">
+    <button class="search-btn" type="button" data-palette aria-label="Find a tool (Ctrl+K)" title="Find a tool"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Find a tool</span><kbd>Ctrl K</kbd></button>
     <button class="icon-btn" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">${THEME_ICON}</button>
     <a class="header-cta" href="${STUDIO_URL}">Klickode Studio <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
   </div>

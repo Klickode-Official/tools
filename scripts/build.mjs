@@ -11,6 +11,7 @@
 //
 // SITE_URL enables canonical links, absolute og:image URLs and sitemap.xml.
 import { cp, mkdir, readdir, readFile, rm, writeFile, stat } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { categories, categoryById, categoryIcon } from './categories.mjs';
@@ -235,6 +236,55 @@ async function signFiles(dir) {
   }
 }
 await signFiles(out);
+
+// --- tool index (command palette, "Send to…") -------------------------------------------------
+await writeFile(
+  join(out, 'assets', 'tools-index.json'),
+  JSON.stringify(tools.map((t) => ({ slug: t.slug, name: t.name, short: t.short, cat: catOf(t).name, search: `${t.name} ${t.short} ${t.slug} ${catOf(t).name} ${(t.keywords || []).join(' ')}`.toLowerCase() }))),
+);
+
+// --- installable, works offline -------------------------------------------------------------------
+await writeFile(
+  join(out, 'manifest.webmanifest'),
+  JSON.stringify(
+    {
+      name: SITE_NAME,
+      short_name: 'Klickode',
+      description: 'Free tools that run in your browser. Your files never leave your device.',
+      start_url: '/',
+      scope: '/',
+      display: 'standalone',
+      background_color: '#ffffff',
+      theme_color: '#E03131',
+      icons: [
+        { src: '/assets/brand/icon-192.png', sizes: '192x192', type: 'image/png' },
+        { src: '/assets/brand/icon-512.png', sizes: '512x512', type: 'image/png' },
+        { src: '/assets/brand/icon-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+      ],
+    },
+    null,
+    2,
+  ),
+);
+// Every file the site needs, so a tool opened once keeps working without a connection.
+// og.png cards are only for social sites, so they stay out of the cache.
+async function listFiles(dir, base = '') {
+  const files = [];
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const rel = `${base}/${entry.name}`;
+    if (entry.isDirectory()) files.push(...(await listFiles(join(dir, entry.name), rel)));
+    else files.push(rel);
+  }
+  return files;
+}
+const cacheList = (await listFiles(out))
+  .filter((f) => !/(og\.png|robots\.txt|sitemap\.xml|404\.html|\.webmanifest)$/.test(f))
+  .map((f) => f.replace(/index\.html$/, ''));
+const hash = createHash('sha256');
+for (const f of cacheList.sort()) hash.update(f).update(await readFile(join(out, f.endsWith('/') ? `${f}index.html` : f)));
+const version = hash.digest('hex').slice(0, 12);
+const sw = (await readFile(join(root, 'scripts', 'sw.js'), 'utf8')).replace('__VERSION__', version).replace('__FILES__', JSON.stringify(cacheList));
+await writeFile(join(out, 'sw.js'), `/*! ${BRAND_NOTICE} */\n${sw}`);
 
 for (const w of warnings) console.warn(`SEO warning: ${w}`);
 console.log(`Built ${urls.length} pages (${tools.length} tools) into dist/${siteUrl ? ` for ${siteUrl}` : ' (set SITE_URL to emit canonical URLs and sitemap.xml)'}`);

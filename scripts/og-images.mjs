@@ -79,5 +79,15 @@ if (!only) {
   await page.screenshot({ path: join(root, 'assets/brand/apple-touch-icon.png') });
   await stampPng(join(root, 'assets/brand/apple-touch-icon.png'), { Copyright: BRAND_NOTICE, Author: COMPANY });
   console.log('wrote assets/brand/apple-touch-icon.png');
+  // App icons for the web manifest. The maskable one keeps the mark inside the safe zone.
+  for (const [name, size, pad, bg] of [['icon-192', 192, 0.03, 'transparent'], ['icon-512', 512, 0.03, 'transparent'], ['icon-maskable', 512, 0.16, '#E03131']]) {
+    const inner = Math.round(size * (1 - 2 * pad));
+    await page.setViewportSize({ width: size, height: size });
+    await page.setContent(`<html><body style="margin:0;background:${bg};display:grid;place-items:center;height:${size}px">${mark.replace('width="1024" height="1024"', `width="${inner}" height="${inner}"`)}</body></html>`);
+    const file = join(root, `assets/brand/${name}.png`);
+    await page.screenshot({ path: file, omitBackground: true });
+    await stampPng(file, { Copyright: BRAND_NOTICE, Author: COMPANY });
+    console.log(`wrote assets/brand/${name}.png`);
+  }
 }
 await browser.close();

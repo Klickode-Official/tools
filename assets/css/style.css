@@ -46,7 +46,7 @@
   --mist: #f4f4f5;
   --text: #18181b;
   --muted: #5f5f69;
-  --faint: #8b8b94;
+  --faint: #6b6b75;
   --border: #e4e4e7;
   --border-strong: #d4d4d8;
   --ok: #15803d;
@@ -82,7 +82,7 @@
   --mist: #2d2d33;
   --text: #f4f4f5;
   --muted: #a8a8b3;
-  --faint: #7c7c87;
+  --faint: #9898a3;
   --border: #35353c;
   --border-strong: #46464f;
   --ok: #4ade80;
@@ -115,7 +115,7 @@
     --mist: #2d2d33;
     --text: #f4f4f5;
     --muted: #a8a8b3;
-    --faint: #7c7c87;
+    --faint: #9898a3;
     --border: #35353c;
     --border-strong: #46464f;
     --ok: #4ade80;
@@ -627,3 +627,44 @@ mark.alt { background: var(--mark-alt); }
   .check-list .area { min-width: 0; }
   .hero { padding-top: 16px; }
 }
+
+/* --- find a tool (Ctrl+K) --------------------------------------------------------------- */
+.search-btn { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px 0 12px; font: inherit; font-size: 13.5px; color: var(--muted); background: color-mix(in srgb, var(--mist) 55%, transparent); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+.search-btn:hover { color: var(--text); border-color: var(--border-strong); }
+.search-btn kbd, .palette kbd { font-family: var(--mono); font-size: 10.5px; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 5px; padding: 1px 5px; }
+@media (max-width: 1100px) { .search-btn span, .search-btn kbd { display: none; } .search-btn { width: 36px; padding: 0; justify-content: center; } }
+
+.palette { width: min(620px, calc(100vw - 32px)); max-height: min(560px, calc(100vh - 120px)); margin: 12vh auto auto; padding: 0; border: 1px solid var(--border-strong); border-radius: 16px; background: var(--surface); color: var(--text); box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.35); overflow: hidden; }
+.palette[open] { display: flex; animation: palette-in 0.16s ease-out; }
+.palette::backdrop { background: rgba(15, 15, 18, 0.38); backdrop-filter: blur(3px); }
+@keyframes palette-in { from { opacity: 0; transform: translateY(-6px) scale(0.985); } }
+.palette-box { display: flex; flex-direction: column; width: 100%; min-height: 0; }
+.palette-search { display: flex; align-items: center; gap: 10px; padding: 0 16px; border-bottom: 1px solid var(--border); color: var(--faint); }
+.palette-search input { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 16px 0; border: 0; background: none; color: var(--text); outline: none; }
+.palette-list { list-style: none; margin: 0; padding: 6px; overflow-y: auto; flex: 1; }
+.palette-list a { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 10px 12px; border-radius: 10px; color: var(--text); text-decoration: none; }
+.palette-list a strong { font-weight: 600; font-size: 14.5px; }
+.palette-list a span { grid-column: 1; color: var(--muted); font-size: 13px; }
+.palette-list a em { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-style: normal; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.palette-list li[aria-selected='true'] a { background: color-mix(in srgb, var(--red) 8%, var(--surface)); }
+.palette-list li[aria-selected='true'] strong { color: var(--red); }
+.palette-empty { padding: 18px 12px; color: var(--muted); }
+.palette-foot { display: flex; gap: 18px; margin: 0; padding: 10px 16px; border-top: 1px solid var(--border); background: var(--bar); font-size: 12px; color: var(--muted); }
+.palette-foot kbd { margin-right: 3px; }
+@media (max-width: 560px) { .palette-foot { display: none; } .palette { margin-top: 8vh; } }
+
+/* --- send a result to another tool -------------------------------------------------------- */
+.send-to { position: relative; margin-left: auto; }
+.send-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 4; min-width: 210px; padding: 5px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 10px; box-shadow: 0 14px 40px -12px rgba(0, 0, 0, 0.25); }
+.send-menu button { display: block; width: 100%; text-align: left; font: inherit; font-size: 13.5px; padding: 8px 10px; border: 0; border-radius: 7px; background: none; color: var(--text); cursor: pointer; }
+.send-menu button:hover, .send-menu button:focus-visible { background: var(--mist); color: var(--red); outline: none; }
+.panel:has(> .panel-head):has(.send-menu:not([hidden])) { overflow: visible; }
+
+/* --- drop a file on a text box ------------------------------------------------------------- */
+textarea.drop-over { outline: 2px dashed var(--red); outline-offset: -6px; background: color-mix(in srgb, var(--red) 4%, var(--surface)) !important; }
+
+/* --- recently used tools (home) ------------------------------------------------------------ */
+.recent-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.recent-list a { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px 7px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; box-shadow: var(--shadow); transition: border-color 0.15s; }
+.recent-list a:hover { border-color: color-mix(in srgb, var(--red) 45%, var(--border)); }
+.recent-list .tool-icon { width: 26px; height: 26px; margin: 0; border-radius: 50%; }

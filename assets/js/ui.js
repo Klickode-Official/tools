@@ -156,7 +156,246 @@ function signConsole() {
   );
 }
 
+// --- tool index: names and categories of every tool, written by the build ---------------
+let indexPromise;
+export function toolIndex() {
+  indexPromise ??= fetch('/assets/tools-index.json')
+    .then((r) => (r.ok ? r.json() : []))
+    .catch(() => []);
+  return indexPromise;
+}
+
+const currentSlug = (/^\/tools\/([\w-]+)\//.exec(location.pathname) || [])[1];
+
+// --- recently used tools (shown on the home page) ----------------------------------------
+export function recentTools() {
+  try {
+    const list = JSON.parse(storage.get('kt-recent') || '[]');
+    return Array.isArray(list) ? list.filter((s) => typeof s === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+function rememberTool() {
+  if (!currentSlug) return;
+  storage.set('kt-recent', JSON.stringify([currentSlug, ...recentTools().filter((s) => s !== currentSlug)].slice(0, 6)));
+}
+
+// --- command palette: Ctrl/Cmd+K from any page -------------------------------------------
+let palette;
+function openPalette() {
+  if (!palette) {
+    palette = document.createElement('dialog');
+    palette.className = 'palette';
+    palette.setAttribute('aria-label', 'Find a tool');
+    palette.innerHTML = `<div class="palette-box">
+  <div class="palette-search"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  <input type="text" placeholder="Find a tool…" aria-label="Find a tool" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="palette-list"><kbd>Esc</kbd></div>
+  <ul class="palette-list" id="palette-list" role="listbox"></ul>
+  <p class="palette-foot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>Enter</kbd> open</span><span><kbd>${/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'}</kbd><kbd>Enter</kbd> runs a tool</span></p>
+</div>`;
+    document.body.append(palette);
+    const input = palette.querySelector('input');
+    const list = palette.querySelector('ul');
+    let items = [];
+    let active = 0;
+    const paint = () => {
+      list.querySelectorAll('li').forEach((li, i) => {
+        li.setAttribute('aria-selected', String(i === active));
+        if (i === active) li.scrollIntoView({ block: 'nearest' });
+      });
+      input.setAttribute('aria-activedescendant', items.length ? `pal-${active}` : '');
+    };
+    const render = async () => {
+      const all = await toolIndex();
+      const words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
+      const recent = recentTools();
+      items = all
+        .filter((t) => words.every((w) => t.search.includes(w)))
+        .sort((a, b) => (words.length ? 0 : (recent.indexOf(a.slug) + 1 || 99) - (recent.indexOf(b.slug) + 1 || 99)));
+      active = 0;
+      list.innerHTML = items.length
+        ? items.map((t, i) => `<li id="pal-${i}" role="option"><a href="/tools/${t.slug}/" tabindex="-1"><strong>${htmlEscape(t.name)}</strong><span>${htmlEscape(t.short)}</span><em>${htmlEscape(t.cat)}</em></a></li>`).join('')
+        : '<li class="palette-empty">No tools match that.</li>';
+      paint();
+    };
+    input.addEventListener('input', render);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (items.length) active = (active + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length;
+        paint();
+      } else if (e.key === 'Enter' && items[active]) {
+        e.preventDefault();
+        location.href = `/tools/${items[active].slug}/`;
+      }
+    });
+    list.addEventListener('mousemove', (e) => {
+      const li = e.target.closest('li[id]');
+      if (li && list.children[active] !== li) {
+        active = [...list.children].indexOf(li);
+        paint();
+      }
+    });
+    palette.addEventListener('click', (e) => e.target === palette && palette.close());
+    palette.render = render;
+  }
+  if (palette.open) return;
+  const input = palette.querySelector('input');
+  input.value = '';
+  palette.render();
+  palette.showModal();
+  input.focus();
+}
+
+// --- keyboard shortcuts --------------------------------------------------------------------
+function initShortcuts() {
+  const mac = /Mac|iPhone|iPad/.test(navigator.userAgentData?.platform ?? navigator.platform);
+  for (const btn of document.querySelectorAll('[data-palette]')) {
+    btn.addEventListener('click', openPalette);
+    if (mac) btn.querySelector('kbd')?.replaceChildren('⌘K');
+  }
+  document.addEventListener('keydown', (e) => {
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      openPalette();
+      return;
+    }
+    // Ctrl/Cmd+Enter runs the tool's main button (Format, Convert, Compare…).
+    if (mod && e.key === 'Enter') {
+      const primary = document.querySelector('.tool-body .btn.primary:not([disabled])');
+      if (primary) {
+        e.preventDefault();
+        primary.click();
+      }
+      return;
+    }
+    // "/" jumps to the search box on the home page, like on most sites with search.
+    const typing = e.target.closest?.('input, textarea, select, [contenteditable="true"]');
+    if (e.key === '/' && !typing && !mod) {
+      const search = document.getElementById('tool-search');
+      e.preventDefault();
+      if (search) search.focus();
+      else openPalette();
+    }
+  });
+}
+
+// --- drop a text file onto any text box to load it ------------------------------------------
+const TEXT_LIMIT = 20 * 1024 * 1024;
+function initTextDrop() {
+  const target = (e) => {
+    const ta = e.target.closest?.('textarea');
+    return ta && !ta.readOnly && !ta.disabled && e.dataTransfer?.types.includes('Files') ? ta : null;
+  };
+  document.addEventListener('dragover', (e) => {
+    const ta = target(e);
+    if (!ta) return;
+    e.preventDefault();
+    ta.classList.add('drop-over');
+  });
+  document.addEventListener('dragleave', (e) => target(e)?.classList.remove('drop-over'));
+  document.addEventListener('drop', async (e) => {
+    const ta = target(e);
+    if (!ta) return;
+    e.preventDefault();
+    ta.classList.remove('drop-over');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    if (file.size > TEXT_LIMIT) return toast('That file is over 20 MB');
+    if (/^(image|video|audio)\//.test(file.type)) return toast('That box takes text files');
+    ta.value = await file.text();
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    toast(`Loaded ${file.name}`);
+  });
+}
+
+// --- "Send to…": hand one tool's result to another ------------------------------------------
+// Mark an output with data-send-to="slug,slug". The text travels in sessionStorage, which stays
+// in this tab and is never sent anywhere.
+const HANDOFF = 'kt-handoff';
+function initSendTo() {
+  for (const out of document.querySelectorAll('[data-send-to]')) {
+    const head = out.closest('.panel')?.querySelector('.panel-head');
+    if (!head) continue;
+    const wrap = document.createElement('div');
+    wrap.className = 'send-to';
+    wrap.innerHTML = `<button class="btn small" type="button" aria-haspopup="true" aria-expanded="false">Send to <span aria-hidden="true">▾</span></button><div class="send-menu" role="menu" hidden></div>`;
+    const btn = wrap.firstElementChild;
+    const menu = wrap.lastElementChild;
+    (head.querySelector('[data-copy]') ?? head.lastElementChild)?.before(wrap);
+    const close = () => {
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
+    };
+    toolIndex().then((all) => {
+      const slugs = out.dataset.sendTo.split(',').map((s) => s.trim());
+      menu.innerHTML = slugs
+        .map((s) => all.find((t) => t.slug === s))
+        .filter(Boolean)
+        .map((t) => `<button type="button" role="menuitem" data-slug="${t.slug}">${htmlEscape(t.name)}</button>`)
+        .join('');
+    });
+    btn.addEventListener('click', () => {
+      menu.hidden = !menu.hidden;
+      btn.setAttribute('aria-expanded', String(!menu.hidden));
+    });
+    menu.addEventListener('click', (e) => {
+      const slug = e.target.closest('[data-slug]')?.dataset.slug;
+      if (!slug) return;
+      const text = 'value' in out && out.tagName !== 'PRE' ? out.value : out.textContent;
+      if (!text.trim()) {
+        close();
+        return toast('Nothing to send yet');
+      }
+      try {
+        sessionStorage.setItem(HANDOFF, JSON.stringify({ to: slug, text }));
+      } catch {
+        close();
+        return toast('Too large to send. Copy it instead.');
+      }
+      location.href = `/tools/${slug}/`;
+    });
+    document.addEventListener('click', (e) => !wrap.contains(e.target) && close());
+    wrap.addEventListener('keydown', (e) => e.key === 'Escape' && (close(), btn.focus()));
+  }
+}
+
+// Fill this tool's main input with text sent from another tool, then run it.
+function receiveHandoff() {
+  let data;
+  try {
+    data = JSON.parse(sessionStorage.getItem(HANDOFF) || 'null');
+  } catch {
+    return;
+  }
+  if (!data || data.to !== currentSlug) return;
+  sessionStorage.removeItem(HANDOFF);
+  const input = document.querySelector('.tool-body [data-receive]') ?? document.querySelector('.tool-body textarea:not([readonly])');
+  if (!input) return;
+  input.value = data.text;
+  // The tool's own script runs after this module, so wait for it to attach its listeners.
+  setTimeout(() => {
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    document.querySelector('.tool-body .btn.primary')?.click();
+    toast('Brought over from the last tool');
+  });
+}
+
+// --- offline support ------------------------------------------------------------------------
+function initOffline() {
+  if (!('serviceWorker' in navigator) || !isSecureContext) return;
+  addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+
 initTheme();
 initCopyButtons();
 initScroller();
+initShortcuts();
+initTextDrop();
+initSendTo();
+receiveHandoff();
+rememberTool();
+initOffline();
 signConsole();

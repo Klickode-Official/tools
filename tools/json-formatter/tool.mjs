@@ -27,7 +27,7 @@ export default {
   </div>
   <div class="panel">
     <div class="panel-head"><span class="label">Result</span><button class="btn small" data-copy="#output">Copy</button></div>
-    <textarea id="output" spellcheck="false" readonly></textarea>
+    <textarea id="output" spellcheck="false" readonly data-send-to="json-to-csv,json-schema-generator"></textarea>
   </div>
 </div>`,
   content: `<h2>How to use it</h2>

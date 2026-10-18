@@ -87,6 +87,15 @@ npx serve dist                             # preview locally
 
 Social cards: `npm i -D playwright && npx playwright install chromium && npm run og`, then commit the PNGs.
 
+## Site-wide features
+
+- **Find a tool**: `Ctrl/⌘ K` on any page (or `/`) opens a search over every tool, built from `assets/tools-index.json`, which the build writes.
+- **Ctrl/⌘ Enter** clicks the tool's main button (the first `.btn.primary` in the tool).
+- **Send to…**: add `data-send-to="slug,slug"` to an output in `tool.mjs` and a menu appears in its panel header. The text goes through `sessionStorage` and lands in the target tool's `[data-receive]` field (or its first editable textarea), which is then run.
+- **Drop a text file** on any editable textarea to load it.
+- **Recently used** tools are listed on the home page (`localStorage`).
+- **Works offline / installable**: the build writes `manifest.webmanifest` and `sw.js` (from `scripts/sw.js`) with a list of every file and a content hash, so each deploy replaces the cache.
+
 ## Privacy by design
 
 - All processing is client-side. Pages make no requests beyond their own static files; fonts are self-hosted rather than loaded from Google Fonts.

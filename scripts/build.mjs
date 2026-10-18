@@ -8,18 +8,19 @@
 //   tools/<slug>/*          anything else (workers, images) is copied alongside
 //
 //   SITE_URL=https://tools.example.com npm run build
+//   OUT_DIR=/tmp/site npm run build   (build somewhere other than dist/)
 //
 // SITE_URL enables canonical links, absolute og:image URLs and sitemap.xml.
 import { cp, mkdir, readdir, readFile, rm, writeFile, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { categories, categoryById, categoryIcon } from './categories.mjs';
 import { layout, breadcrumbs, toolGrid, toolIcon, esc, SITE_NAME } from './layout.mjs';
 import { legalPages, COMPANY, BRAND_NOTICE } from './legal.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const out = join(root, 'dist');
+const out = process.env.OUT_DIR ? resolve(process.env.OUT_DIR) : join(root, 'dist');
 const siteUrl = (process.env.SITE_URL || '').replace(/\/$/, '');
 const warnings = [];
 

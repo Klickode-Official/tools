@@ -1,5 +1,6 @@
-import { $, persist, setStatus, download, shareLink, readShared, debounce } from '/assets/js/ui.js';
-import { format, minify, parse } from '/assets/js/lib/json.js';
+import { $, persist, setStatus, download, shareLink, readShared, debounce, t } from '/assets/js/ui.js';
+import { jsonErrorText } from './json-error.js';
+import { format, minify, parse, countBigNums } from '/assets/js/lib/json.js';
 
 const input = $('#input');
 const output = $('#output');
@@ -22,10 +23,12 @@ function run(mode) {
     const indent = indentSel.value === 'tab' ? '\t' : Number(indentSel.value);
     output.value = mode === 'minify' ? minify(input.value) : format(input.value, { indent, sort: sort.checked });
     const bytes = new TextEncoder().encode(output.value).length;
-    setStatus(status, `Valid JSON · ${bytes.toLocaleString()} bytes`, true);
+    const big = countBigNums(parse(input.value));
+    const note = big ? (big === 1 ? t(' · kept 1 long number exactly as written') : t(' · kept {n} long numbers exactly as written', { n: big })) : '';
+    setStatus(status, t('Valid JSON · {bytes} bytes', { bytes: bytes.toLocaleString() }) + note, true);
   } catch (e) {
     output.value = '';
-    setStatus(status, e.message, false);
+    setStatus(status, jsonErrorText(e), false);
     return e;
   }
 }
@@ -46,9 +49,9 @@ input.addEventListener(
     if (!input.value.trim()) return setStatus(status, '');
     try {
       parse(input.value);
-      setStatus(status, 'Valid JSON', true);
+      setStatus(status, t('Valid JSON'), true);
     } catch (e) {
-      setStatus(status, e.message, false);
+      setStatus(status, jsonErrorText(e), false);
     }
   }, 250),
 );

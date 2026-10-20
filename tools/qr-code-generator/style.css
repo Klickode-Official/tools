@@ -1,0 +1,36 @@
+/* QR Code Generator: form on the left, live preview on the right. */
+.qrg { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; align-items: start; }
+.qrg-types { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; margin-bottom: 18px; }
+.qrg-types button { height: 40px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--muted); font: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+.qrg-types button:hover { color: var(--text); border-color: var(--border-strong); }
+.qrg-types button[aria-checked='true'] { color: var(--red); border-color: var(--red); background: color-mix(in srgb, var(--red) 5%, var(--surface)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 12%, transparent); }
+.qrg-fields > div, .qrg-design { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px 18px; align-items: start; }
+.qrg-fields > div[hidden] { display: none; }
+.qrg-h { margin: 28px 0 14px; padding-top: 22px; border-top: 1px solid var(--border); font-size: 16px; }
+.qrg-colours { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.swatch { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--muted); cursor: pointer; }
+.swatch input[type='color'] { width: 38px; height: 38px; border-radius: 10px; }
+.qrg-logo { display: flex; gap: 8px; min-height: 38px; align-items: center; }
+
+.qrg-side { position: sticky; top: 92px; display: flex; flex-direction: column; gap: 12px; }
+.qrg-preview { display: grid; place-items: center; min-height: 340px; padding: 10px; border: 1px solid var(--border-strong); border-radius: 16px; background: var(--surface) radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 1.4px) 0 0 / 16px 16px; }
+.qrg-preview > svg { width: 100%; max-width: 320px; height: auto; border-radius: 8px; box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.3); }
+.qrg-preview.see-through > svg { box-shadow: none; background: repeating-conic-gradient(#e9e9ec 0 25%, #fff 0 50%) 0 0 / 16px 16px; }
+.qrg-empty { display: grid; justify-items: center; gap: 10px; max-width: 220px; text-align: center; color: var(--faint); font-size: 14px; }
+.qrg-side .status { margin: 0; }
+.qrg-side .status:empty { display: none; }
+.qrg-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.qrg-actions #png { flex: 1 1 100%; }
+.qrg-size { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--muted); margin-left: auto; }
+.qrg-size select { height: 36px; }
+.qrg-meta { margin: 0; font-family: var(--mono); font-size: 11.5px; color: var(--faint); }
+.qrg-meta:empty { display: none; }
+.qrg-inside summary { cursor: pointer; font-size: 13.5px; color: var(--muted); }
+.qrg-inside pre { margin: 8px 0 0; padding: 10px 12px; max-height: 160px; overflow: auto; white-space: pre-wrap; word-break: break-all; font-size: 12px; background: var(--bar); border: 1px solid var(--border); border-radius: 10px; }
+
+@media (max-width: 900px) {
+  .qrg { grid-template-columns: 1fr; }
+  .qrg-side { position: static; order: -1; }
+  .qrg-preview { min-height: 0; }
+  .qrg-preview > svg { max-width: 260px; }
+}

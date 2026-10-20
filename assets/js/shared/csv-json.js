@@ -1,4 +1,5 @@
-import { $, persist, setStatus, download } from '/assets/js/ui.js';
+import { $, persist, setStatus, download, t } from '/assets/js/ui.js';
+import { jsonErrorText } from '/tools/json-formatter/json-error.js';
 import { csvToJson, jsonToCsv } from '/assets/js/lib/csv.js';
 import { parse } from '/assets/js/lib/json.js';
 
@@ -16,14 +17,14 @@ function convert() {
     if (toJson) {
       const data = csvToJson(input.value, { delimiter: delimiter.value, header: opts[0].checked, types: opts[1].checked });
       output.value = JSON.stringify(data, null, 2);
-      setStatus(status, `Converted ${data.length.toLocaleString()} row${data.length === 1 ? '' : 's'}`, true);
+      setStatus(status, data.length === 1 ? t('Converted 1 row') : t('Converted {n} rows', { n: data.length.toLocaleString() }), true);
     } else {
       output.value = jsonToCsv(parse(input.value), { delimiter: delimiter.value, flattenNested: opts[0].checked });
-      setStatus(status, `Converted ${(output.value.split('\n').length - 1).toLocaleString()} rows`, true);
+      setStatus(status, t('Converted {n} rows', { n: (output.value.split('\n').length - 1).toLocaleString() }), true);
     }
   } catch (e) {
     output.value = '';
-    setStatus(status, e.message, false);
+    setStatus(status, jsonErrorText(e), false);
   }
 }
 

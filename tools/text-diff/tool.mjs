@@ -17,6 +17,6 @@ export default {
 <h2>Result</h2>
 <pre class="output" id="result" style="white-space:normal" tabindex="0"></pre>`,
   content: `<h2>How it works</h2>
-<p>It lines the two versions up and marks lines that only exist in the original with a minus, and lines that only exist in the new version with a plus. Everything else stays plain so the changes stand out. For JSON, the <a href="/tools/json-diff/">JSON Diff</a> does a better job because it ignores formatting.</p>`,
+<p>It lines the two versions up and marks lines that only exist in the original with a minus, and lines that only exist in the new version with a plus. When a line was edited rather than replaced, the exact words that changed are highlighted inside it. Everything else stays plain so the changes stand out. For JSON, the <a href="/tools/json-diff/">JSON Diff</a> does a better job because it ignores formatting.</p>`,
   faq: [],
 };

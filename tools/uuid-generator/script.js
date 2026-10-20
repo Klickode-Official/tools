@@ -1,4 +1,4 @@
-import { $, persist, setStatus } from '/assets/js/ui.js';
+import { $, persist, setStatus, t } from '/assets/js/ui.js';
 import { uuidv4, uuidv7, inspectUuid } from '/assets/js/lib/uuid.js';
 
 const version = $('#version');
@@ -26,9 +26,10 @@ for (const el of [version, upper, nodash]) el.addEventListener('change', generat
 check.addEventListener('input', () => {
   if (!check.value.trim()) return setStatus(status, '');
   const info = inspectUuid(check.value);
-  if (!info.valid) return setStatus(status, 'Not a valid UUID (expected 8-4-4-4-12 hex digits)', false);
-  if (info.version === 'nil') return setStatus(status, 'Valid nil UUID', true);
-  setStatus(status, `Valid UUID · version ${info.version} · ${info.variant} variant${info.timestamp ? ` · created ${info.timestamp}` : ''}`, true);
+  if (!info.valid) return setStatus(status, t('Not a valid UUID (expected 8-4-4-4-12 hex digits)'), false);
+  if (info.version === 'nil') return setStatus(status, t('Valid nil UUID'), true);
+  const variant = info.variant === 'other' ? t('other') : info.variant;
+  setStatus(status, t('Valid UUID · version {v} · {variant} variant', { v: info.version, variant }) + (info.timestamp ? t(' · created {time}', { time: info.timestamp }) : ''), true);
 });
 
 generate();

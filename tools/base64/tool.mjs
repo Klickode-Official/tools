@@ -17,7 +17,7 @@ export default {
     <textarea id="input" spellcheck="false" placeholder=""></textarea>
   </div>
   <div class="panel">
-    <div class="panel-head"><span class="label">Output</span><button class="btn small" data-copy="#output">Copy</button></div>
+    <div class="panel-head"><label class="label" for="output">Output</label><button class="btn small" data-copy="#output">Copy</button></div>
     <textarea id="output" spellcheck="false" readonly></textarea>
   </div>
 </div>`,

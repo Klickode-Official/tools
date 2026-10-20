@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { jsonDiff, textDiff } from '../assets/js/lib/diff.js';
+import { jsonDiff, textDiff, wordDiff } from '../assets/js/lib/diff.js';
 import { generateSchema } from '../assets/js/lib/schema.js';
 import { compile, findMatches } from '../assets/js/lib/regex.js';
 import { base64Encode, base64Decode, urlDecode } from '../assets/js/lib/encode.js';
@@ -75,4 +75,35 @@ test('case conversion and stats', () => {
   assert.equal(cases.camel('user-id value'), 'userIdValue');
   assert.equal(cases.constant('maxRetryCount'), 'MAX_RETRY_COUNT');
   assert.deepEqual(stats('Hi there. Bye!').words, 3);
+});
+
+test('jsonDiff compares long numbers by their digits', async () => {
+  const { parse } = await import('../assets/js/lib/json.js');
+  assert.deepEqual(jsonDiff(parse('{"id":12345678901234567890}'), parse('{"id":12345678901234567891}')).map((d) => d.path), ['$.id']);
+  assert.deepEqual(jsonDiff(parse('{"id":12345678901234567890}'), parse('{"id":12345678901234567890}')), []);
+});
+
+test('Thai text is split into real words', async () => {
+  const { stats, keywordDensity } = await import('../assets/js/lib/text.js');
+  assert.equal(stats('ร้านขายพลอยในกรุงเทพ ส่งฟรีทั่วประเทศ').words, 9);
+  const k = keywordDensity('พลอยไพลินแท้ ร้านพลอยไพลินในกรุงเทพ พลอยไพลินราคาส่ง');
+  assert.equal(k.double[0].phrase, 'พลอยไพลิน');
+  assert.ok(!k.single.some((w) => w.phrase === 'ใน'), 'Thai stop words are skipped');
+});
+
+test('jsonDiff matches list items by id', () => {
+  const a = { users: [{ id: 1, name: 'Ada' }, { id: 2, name: 'Alan' }] };
+  const b = { users: [{ id: 0, name: 'New' }, { id: 1, name: 'Ada L.' }, { id: 2, name: 'Alan' }] };
+  assert.deepEqual(jsonDiff(a, b).map((d) => `${d.type} ${d.path}`), ['changed $.users[id=1].name', 'added $.users[id=0]']);
+  // Without an id the old position-by-position comparison still applies.
+  assert.equal(jsonDiff([1, 2], [0, 1, 2]).length, 3);
+});
+
+test('wordDiff marks the changed words in a line', () => {
+  assert.deepEqual(wordDiff('It ships in 5 days.', 'It ships tomorrow.'), [
+    { type: 'same', text: 'It ships ' },
+    { type: 'removed', text: 'in 5 days' },
+    { type: 'added', text: 'tomorrow' },
+    { type: 'same', text: '.' },
+  ]);
 });

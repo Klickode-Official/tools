@@ -1,0 +1,7 @@
+/* On phones, put each row's label above its value so long dates (and Thai, which has no spaces
+   between words) get the full width. */
+@media (max-width: 560px) {
+  #result tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  #result th { grid-column: 1 / -1; padding-bottom: 0; border-bottom: 0; }
+  #result td { min-width: 0; overflow-wrap: anywhere; }
+}

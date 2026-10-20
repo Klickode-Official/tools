@@ -26,8 +26,8 @@ export default {
     <textarea id="input" spellcheck="false" placeholder="Paste JSON here…"></textarea>
   </div>
   <div class="panel">
-    <div class="panel-head"><span class="label">Result</span><button class="btn small" data-copy="#output">Copy</button></div>
-    <textarea id="output" spellcheck="false" readonly></textarea>
+    <div class="panel-head"><label class="label" for="output">Result</label><button class="btn small" data-copy="#output">Copy</button></div>
+    <textarea id="output" spellcheck="false" readonly data-send-to="json-to-csv,json-schema-generator"></textarea>
   </div>
 </div>`,
   content: `<h2>How to use it</h2>

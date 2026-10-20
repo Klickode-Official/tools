@@ -12,7 +12,7 @@ export default {
   data: { mode: 'resize' },
   body: `<label class="dropzone" id="dropzone" for="files">
   <strong>Drop images here, paste, or click to choose</strong>
-  <span>JPG, PNG, WebP, AVIF, GIF, BMP, SVG (and HEIC in Safari) · batch supported · files stay on your device</span>
+  <span>JPG, PNG, WebP, AVIF, HEIC, GIF, BMP, SVG · batch supported · files stay on your device</span>
   <input type="file" id="files" multiple accept="image/*,.heic,.heif,.avif">
 </label>
 <div class="toolbar">

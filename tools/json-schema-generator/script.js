@@ -1,4 +1,5 @@
-import { $, persist, setStatus, download } from '/assets/js/ui.js';
+import { $, persist, setStatus, download, t } from '/assets/js/ui.js';
+import { jsonErrorText } from '/tools/json-formatter/json-error.js';
 import { parse } from '/assets/js/lib/json.js';
 import { generateSchema } from '/assets/js/lib/schema.js';
 
@@ -15,10 +16,10 @@ function generate() {
   try {
     const schema = generateSchema(parse(input.value), { required: required.checked, strict: strict.checked, formats: formats.checked });
     output.value = JSON.stringify(schema, null, 2);
-    setStatus(status, 'Schema generated', true);
+    setStatus(status, t('Schema generated'), true);
   } catch (e) {
     output.value = '';
-    setStatus(status, e.message, false);
+    setStatus(status, jsonErrorText(e), false);
   }
 }
 

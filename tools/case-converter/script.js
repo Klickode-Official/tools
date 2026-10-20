@@ -1,4 +1,4 @@
-import { $, persist, escapeHtml } from '/assets/js/ui.js';
+import { $, persist, escapeHtml, t } from '/assets/js/ui.js';
 import { cases, stats } from '/assets/js/lib/text.js';
 
 const input = $('#input');
@@ -9,11 +9,18 @@ persist(input);
 const labels = { camel: 'camelCase', pascal: 'PascalCase', snake: 'snake_case', constant: 'CONSTANT_CASE', kebab: 'kebab-case', title: 'Title Case', sentence: 'Sentence case', upper: 'UPPERCASE', lower: 'lowercase' };
 
 function run() {
-  const t = input.value;
-  const s = stats(t);
-  statsEl.textContent = `${s.words.toLocaleString()} words · ${s.characters.toLocaleString()} characters (${s.charactersNoSpaces.toLocaleString()} without spaces) · ${s.sentences} sentences · ${s.lines} lines · ~${s.readingMinutes} min read`;
+  const text = input.value;
+  const s = stats(text);
+  const n = (v) => v.toLocaleString();
+  statsEl.textContent = [
+    t(s.words === 1 ? '{n} word' : '{n} words', { n: n(s.words) }),
+    t('{n} characters ({m} without spaces)', { n: n(s.characters), m: n(s.charactersNoSpaces) }),
+    t(s.sentences === 1 ? '{n} sentence' : '{n} sentences', { n: s.sentences }),
+    t(s.lines === 1 ? '{n} line' : '{n} lines', { n: s.lines }),
+    t('~{n} min read', { n: s.readingMinutes }),
+  ].join(' · ');
   table.innerHTML = Object.entries(cases)
-    .map(([k, fn], i) => `<tr><th>${labels[k]}</th><td id="case-${i}">${escapeHtml(fn(t))}</td><td style="width:1%"><button class="btn small" data-copy="#case-${i}">Copy</button></td></tr>`)
+    .map(([k, fn], i) => `<tr><th>${labels[k]}</th><td id="case-${i}">${escapeHtml(fn(text))}</td><td style="width:1%"><button class="btn small" data-copy="#case-${i}">${t('Copy')}</button></td></tr>`)
     .join('');
 }
 

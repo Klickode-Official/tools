@@ -1,9 +1,26 @@
 // Shop Card Maker renderer. Pure functions: state in, HTML/CSS strings out, so the live
 // preview, the copy-paste code and the PNG export are all the same markup.
 import { LOGOS } from './logos.js';
+import { COPY_TH } from './copy-th.js';
 import { PLATFORMS } from './platforms.js';
+import { LOOKS, SEASONS, LOOK_CSS, SEASON_CSS, QR_CSS, seasonDeco } from './looks.js';
+import { encodeQr, qrToSvg } from '../../assets/js/lib/qr.js';
 
 export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+// Any CSS rule beats an SVG presentation attribute, so a host page with path{fill:red} would
+// repaint logos, icons and QR codes. Copy the paint into inline styles, which host rules can't beat.
+export function hardenSvg(svg) {
+  return svg.replace(/<(path|rect|circle|ellipse|text)\b([^>]*?)(\/?)>/g, (m, tag, attrs, close) => {
+    if (/\sstyle="/.test(attrs)) return m;
+    const get = (n) => (new RegExp(`\\s${n}="([^"]*)"`).exec(attrs) || [])[1];
+    const fill = get('fill');
+    const stroke = get('stroke');
+    const style = [fill ? `fill:${fill}` : stroke ? 'fill:none' : '', `stroke:${stroke || 'none'}`];
+    for (const k of ['stroke-width', 'font-size', 'font-weight', 'font-family']) if (get(k)) style.push(`${k}:${get(k)}`);
+    return `<${tag}${attrs} style="${style.filter(Boolean).join(';').replace(/"/g, "'")}"${close}>`;
+  });
+}
 
 // Only allow links a visitor can safely follow. Anything else (javascript:, data:) becomes "#".
 export function safeUrl(url) {
@@ -35,11 +52,19 @@ export function shortUrl(url) {
   }
 }
 
+// The few words the card itself shows, for Thai cards (state.lang === 'th').
+const CARD_WORDS = {
+  th: { opens: 'เปิด {url} ในแท็บใหม่', camera: 'ด้วยกล้องมือถือ', outOf: '{r} จาก 5', qr: 'QR Code' },
+  en: { opens: 'Opens {url} in a new tab', camera: 'with your phone camera', outOf: '{r} out of 5', qr: 'QR code' },
+};
+const words = (state) => CARD_WORDS[state?.lang] || CARD_WORDS.en;
+
 const fill = (s, name) => String(s).replaceAll('{name}', name || 'Your Shop');
 
-export function defaults(platformId, name = 'Your Shop') {
+// Default wording for a platform. lang 'th' uses the Thai copy from copy-th.js.
+export function defaults(platformId, name = 'Your Shop', lang = 'en') {
   const p = PLATFORMS[platformId];
-  const c = p.copy;
+  const c = (lang === 'th' && COPY_TH[platformId]) || p.copy;
   return {
     platform: platformId,
     name,
@@ -78,6 +103,14 @@ function luminance(hex) {
 // Black or white text, whichever reads better on the given colour.
 export const textOn = (hex) => ((luminance(hex) ?? 0) > 0.4 ? '#111111' : '#ffffff');
 
+// WCAG contrast ratio between two hex colours (1 to 21), or 0 if either isn't a hex colour.
+export function contrast(a, b) {
+  const la = luminance(a);
+  const lb = luminance(b);
+  if (la === null || lb === null) return 0;
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
 const NEUTRAL = {
   light: { bg: '#ffffff', surface: '#ffffff', text: '#18181b', muted: '#5f5f69', border: '#e4e4e7', cardButton: '#18181b', cardButtonText: '#ffffff' },
   dark: { bg: '#141417', surface: '#1e1e22', text: '#f4f4f5', muted: '#a8a8b3', border: '#2e2e34', cardButton: '#f4f4f5', cardButtonText: '#141417' },
@@ -90,13 +123,16 @@ export function resolveTheme(state) {
     Object.assign(t, NEUTRAL[state.theme], { dark: state.theme === 'dark' });
     if (p.theme.dark && state.theme === 'light') Object.assign(t, { accent: '#FE2C55', button: '#000000', buttonText: '#ffffff' });
   }
+  // A season swaps the colours but keeps the platform's own button, so the brand stays recognisable.
+  const season = SEASONS[state.season]?.theme;
+  if (season) Object.assign(t, season);
   // Logos that are near-white or near-black need flipping to stay visible.
   let logo = p.theme.logoColor || t.accent;
   const lum = luminance(logo);
   if (lum !== null && !t.dark && lum > 0.85) logo = '#000000';
   if (lum !== null && t.dark && lum < 0.03) logo = '#ffffff';
   t.logoColor = logo;
-  if (t.dark && state.theme === 'dark' && luminance(t.accent) !== null && luminance(t.accent) < 0.12) t.accent = p.theme.logoColor || '#ffffff';
+  if (t.dark && state.theme === 'dark' && !season && luminance(t.accent) !== null && luminance(t.accent) < 0.12) t.accent = p.theme.logoColor || '#ffffff';
   // Custom colours come from colour pickers; accept plain hex only.
   const hex = (v) => /^#[0-9a-f]{6}$/i.test(v || '');
   if (hex(state.accent)) {
@@ -109,9 +145,9 @@ export function resolveTheme(state) {
 }
 
 const FONTS = {
-  sans: "Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+  sans: "Inter, 'Noto Sans Thai', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
   serif: "'Cormorant Garamond', 'Playfair Display', Georgia, 'Times New Roman', serif",
-  rounded: "ui-rounded, 'SF Pro Rounded', Nunito, 'Varela Round', Inter, system-ui, sans-serif",
+  rounded: "ui-rounded, 'SF Pro Rounded', Nunito, 'Varela Round', Inter, 'Noto Sans Thai', system-ui, sans-serif",
   mono: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
 };
 
@@ -131,6 +167,8 @@ function cssVars(state, t) {
     '--ksc-font': FONTS.sans,
     '--ksc-head-font': FONTS[state.headingFont] || FONTS.sans,
   };
+  const tag = SEASONS[state.season]?.tag;
+  if (tag) Object.assign(vars, { '--ksc-tag-bg': tag.bg, '--ksc-tag-text': tag.color });
   return Object.entries(vars)
     .map(([k, v]) => `${k}:${String(v).replace(/[;"<>{}]/g, '')}`)
     .join(';');
@@ -141,7 +179,9 @@ function cssVars(state, t) {
 let gradientCounter = 0;
 
 // `mono` draws the logo in one flat colour (for logos sitting on a coloured button).
-export function logoHtml(state, t, size = 20, mono = null) {
+export const logoHtml = (state, t, size = 20, mono = null) => hardenSvg(rawLogo(state, t, size, mono));
+
+function rawLogo(state, t, size, mono) {
   const p = PLATFORMS[state.platform];
   if (state.customLogo) {
     const src = safeImage(state.customLogo);
@@ -155,7 +195,7 @@ export function logoHtml(state, t, size = 20, mono = null) {
   const d = LOGOS[p.logo];
   // Wordmark logos (eBay) are wide and short inside their 24×24 box, so draw them bigger.
   const box = p.wideLogo ? Math.round(size * 1.9) : size;
-  const open = `<svg class="ksc-logo" viewBox="0 0 24 24" width="${box}" height="${box}" aria-hidden="true" focusable="false" style="margin:-${(box - size) / 2}px 0">`;
+  const open = `<svg class="ksc-logo" viewBox="0 0 24 24" width="${box}" height="${box}" aria-hidden="true" focusable="false" style="width:${box}px;height:${box}px;margin:-${(box - size) / 2}px 0">`;
   if (mono) return `${open}<path fill="${mono}" d="${d}"/></svg>`;
   if (p.theme.glitch) {
     // TikTok's cyan/red offset look.
@@ -175,10 +215,12 @@ const ICONS = {
   image: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="9" r="1.6" fill="currentColor"/><path d="m21 15-5-5L5 21" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
 };
 
-function stars(rating) {
+for (const k of Object.keys(ICONS)) ICONS[k] = hardenSvg(ICONS[k]);
+
+function stars(rating, label = CARD_WORDS.en.outOf) {
   const r = Math.max(0, Math.min(5, Number(rating) || 0));
   const full = Math.round(r);
-  return `<span class="ksc-stars" aria-label="${r} out of 5">${'★'.repeat(full)}<span class="ksc-stars-off">${'★'.repeat(5 - full)}</span></span>`;
+  return `<span class="ksc-stars" aria-label="${label.replace('{r}', r)}">${'★'.repeat(full)}<span class="ksc-stars-off">${'★'.repeat(5 - full)}</span></span>`;
 }
 
 const initials = (name) =>
@@ -191,9 +233,33 @@ const initials = (name) =>
       .join(''),
   );
 
+// --- QR code ------------------------------------------------------------------------
+
+export const QR_DEFAULT_COLOR = '#111111';
+// Scanners need dark modules on a light background. Below about 4:1 against white they start
+// to fail, so a lighter colour falls back to near-black (the editor warns about it).
+export const qrReadable = (hex) => contrast(hex, '#ffffff') >= 4;
+export const qrColorFor = (state) => (/^#[0-9a-f]{6}$/i.test(state.qrColor || '') && qrReadable(state.qrColor) ? state.qrColor : QR_DEFAULT_COLOR);
+
+/** The QR code as inline SVG: always on a white tile, with the standard 4-module quiet zone. */
+export function qrSvg(url, color = QR_DEFAULT_COLOR) {
+  return hardenSvg(qrToSvg(encodeQr(url, { ecl: 'M' }), { margin: 4, dark: color, light: '#ffffff' }))
+    .replace(/ width="\d+" height="\d+"/, '')
+    .replace('<svg ', '<svg role="img" aria-label="QR code" focusable="false" ');
+}
+
+// Where the QR code goes, or null when it's off or there's no real link to encode.
+function qrPlace(state, url) {
+  if (!state.qr || url === '#') return null;
+  const layout = state.layout || 'banner';
+  if (layout === 'button') return null;
+  if (layout === 'card') return 'card';
+  return state.qrPos === 'card' && (state.show || {}).card !== false ? 'card' : 'cta';
+}
+
 // --- markup -------------------------------------------------------------------------
 
-function cardHtml(state, t, url) {
+function cardHtml(state, t, url, { qr = '', deco = '', tag = '' } = {}) {
   const p = PLATFORMS[state.platform];
   const show = state.show || {};
   const avatar = safeImage(state.avatar);
@@ -202,14 +268,16 @@ function cardHtml(state, t, url) {
   // Platforms shown as a text label already spell out their name.
   const brandName = (p.logo && !p.wideLogo) || state.customLogo ? `<span class="ksc-brand-name">${esc(p.name)}</span>` : '';
   const stats = (state.stats || []).filter(([v, l]) => String(v).trim() || String(l).trim());
-  return `<div class="ksc-card">
-    <div class="ksc-card-head"><span class="ksc-brand">${logoHtml(state, t, 26)}${brandName}</span>${state.cardLabel ? `<span class="ksc-label">${esc(state.cardLabel)}</span>` : ''}</div>
+  const corner = tag || (state.cardLabel ? `<span class="ksc-label">${esc(state.cardLabel)}</span>` : '');
+  const btn = `<a class="ksc-card-btn" href="${esc(url)}" target="_blank" rel="noopener">${esc(state.cardButton || 'Visit')} ${ICONS.arrow}</a>`;
+  return `<div class="ksc-card${deco ? ' ksc-seasonal' : ''}">${deco}
+    <div class="ksc-card-head"><span class="ksc-brand">${logoHtml(state, t, 26)}${brandName}</span>${corner}</div>
     <div class="ksc-profile">
       ${avatar ? `<img class="ksc-avatar" src="${esc(avatar)}" alt="">` : `<span class="ksc-avatar ksc-avatar-text">${initials(state.shopName || state.name)}</span>`}
       <div class="ksc-who">
         <strong class="ksc-shop">${esc(state.shopName || state.name)}</strong>
         ${state.location ? `<span class="ksc-sub">${esc(state.location)}</span>` : ''}
-        ${show.rating !== false && state.rating ? `<span class="ksc-rating">${stars(state.rating)} <b>${esc(state.rating)}</b>${state.reviews ? ` <span class="ksc-sub">(${esc(state.reviews)})</span>` : ''}</span>` : ''}
+        ${show.rating !== false && state.rating ? `<span class="ksc-rating">${stars(state.rating, words(state).outOf)} <b>${esc(state.rating)}</b>${state.reviews ? ` <span class="ksc-sub">(${esc(state.reviews)})</span>` : ''}</span>` : ''}
       </div>
     </div>
     ${show.stats !== false && stats.length ? `<div class="ksc-stats">${stats.map(([v, l]) => `<span><b>${esc(v)}</b> ${esc(l)}</span>`).join('')}</div>` : ''}
@@ -220,7 +288,7 @@ function cardHtml(state, t, url) {
           ).join('')}</div>`
         : ''
     }
-    <a class="ksc-card-btn" href="${esc(url)}" target="_blank" rel="noopener">${esc(state.cardButton || 'Visit')} ${ICONS.arrow}</a>
+    ${qr ? `<div class="ksc-card-foot">${btn}<span class="ksc-qr">${qr}</span></div>` : btn}
   </div>`;
 }
 
@@ -230,37 +298,49 @@ export function renderCard(state, { forExport = false } = {}) {
   const show = state.show || {};
   const layout = state.layout || 'banner';
   const style = cssVars(state, t);
-  const cls = `ksc ksc-l-${layout}${t.dark ? ' ksc-dark' : ''}${state.shadow === false ? ' ksc-flat' : ''}${forExport && layout === 'banner' && state.stack ? ' ksc-stack' : ''}`;
+  const look = LOOKS[state.look] && state.look !== 'classic' ? state.look : '';
+  const season = SEASONS[state.season]?.theme ? state.season : '';
+  const tagText = String(state.seasonBadge ?? SEASONS[season]?.badge ?? '').trim();
+  const tag = season && tagText ? `<span class="ksc-tag">${esc(tagText)}</span>` : '';
+  const place = qrPlace(state, url);
+  const qr = place ? qrSvg(url, qrColorFor(state)) : '';
+  const cls = `ksc ksc-l-${layout}${t.dark ? ' ksc-dark' : ''}${state.shadow === false ? ' ksc-flat' : ''}${look ? ` ksc-k-${look}` : ''}${season && layout === 'banner' ? ' ksc-seasonal' : ''}${forExport && layout === 'banner' && state.stack ? ' ksc-stack' : ''}`;
 
   if (layout === 'button') {
     return `<a class="${cls}" style="${style}" href="${esc(url)}" target="_blank" rel="noopener"><span class="ksc-pill-logo">${logoHtml(state, t, 20, t.buttonText)}</span>${esc(state.button)} ${ICONS.arrow}</a>`;
   }
   if (layout === 'card') {
-    return `<div class="${cls}" style="${style}">${cardHtml(state, t, url)}</div>`;
+    return `<div class="${cls}" style="${style}">${cardHtml(state, t, url, { qr, deco: season ? hardenSvg(seasonDeco(season)) : '', tag })}</div>`;
   }
   const bullets = String(state.bullets || '')
     .split('\n')
     .map((b) => b.trim())
     .filter(Boolean);
-  const note = show.note !== false && url !== '#' ? `<p class="ksc-note">Opens ${esc(shortUrl(url))} in a new tab</p>` : '';
-  return `<div class="${cls}" style="${style}">
+  const note = show.note !== false && url !== '#' ? `<p class="ksc-note">${words(state).opens.replace('{url}', esc(shortUrl(url)))}</p>` : '';
+  const badge = show.badge !== false && state.badge ? `<span class="ksc-badge">${logoHtml(state, t, 16)}<span>${esc(state.badge)}</span></span>` : '';
+  const btn = `<a class="ksc-btn" href="${esc(url)}" target="_blank" rel="noopener">${esc(state.button)} ${ICONS.arrow}</a>`;
+  const caption = esc(String(state.qrCaption ?? '').trim() || 'Scan to visit');
+  return `<div class="${cls}" style="${style}">${season ? hardenSvg(seasonDeco(season)) : ''}
   <div class="ksc-main">
-    ${show.badge !== false && state.badge ? `<span class="ksc-badge">${logoHtml(state, t, 16)}<span>${esc(state.badge)}</span></span>` : ''}
+    ${tag ? `<div class="ksc-badges">${badge}${tag}</div>` : badge}
     <h2 class="ksc-title">${headlineHtml(state.headline)}</h2>
     ${state.text ? `<p class="ksc-text">${richText(state.text)}</p>` : ''}
     ${show.bullets !== false && bullets.length ? `<ul class="ksc-list">${bullets.map((b) => `<li>${ICONS.check}<span>${richText(b)}</span></li>`).join('')}</ul>` : ''}
-    <a class="ksc-btn" href="${esc(url)}" target="_blank" rel="noopener">${esc(state.button)} ${ICONS.arrow}</a>
+    ${place === 'cta' ? `<div class="ksc-cta">${btn}<span class="ksc-qr">${qr}<span><b>${caption}</b>${words(state).camera}</span></span></div>` : btn}
     ${note}
   </div>
-  ${show.card !== false ? `<div class="ksc-side">${cardHtml(state, t, url)}</div>` : ''}
+  ${show.card !== false ? `<div class="ksc-side">${cardHtml(state, t, url, { qr: place === 'card' ? qr : '' })}</div>` : ''}
 </div>`;
 }
 
 // Scoped styles. Every selector starts with .ksc so it won't touch the host site,
 // and properties are set explicitly so the host site's own CSS doesn't leak in.
-export const CARD_CSS = `.ksc,.ksc *{box-sizing:border-box;margin:0;padding:0;line-height:inherit;font-family:inherit}
+const BASE_CSS = `.ksc,.ksc *{box-sizing:border-box;margin:0;padding:0;line-height:inherit;font-family:inherit}
 .ksc{font-family:var(--ksc-font);color:var(--ksc-text);line-height:1.5;-webkit-font-smoothing:antialiased;text-align:left}
 .ksc img{display:block;max-width:none;border:0;box-shadow:none;height:auto}
+.ksc svg{border:0;box-shadow:none;background:none;max-width:none;padding:0}
+.ksc .ksc-ico{width:16px;height:16px}
+.ksc .ksc-ph svg{width:22px;height:22px}
 .ksc a,.ksc a:hover,a.ksc,a.ksc:hover{text-decoration:none;border-bottom:0}
 .ksc h2,.ksc p,.ksc ul,.ksc li{text-transform:none;font-style:normal;letter-spacing:normal;text-shadow:none;border:0;background:none}
 .ksc h2::before,.ksc h2::after,.ksc li::before,.ksc li::after,.ksc p::before,.ksc p::after{content:none;display:none}
@@ -312,7 +392,19 @@ export const CARD_CSS = `.ksc,.ksc *{box-sizing:border-box;margin:0;padding:0;li
 .ksc .ksc-pill-logo{display:inline-grid;place-items:center}
 @media (max-width:520px){.ksc.ksc-l-banner{gap:28px}.ksc .ksc-card{padding:18px}.ksc .ksc-avatar{width:60px;height:60px}}`;
 
+// The base styles plus only the look, season and QR rules this card uses, to keep the code short.
+export function cardCss(state) {
+  const parts = [BASE_CSS];
+  if (LOOK_CSS[state.look]) parts.push(LOOK_CSS[state.look]);
+  if (SEASONS[state.season]?.theme && state.layout !== 'button') parts.push(SEASON_CSS);
+  if (qrPlace(state, safeUrl(state.url))) parts.push(QR_CSS);
+  return parts.join('\n');
+}
+
 export function embedCode(state) {
   const html = renderCard(state).replace(/\n\s*\n/g, '\n');
-  return `<!-- Shop card made with Klickode Tools. Paste it anywhere that accepts HTML. -->\n<style>\n${CARD_CSS}\n</style>\n${html}\n`;
+  return `<!-- Shop card made with Klickode Tools. Paste it anywhere that accepts HTML. -->\n<style>\n${cardCss(state)}\n</style>\n${html}\n`;
 }
+
+// Everything, for the editor's live preview and the PNG export.
+export const CARD_CSS = [BASE_CSS, ...Object.values(LOOK_CSS), SEASON_CSS, QR_CSS].join('\n');

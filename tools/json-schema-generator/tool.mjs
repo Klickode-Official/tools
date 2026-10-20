@@ -24,8 +24,8 @@ export default {
     <textarea id="input" spellcheck="false" placeholder="{"id": 1, "email": "a@b.co"}"></textarea>
   </div>
   <div class="panel">
-    <div class="panel-head"><span class="label">JSON Schema</span><button class="btn small" data-copy="#output">Copy</button></div>
-    <textarea id="output" spellcheck="false" readonly></textarea>
+    <div class="panel-head"><label class="label" for="output">JSON Schema</label><button class="btn small" data-copy="#output">Copy</button></div>
+    <textarea id="output" spellcheck="false" readonly data-send-to="json-formatter"></textarea>
   </div>
 </div>`,
   content: `<h2>What it figures out</h2>

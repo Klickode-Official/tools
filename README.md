@@ -4,12 +4,12 @@ Free online tools that run entirely in the browser: images, JSON, regex, SEO and
 No sign-up, no uploads, no trackers. Each tool has its own search-optimised page at
 `/tools/<slug>/` and lives in its own folder, so it can be edited, marketed and reviewed on its own.
 
-## Tools (22)
+## Tools (27)
 
 | Category | Tools |
 | --- | --- |
-| **Business & social** `/business-tools/` | Shop Card Maker: “find us on Etsy / TikTok / WhatsApp / Shopee…” banners, cards and buttons for 14 platforms, as embed code or a PNG for social media |
-| **Image tools** `/image-tools/` | Image Converter (JPG/PNG/WebP/AVIF), Image Compressor (with target KB), Image Resizer, EXIF & GPS Remover (lossless) |
+| **Business & social** `/business-tools/` | Shop Card Maker (“find us on Etsy / TikTok / WhatsApp / Shopee…” banners, cards and buttons for 14 platforms, with looks, seasonal themes and an optional QR), QR Code Generator (links, Wi-Fi, WhatsApp, LINE, contact cards; logo, styles, PNG/SVG), PromptPay QR Generator (printable pay card), Link in Bio Page Builder (one self-contained HTML file) |
+| **Image tools** `/image-tools/` | Image Converter (JPG/PNG/WebP/AVIF), Image Compressor (with target KB), Image Resizer, EXIF & GPS Remover (lossless), Social Media Image Resizer (every platform size, focus-point crop, ZIP), Brand Colour Palette from Logo |
 | **JSON & data** `/json-tools/` | JSON Formatter & Validator, JSON Diff, CSV → JSON, JSON → CSV, JSON Schema Generator |
 | **SEO tools** `/seo-tools/` | Meta Tag Analyzer, SERP Snippet Preview, robots.txt Tester, Keyword Density Checker |
 | **Regex & text** `/text-tools/` | Regex Tester, Text Diff, Case Converter & Word Counter |
@@ -23,6 +23,9 @@ tools/
     tool.mjs        ← page copy + SEO: title, description, how-to, FAQ, category, order
     script.js       ← what the page does
     icon.svg        ← the tool's own 24×24 line icon (falls back to the category icon)
+    preview.html    ← the little illustration on the tool's card (uses the .pv-* styles)
+    preview.css     ← optional styles for that illustration (the build adds them to style.css)
+    th.mjs          ← the Thai page: same fields as tool.mjs, plus `strings` for runtime messages
     style.css       ← optional styles for this tool's page only
     *.js            ← any other modules or workers the tool needs, copied alongside
     og.png          ← social preview card (generated)
@@ -41,7 +44,7 @@ scripts/
   categories.mjs    ← category names, URLs and SEO copy
   new-tool.mjs      ← scaffolds a new tool folder
   og-images.mjs     ← renders the social cards
-tests/              ← node:test suites for assets/js/lib
+tests/              ← node:test suites for assets/js/lib; tests/e2e has the browser tests
 ```
 
 The build discovers tools automatically: there's no central list to edit. A tool's folder name is its URL.
@@ -78,6 +81,8 @@ Requires Node 20+. The site itself has no dependencies.
 
 ```sh
 npm test                                   # unit tests
+npm ci && npx playwright install chromium  # once, for the browser tests
+npm run test:e2e                           # builds, serves with the real CSP, runs tests/e2e in Chromium
 SITE_URL=https://tools.klickode.com npm run build   # → dist/ (use your real domain)
 npx serve dist                             # preview locally
 ```
@@ -85,6 +90,15 @@ npx serve dist                             # preview locally
 `SITE_URL` enables canonical links, absolute `og:image` URLs and `sitemap.xml`. Set it in your host's environment variables.
 
 Social cards: `npm i -D playwright && npx playwright install chromium && npm run og`, then commit the PNGs.
+
+## Site-wide features
+
+- **Find a tool**: `Ctrl/⌘ K` on any page (or `/`) opens a search over every tool, built from `assets/tools-index.json`, which the build writes.
+- **Ctrl/⌘ Enter** clicks the tool's main button (the first `.btn.primary` in the tool).
+- **Send to…**: add `data-send-to="slug,slug"` to an output in `tool.mjs` and a menu appears in its panel header. The text goes through `sessionStorage` and lands in the target tool's `[data-receive]` field (or its first editable textarea), which is then run.
+- **Drop a text file** on any editable textarea to load it.
+- **Recently used** tools are listed on the home page (`localStorage`).
+- **Works offline / installable**: the build writes `manifest.webmanifest` and `sw.js` (from `scripts/sw.js`) with a list of every file and a content hash, so each deploy replaces the cache.
 
 ## Privacy by design
 
@@ -107,7 +121,8 @@ Social cards: `npm i -D playwright && npx playwright install chromium && npm run
 - [x] Image converter, compressor, resizer, EXIF remover (client-side, batch, ZIP)
 - [x] On-page SEO tools (meta tags, SERP preview, robots.txt, keyword density)
 - [ ] Cookieless analytics to see which tools to invest in
-- [ ] QR code generator, PDF merge/compress (pdf-lib, in-browser), YAML ↔ JSON, SQL/CSS formatter
+- [x] QR code generator (own encoder, tested module for module against segno), PromptPay QR, link-in-bio pages, social image sizes, brand palettes
+- [ ] PDF merge/compress (pdf-lib, in-browser), YAML ↔ JSON, SQL/CSS formatter
 - [ ] In-browser background remover (ONNX model, cached after first load)
 - [ ] URL-based SEO audit (needs a small fetch proxy) and AI tools (need a backend)
 
@@ -115,6 +130,8 @@ Social cards: `npm i -D playwright && npx playwright install chromium && npm run
 
 The Shop Card Maker uses platform logos from [Simple Icons](https://simpleicons.org) (CC0 data, v16.35.0), stored in `tools/shop-card-maker/logos.js`. The logos remain trademarks of their owners and are only offered for linking to the user's own page on that platform. Amazon and Lazada aren't in Simple Icons, so their cards use a text label. To refresh the logos, regenerate `logos.js` from a newer `simple-icons` package.
 
-## License
+## Copyright
 
-MIT. Fonts: Inter and JetBrains Mono under the SIL Open Font License (see `assets/fonts/`).
+© 2026 Klickode Studio Ltd. All rights reserved. This is proprietary code: see `LICENSE`. It may not be copied, reused or redistributed without written permission. Fonts (SIL OFL 1.1) and Simple Icons logo data (CC0) keep their own licences, listed in `LICENSE`.
+
+The site's legal pages (terms, privacy, disclaimer, copyright) live in `scripts/legal.mjs`, along with `BRAND_NOTICE`: the copyright line the build writes, out of sight of visitors, into every page's source, the top of every shipped CSS/JS file and the site's own PNGs (`scripts/png-meta.mjs`). The browser console also shows a signature (`assets/js/ui.js`). Nothing is hidden in the visible page itself, because hidden text counts as spam to search engines.

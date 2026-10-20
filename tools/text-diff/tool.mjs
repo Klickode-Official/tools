@@ -17,6 +17,14 @@ export default {
 <h2>Result</h2>
 <pre class="output" id="result" style="white-space:normal" tabindex="0"></pre>`,
   content: `<h2>How it works</h2>
-<p>It lines the two versions up and marks lines that only exist in the original with a minus, and lines that only exist in the new version with a plus. When a line was edited rather than replaced, the exact words that changed are highlighted inside it. Everything else stays plain so the changes stand out. For JSON, the <a href="/tools/json-diff/">JSON Diff</a> does a better job because it ignores formatting.</p>`,
-  faq: [],
+<p>It lines the two versions up and marks lines that only exist in the original with a minus, and lines that only exist in the new version with a plus. When a line was edited rather than replaced, the exact words that changed are highlighted inside it. Everything else stays plain so the changes stand out. For JSON, the <a href="/tools/json-diff/">JSON Diff</a> does a better job because it ignores formatting.</p>
+<h2>How to compare two texts</h2>
+<ol><li>Paste the original on the left and the changed version on the right.</li><li>Click Compare.</li><li>Removed lines get a minus, added lines get a plus, and the words that changed inside an edited line are highlighted.</li></ol>
+<h2>When it comes in handy</h2>
+<ul><li>Checking what a client or colleague changed in a contract, a brief or a translation</li><li>Comparing two versions of a config file or a piece of code</li><li>Seeing what changed between two drafts of a product description or a blog post</li></ul>`,
+  faq: [
+    { q: 'Can it ignore spaces at the start and end of lines?', a: 'Yes. Tick “Ignore leading/trailing whitespace” and lines that only differ in indentation or trailing spaces count as the same.' },
+    { q: 'Does it work with Thai and other languages?', a: 'Yes. It compares line by line, so it works the same for Thai, English, any other language or code.' },
+    { q: 'Is my text sent anywhere?', a: 'No. The tool runs entirely in your browser, so your text never leaves your device. It works offline too once the page has loaded.' },
+  ],
 };

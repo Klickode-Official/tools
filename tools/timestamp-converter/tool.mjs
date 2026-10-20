@@ -15,6 +15,13 @@ export default {
 <p class="check" id="clock"></p>`,
   content: `<h2>Seconds or milliseconds?</h2>
 <p>You don’t need to say. It goes by the length of the number: 10 digits is seconds (Unix, PHP, Python’s <code>time.time()</code>), 13 is milliseconds (JavaScript’s <code>Date.now()</code>, Java), and 16 or 19 digits are micro- and nanoseconds.</p>
-<p>You can also type a normal date, like <code>2025-03-01 14:30</code>, to get its timestamp. A date without a time zone is read as your own local time; add <code>Z</code> or <code>+07:00</code> to be specific.</p>\n<h2>Time zones and the Thai calendar</h2>\n<p>Pick any time zone to see the same moment there, handy for scheduling with customers abroad. The Thai row shows the date in the Buddhist calendar (พ.ศ.), which is the Western year plus 543, in Bangkok time.</p>`,
-  faq: [],
+<p>You can also type a normal date, like <code>2025-03-01 14:30</code>, to get its timestamp. A date without a time zone is read as your own local time; add <code>Z</code> or <code>+07:00</code> to be specific.</p>\n<h2>Time zones and the Thai calendar</h2>\n<p>Pick any time zone to see the same moment there, handy for scheduling with customers abroad. The Thai row shows the date in the Buddhist calendar (พ.ศ.), which is the Western year plus 543, in Bangkok time.</p>
+<h2>How to convert a timestamp</h2>
+<ol><li>Paste a Unix timestamp, or click Now for the current one.</li><li>Read it as a date in UTC, your local time and any other time zone you add.</li><li>To go the other way, type a date like <code>2025-03-01 14:30</code> and get its timestamp.</li></ol>`,
+  faq: [
+    { q: 'What is a Unix timestamp?', a: 'The number of seconds since 00:00:00 UTC on 1 January 1970. It’s the same everywhere in the world, which is why servers and databases store time this way.' },
+    { q: 'How do I get the current timestamp in code?', a: 'JavaScript: <code>Math.floor(Date.now() / 1000)</code>. Python: <code>int(time.time())</code>. PHP: <code>time()</code>. In a terminal: <code>date +%s</code>.' },
+    { q: 'What is the year 2038 problem?', a: 'Systems that store timestamps as 32-bit signed numbers run out at 03:14:07 UTC on 19 January 2038 (2147483647) and wrap around to 1901. 64-bit timestamps, which most systems use now, are fine.' },
+    { q: 'How do I convert a date to the Thai Buddhist year (พ.ศ.)?', a: 'Add 543 to the year: 2025 is พ.ศ. 2568. The Thai row does this for you and shows the time in Bangkok.' },
+  ],
 };

@@ -25,6 +25,13 @@ export default {
 </div>`,
   content: `<h2>It’s pixels, not characters</h2>
 <p>Google doesn’t cut titles off at 60 characters. It cuts them at roughly 580 pixels wide on desktop, and “WWWW” takes up far more room than “iiii”. The bars measure your text in the font Google uses, so you can see whether it actually fits. Descriptions get about 920 pixels on desktop and less on a phone.</p>
-<p>Google sometimes rewrites titles and descriptions when it thinks something else on the page fits a search better. A clear, honest snippet that fits makes that less likely.</p>`,
-  faq: [],
+<p>Google sometimes rewrites titles and descriptions when it thinks something else on the page fits a search better. A clear, honest snippet that fits makes that less likely.</p>
+<h2>How to preview your Google result</h2>
+<ol><li>Type your page title, meta description and URL.</li><li>Switch between Desktop and Mobile.</li><li>The bar under each box shows how much of the available width you’ve used. Past the end, Google cuts the text off with “…”.</li></ol>`,
+  faq: [
+    { q: 'How long should a title tag be?', a: 'Short enough to fit in about 580 pixels on desktop. In English that’s usually 50 to 60 characters, but wide letters fill it faster, so check it here rather than counting.' },
+    { q: 'How long should a meta description be?', a: 'About 920 pixels on desktop, roughly 150 to 160 characters, and less on a phone. Put the important part first so it still makes sense if it gets cut.' },
+    { q: 'Why does Google show a different title from mine?', a: 'Google rewrites titles and descriptions when it thinks other text on the page matches the search better, or when yours is too long, vague or stuffed with keywords. A clear title that fits and matches your <code>&lt;h1&gt;</code> is the best way to keep it.' },
+    { q: 'Is my text sent anywhere?', a: 'No. The tool runs entirely in your browser, so your text never leaves your device. It works offline too once the page has loaded.' },
+  ],
 };

@@ -30,6 +30,13 @@ export default {
 </div>`,
   content: `<h2>What it figures out</h2>
 <ul><li>The type of every value, including whether a number is a whole number or not.</li><li>For a list of objects, it looks at every item. A field is only marked required if all of them have it.</li><li>Strings that look like dates, emails, links or UUIDs get the matching <code>format</code>.</li></ul>
-<p>Think of the result as a first draft. Read through it, then tighten it with things like <code>minLength</code>, <code>enum</code> or <code>pattern</code> where you know more than one sample can tell you.</p>`,
-  faq: [],
+<p>Think of the result as a first draft. Read through it, then tighten it with things like <code>minLength</code>, <code>enum</code> or <code>pattern</code> where you know more than one sample can tell you.</p>
+<h2>How to generate a JSON Schema</h2>
+<ol><li>Paste a sample of your JSON, such as an API response. Use a list with a few items if you have one, so it can tell which fields are optional.</li><li>Click Generate.</li><li>Check the result, then copy it or download it as a file.</li></ol>`,
+  faq: [
+    { q: 'What is JSON Schema?', a: 'A JSON file that describes the shape of other JSON: which fields exist, their types and which ones are required. Validators use it to check data, and editors use it for autocomplete.' },
+    { q: 'Which draft does it use?', a: 'Draft 2020-12, the current one. It works with most validators. In Ajv, import the 2020 build: <code>ajv/dist/2020</code>.' },
+    { q: 'Can I use it in OpenAPI?', a: 'Yes. OpenAPI 3.1 uses JSON Schema 2020-12 directly. OpenAPI 3.0 uses an older subset, so you may need to remove <code>$schema</code> and change a few keywords.' },
+    { q: 'Is my JSON sent anywhere?', a: 'No. The tool runs entirely in your browser, so your JSON never leaves your device. It works offline too once the page has loaded.' },
+  ],
 };

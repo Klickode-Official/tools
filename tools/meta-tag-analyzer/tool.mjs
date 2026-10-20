@@ -20,6 +20,13 @@ export default {
 <p>Browsers don’t let one website read another, so checkers that take a URL have to fetch the page through their own servers. Pasting the source keeps everything on your machine. It also means you can check pages that aren’t live yet, like a staging site or something on localhost.</p>
 <h2>What it looks at</h2>
 <ul><li>Whether the title and meta description exist, and whether they’re long enough without getting cut off</li><li>One clear <code>&lt;h1&gt;</code>, and headings that don’t skip levels</li><li>Canonical link, <code>noindex</code>, the mobile viewport tag, language and character set</li><li>Images without <code>alt</code> text</li><li>Open Graph and Twitter tags for link previews</li><li>Structured data (JSON-LD) that won’t parse</li></ul>
-<p>If your site is built with React, Vue or similar, View Source may be nearly empty. Open DevTools instead, right-click the <code>&lt;html&gt;</code> element, choose Copy outerHTML, and paste that.</p>`,
-  faq: [],
+<p>If your site is built with React, Vue or similar, View Source may be nearly empty. Open DevTools instead, right-click the <code>&lt;html&gt;</code> element, choose Copy outerHTML, and paste that.</p>
+<h2>How to check a page’s meta tags</h2>
+<ol><li>Open the page and press Ctrl+U (⌥⌘U on a Mac) to view its source.</li><li>Select everything, copy it and paste it into the box above.</li><li>Go through the list of problems and fix them one by one.</li></ol>`,
+  faq: [
+    { q: 'Which meta tags matter for SEO?', a: 'The <code>&lt;title&gt;</code> and meta description, which make up your search result; the canonical link; the robots tag, if you use <code>noindex</code>; the viewport tag for phones; and Open Graph tags for link previews on social media and chat apps.' },
+    { q: 'Do meta keywords still matter?', a: 'No. Google has ignored the keywords meta tag since 2009, and Bing treats a stuffed one as a spam signal. You can leave it out.' },
+    { q: 'Can I check a page that isn’t live yet?', a: 'Yes. Because you paste the HTML, it works for staging sites, pages on localhost and drafts, which URL-based checkers can’t reach.' },
+    { q: 'Is my HTML sent anywhere?', a: 'No. The tool runs entirely in your browser, so your HTML never leaves your device. It works offline too once the page has loaded.' },
+  ],
 };

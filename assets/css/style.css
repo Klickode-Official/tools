@@ -799,3 +799,5 @@ textarea.drop-over { outline: 2px dashed var(--red); outline-offset: -6px; backg
 /* Thai has no spaces, so long headings can only wrap where the browser's dictionary finds a word
    break. Keep them a little smaller on phones so the common names fit on one or two lines. */
 @media (max-width: 520px) { :lang(th) h1 { font-size: 27px; line-height: 1.3; } }
+/* Loanwords the dictionary doesn't know (โซเชียล, ไอดี), wrapped by scripts/thai-words.mjs. */
+.nobr { white-space: nowrap; }

@@ -7,22 +7,24 @@
 //   tools/<slug>/og.png     1200×630 social preview (optional, `npm run og` makes them)
 //   tools/<slug>/*          anything else (workers, images) is copied alongside
 //
-//   SITE_URL=https://tools.example.com npm run build
+//   npm run build                      (for https://tools.klickode.com)
+//   SITE_URL=https://example.com npm run build   (another domain; SITE_URL= builds without one)
 //   OUT_DIR=/tmp/site npm run build   (build somewhere other than dist/)
 //
-// SITE_URL enables canonical links, absolute og:image URLs and sitemap.xml.
+// SITE_URL drives canonical links, absolute og:image URLs, sitemap.xml and llms.txt.
 import { cp, mkdir, readdir, readFile, rm, writeFile, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { categories, categoryById, categoryIcon } from './categories.mjs';
-import { layout, breadcrumbs, toolGrid, toolIcon, esc, localPath, studioCta, SITE_NAME } from './layout.mjs';
+import { layout, breadcrumbs, toolGrid, toolIcon, esc, localPath, studioCta, SITE_NAME, ORG_ID } from './layout.mjs';
+import { keepThaiWords } from './thai-words.mjs';
 import { LANGS, UI, RUNTIME } from './i18n.mjs';
 import { legalPages, COMPANY, BRAND_NOTICE } from './legal.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = process.env.OUT_DIR ? resolve(process.env.OUT_DIR) : join(root, 'dist');
-const siteUrl = (process.env.SITE_URL || '').replace(/\/$/, '');
+const siteUrl = (process.env.SITE_URL ?? 'https://tools.klickode.com').replace(/\/$/, '');
 const warnings = [];
 
 const exists = (p) => stat(p).then(() => true, () => false);
@@ -85,7 +87,7 @@ const categoryNames = (lang) => Object.fromEntries(categories.map((c) => [c.id, 
 async function page(path, html) {
   const file = path.endsWith('.html') ? join(out, path) : join(out, path, 'index.html');
   await mkdir(dirname(file), { recursive: true });
-  await writeFile(file, html);
+  await writeFile(file, html.includes('<html lang="th"') ? keepThaiWords(html) : html);
 }
 
 const faqHtml = (faq = [], lang) =>
@@ -94,6 +96,11 @@ const faqHtml = (faq = [], lang) =>
 const stripTags = (s) => s.replace(/<[^>]+>/g, '');
 const abs = (p) => `${siteUrl}${p}`;
 const urls = [];
+const altsOf = new Map(); // page path → the same page in each language, for the sitemap
+// Ties every page to the one website and the studio behind it, so search engines and AI answers
+// credit Klickode for the tools.
+const WEBSITE_ID = `${siteUrl}/#website`;
+const siteRef = siteUrl ? { isPartOf: { '@id': WEBSITE_ID }, publisher: { '@id': ORG_ID } } : {};
 
 await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
@@ -131,8 +138,10 @@ for (const base of tools) {
         applicationCategory: t.category === 'images' ? 'MultimediaApplication' : t.category === 'business' ? 'BusinessApplication' : 'DeveloperApplication',
         operatingSystem: 'Any (web browser)',
         isAccessibleForFree: true,
+        browserRequirements: 'Requires JavaScript. Works offline once opened.',
         offers: { '@type': 'Offer', price: '0', priceCurrency: lang === 'th' ? 'THB' : 'USD' },
         ...(siteUrl && { url: abs(path) }),
+        ...siteRef,
       },
       {
         '@type': 'BreadcrumbList',
@@ -147,6 +156,7 @@ for (const base of tools) {
       graph.push({ '@type': 'FAQPage', mainEntity: t.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: stripTags(f.a) } })) });
     }
     urls.push(path);
+    altsOf.set(path, alternates);
     await page(
       path,
       layout({
@@ -198,14 +208,16 @@ for (const lang of LANG_IDS) {
     if (!list.length) continue;
     const c = catIn(base, lang);
     const path = localPath(lang, `/${c.slug}/`);
+    const alternates = { en: `/${c.slug}/`, th: localPath('th', `/${c.slug}/`) };
     urls.push(path);
+    altsOf.set(path, alternates);
     await page(
       path,
       layout({
         siteUrl,
         path,
         lang,
-        alternates: { en: `/${c.slug}/`, th: localPath('th', `/${c.slug}/`) },
+        alternates,
         categoryNames: categoryNames(lang),
         strings: lang === 'en' ? null : RUNTIME[lang],
         title: `${c.title} | ${SITE_NAME}`,
@@ -217,6 +229,8 @@ for (const lang of LANG_IDS) {
           name: c.name,
           description: c.description,
           inLanguage: lang,
+          ...(siteUrl && { url: abs(path) }),
+          ...siteRef,
           hasPart: list.map((t) => ({ '@type': 'WebApplication', name: t.name, ...(siteUrl && { url: abs(t.href) }) })),
         },
         body: `${breadcrumbs([[localPath(lang, '/'), u.tools], [path, c.name]])}
@@ -237,20 +251,30 @@ for (const lang of LANG_IDS) {
   const u = UI[lang];
   const catOf = catOfIn(lang);
   const path = localPath(lang, '/');
+  const alternates = { en: '/', th: localPath('th', '/') };
   urls.push(path);
+  altsOf.set(path, alternates);
   await page(
     path,
     layout({
       siteUrl,
       path,
       lang,
-      alternates: { en: '/', th: localPath('th', '/') },
+      alternates,
       categoryNames: categoryNames(lang),
       strings: lang === 'en' ? null : RUNTIME[lang],
       title: u.homeTitle,
       description: u.homeDescription,
       scripts: ['/assets/js/home.js'],
-      jsonLd: { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE_NAME, inLanguage: lang, ...(siteUrl && { url: abs(path) }) },
+      jsonLd: {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: SITE_NAME,
+        alternateName: 'Klickode',
+        description: u.homeDescription,
+        inLanguage: lang,
+        ...(siteUrl && { '@id': WEBSITE_ID, url: abs(path), publisher: { '@id': ORG_ID } }),
+      },
       body: `<div class="hero-wrap"><section class="hero">
   <p class="eyebrow">${u.eyebrow(tools.length)}</p>
   <h1>${u.heroTitle}</h1>
@@ -299,16 +323,58 @@ if (siteUrl) {
   const today = new Date().toISOString().slice(0, 10);
   await writeFile(
     join(out, 'sitemap.xml'),
-    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${abs(u)}</loc><lastmod>${today}</lastmod></url>`).join('\n')}\n</urlset>\n`,
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls
+      .map((u) => {
+        // Each page lists its English and Thai versions, so Google shows the right one to each reader.
+        const alts = Object.entries(altsOf.get(u) || {});
+        const links = alts.length > 1 ? alts.concat([['x-default', altsOf.get(u).en]]).map(([l, p]) => `\n    <xhtml:link rel="alternate" hreflang="${l}" href="${abs(p)}"/>`).join('') : '';
+        return `  <url><loc>${abs(u)}</loc><lastmod>${today}</lastmod>${links}</url>`;
+      })
+      .join('\n')}\n</urlset>\n`,
   );
 }
 // Search engines (including AI search and assistants fetching a page for a person) are welcome;
 // crawlers that collect pages to train AI models are asked to stay out. See /copyright/.
+// The AI search crawlers are named so it's clear they're allowed, even though `*` already covers them.
+const AI_SEARCH = ['OAI-SearchBot', 'ChatGPT-User', 'Claude-SearchBot', 'Claude-User', 'PerplexityBot', 'Perplexity-User', 'DuckAssistBot', 'MistralAI-User'];
 const AI_CRAWLERS = ['GPTBot', 'ClaudeBot', 'anthropic-ai', 'CCBot', 'Google-Extended', 'Applebot-Extended', 'Bytespider', 'meta-externalagent', 'FacebookBot', 'cohere-ai', 'cohere-training-data-crawler', 'Diffbot', 'ImagesiftBot', 'Omgilibot', 'Timpibot'];
 await writeFile(
   join(out, 'robots.txt'),
-  `# © ${new Date().getFullYear()} ${COMPANY} All rights reserved. Use of this site's content to train AI is not permitted.\n\n${AI_CRAWLERS.map((a) => `User-agent: ${a}`).join('\n')}\nDisallow: /\n\nUser-agent: *\nAllow: /\n${siteUrl ? `\nSitemap: ${abs('/sitemap.xml')}\n` : ''}`,
+  `# © ${new Date().getFullYear()} ${COMPANY} All rights reserved. Use of this site's content to train AI is not permitted.\n\n${AI_CRAWLERS.map((a) => `User-agent: ${a}`).join('\n')}\nDisallow: /\n\n# AI search and answer engines: welcome, so they can cite and link to the tools.\n${AI_SEARCH.map((a) => `User-agent: ${a}`).join('\n')}\nAllow: /\n\nUser-agent: *\nAllow: /\n${siteUrl ? `\nSitemap: ${abs('/sitemap.xml')}\n` : ''}`,
 );
+
+// llms.txt (llmstxt.org): a plain-text map of the site for AI assistants and answer engines, so
+// they can say what each tool does and link to the right page.
+{
+  const link = (t) => `- [${t.name}](${abs(t.href)}): ${t.description}`;
+  const section = (lang) =>
+    categories
+      .filter((c) => byCategory(c.id).length)
+      .map((c) => `### ${catIn(c, lang).name}\n\n${byCategory(c.id).map((t) => link(toolIn(t, lang))).join('\n')}`)
+      .join('\n\n');
+  await writeFile(
+    join(out, 'llms.txt'),
+    `# ${SITE_NAME}
+
+> ${tools.length} free online tools by Klickode, a web studio in Bangkok, Thailand (https://www.klickode.com/). They run entirely in the browser: files and text are never uploaded, there's no sign-up and no tracking. Every tool has an English page and a Thai page.
+
+Categories: ${categories.filter((c) => byCategory(c.id).length).map((c) => `[${c.name}](${abs(`/${c.slug}/`)})`).join(', ')}.
+
+## Tools (English)
+
+${section('en')}
+
+## เครื่องมือ (ภาษาไทย)
+
+${section('th')}
+
+## Optional
+
+${legalPages.map((lp) => `- [${lp.title}](${abs(`/${lp.slug}/`)})`).join('\n')}
+- [Klickode Studio](https://www.klickode.com/): websites and apps made to order
+`,
+  );
+}
 
 // Sign every stylesheet and script we ship. /*! comments survive most minifiers, so the notice
 // stays with the code if someone copies it.
@@ -390,7 +456,7 @@ async function listFiles(dir, base = '') {
   return files;
 }
 const cacheList = (await listFiles(out))
-  .filter((f) => !/(og\.png|robots\.txt|sitemap\.xml|404\.html|\.webmanifest)$/.test(f))
+  .filter((f) => !/(og\.png|robots\.txt|sitemap\.xml|llms\.txt|404\.html|\.webmanifest)$/.test(f))
   // Big optional parts (the HEIC decoder) are cached the first time they're used instead.
   .filter((f) => !f.startsWith('/assets/vendor/'))
   .map((f) => f.replace(/index\.html$/, ''));
@@ -401,4 +467,4 @@ const sw = (await readFile(join(root, 'scripts', 'sw.js'), 'utf8')).replace('__V
 await writeFile(join(out, 'sw.js'), `/*! ${BRAND_NOTICE} */\n${sw}`);
 
 for (const w of warnings) console.warn(`SEO warning: ${w}`);
-console.log(`Built ${urls.length} pages (${tools.length} tools, ${tools.filter((t) => t.th).length} in Thai) into ${out}${siteUrl ? ` for ${siteUrl}` : ' (set SITE_URL to emit canonical URLs and sitemap.xml)'}`);
+console.log(`Built ${urls.length} pages (${tools.length} tools, ${tools.filter((t) => t.th).length} in Thai) into ${out}${siteUrl ? ` for ${siteUrl}` : ' (no SITE_URL, so no canonical URLs or sitemap.xml)'}`);

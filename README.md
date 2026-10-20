@@ -4,12 +4,14 @@ Free online tools that run entirely in the browser: images, JSON, regex, SEO and
 No sign-up, no uploads, no trackers. Each tool has its own search-optimised page at
 `/tools/<slug>/` and lives in its own folder, so it can be edited, marketed and reviewed on its own.
 
-## Tools (27)
+## Tools (28)
+
+Every tool, category page and the home page also have a Thai version under `/th/` (EN / ไทย switch in the header).
 
 | Category | Tools |
 | --- | --- |
 | **Business & social** `/business-tools/` | Shop Card Maker (“find us on Etsy / TikTok / WhatsApp / Shopee…” banners, cards and buttons for 14 platforms, with looks, seasonal themes and an optional QR), QR Code Generator (links, Wi-Fi, WhatsApp, LINE, contact cards; logo, styles, PNG/SVG), PromptPay QR Generator (printable pay card), Link in Bio Page Builder (one self-contained HTML file) |
-| **Image tools** `/image-tools/` | Image Converter (JPG/PNG/WebP/AVIF), Image Compressor (with target KB), Image Resizer, EXIF & GPS Remover (lossless), Social Media Image Resizer (every platform size, focus-point crop, ZIP), Brand Colour Palette from Logo |
+| **Image tools** `/image-tools/` | Image Converter (JPG/PNG/WebP/AVIF/HEIC), HEIC to JPG Converter (iPhone photos in any browser), Image Compressor (with target KB), Image Resizer, EXIF & GPS Remover (lossless), Social Media Image Resizer (every platform size, focus-point crop, ZIP), Brand Colour Palette from Logo |
 | **JSON & data** `/json-tools/` | JSON Formatter & Validator, JSON Diff, CSV → JSON, JSON → CSV, JSON Schema Generator |
 | **SEO tools** `/seo-tools/` | Meta Tag Analyzer, SERP Snippet Preview, robots.txt Tester, Keyword Density Checker |
 | **Regex & text** `/text-tools/` | Regex Tester, Text Diff, Case Converter & Word Counter |
@@ -60,7 +62,16 @@ Write tool text the way you'd explain it to a friend: short sentences, contracti
 - `WebApplication` structured data (free offer) and `FAQPage` structured data built from the tool's `faq`
 - A branded 1200×630 Open Graph / Twitter card (`tools/<slug>/og.png`)
 - Indexable how-to copy and an FAQ below the tool, and links to related tools in the same category
-- A category hub page (`/image-tools/` etc.) linking all tools in that category, plus sitemap.xml
+- A category hub page (`/image-tools/` etc.) linking all tools in that category, plus sitemap.xml with each page's English and Thai versions
+- `hreflang` links between the English and Thai pages, and one `Organization` id shared with klickode.com, so search engines and AI answers credit the same studio
+
+## Search engines and AI answers (SEO, AEO, GEO)
+
+- `robots.txt` welcomes search engines and AI search and answer crawlers (OAI-SearchBot, ChatGPT-User, Claude-SearchBot, PerplexityBot and others), so ChatGPT, Claude, Perplexity and Google AI Overviews can read, cite and link the tools. Crawlers that collect pages to train AI models are asked to stay out (see `/copyright/`).
+- `llms.txt` ([llmstxt.org](https://llmstxt.org)) lists every tool, in English and Thai, with a one-line description and its URL, for AI assistants.
+- Each tool's FAQ is marked up as `FAQPage`, which answer engines quote directly. Write FAQ answers so the first sentence answers the question on its own.
+- Preview deployments on `*.vercel.app` send `X-Robots-Tag: noindex`, so only the real domain is indexed.
+- Thai loanwords that browsers split mid-word on narrow screens (โซเชีย/ล) are kept on one line by `scripts/thai-words.mjs`. Add a word there when you see one break.
 - Build-time warnings when a title or description is too long for Google to show in full
 
 ## Adding a tool
@@ -83,11 +94,11 @@ Requires Node 20+. The site itself has no dependencies.
 npm test                                   # unit tests
 npm ci && npx playwright install chromium  # once, for the browser tests
 npm run test:e2e                           # builds, serves with the real CSP, runs tests/e2e in Chromium
-SITE_URL=https://tools.klickode.com npm run build   # → dist/ (use your real domain)
+npm run build                              # → dist/, for https://tools.klickode.com
 npx serve dist                             # preview locally
 ```
 
-`SITE_URL` enables canonical links, absolute `og:image` URLs and `sitemap.xml`. Set it in your host's environment variables.
+The site is built for `https://tools.klickode.com` by default. To build for another domain, set `SITE_URL` (for example `SITE_URL=https://example.com npm run build`); `SITE_URL=` with no value builds without canonical links, `sitemap.xml` or absolute URLs in `llms.txt`.
 
 Social cards: `npm i -D playwright && npx playwright install chromium && npm run og`, then commit the PNGs.
 

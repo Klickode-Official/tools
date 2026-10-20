@@ -20,10 +20,15 @@ const NAV = [
   ['/encoding-tools/', 'encoding'],
 ];
 
+// One id for Klickode across klickode.com and this site, so search engines and AI answers treat
+// both as the same studio.
+export const ORG_ID = `${STUDIO_URL}#organization`;
+
 // Tells search engines who is behind the site and which logo is the brand's.
 const ORGANIZATION = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': ORG_ID,
   name: COMPANY,
   alternateName: ['Klickode', 'Klickode Studio'],
   url: STUDIO_URL,

@@ -124,7 +124,7 @@ ${styles.map((h) => `  <link rel="stylesheet" href="${h}">\n`).join('')}  <scrip
     ${NAV.map(([href, id]) => `<a href="${localPath(lang, href)}"${active === href ? ' aria-current="page"' : ''}>${u.nav[id]}</a>`).join('\n    ')}
   </nav>
   <div class="header-actions">
-    <button class="search-btn" type="button" data-palette aria-label="${u.findToolLabel}" title="${u.findTool}">${SEARCH_ICON}<span>${u.findTool}</span><kbd>Ctrl K</kbd></button>
+    <span class="search-slot"><button class="search-btn" type="button" data-palette aria-label="${u.findToolLabel}">${SEARCH_ICON}<span class="search-more"><span>${u.findTool}</span><kbd>Ctrl K</kbd></span></button></span>
     <a class="lang-btn" href="${switchHref}" hreflang="${other}" lang="${other}" title="${esc(UI[lang].switchTo)}">${LANGS[other].short}</a>
     <button class="icon-btn" id="theme-toggle" aria-label="${u.themeToggle}" title="${u.themeToggle}">${THEME_ICON}</button>
     <a class="header-cta" href="${STUDIO_URL}">Klickode Studio <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>

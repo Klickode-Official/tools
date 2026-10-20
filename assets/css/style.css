@@ -640,17 +640,32 @@ mark.alt { background: var(--mark-alt); }
 }
 
 /* --- find a tool (Ctrl+K) --------------------------------------------------------------- */
-.search-btn { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px 0 12px; font: inherit; font-size: 13.5px; color: var(--muted); background: color-mix(in srgb, var(--mist) 55%, transparent); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
-.search-btn:hover { color: var(--text); border-color: var(--border-strong); }
+/* Search is a round icon that slides open to the left on hover. It sits in a fixed 36px slot and
+   grows over the space beside it, so nothing else in the header moves. */
+.search-slot { position: relative; width: 36px; height: 36px; flex: none; }
+.search-btn { position: absolute; top: 0; right: 0; z-index: 2; display: inline-flex; align-items: center; height: 36px; padding: 0 9px; font: inherit; font-size: 13.5px; white-space: nowrap; color: var(--muted); background: color-mix(in srgb, var(--mist) 55%, var(--surface)); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; transition: color 0.2s, border-color 0.2s, box-shadow 0.3s; }
+.search-btn svg { flex: none; }
+.search-more { display: inline-flex; align-items: center; gap: 8px; max-width: 0; margin-left: 0; opacity: 0; overflow: hidden; transition: max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1), margin-left 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s; }
+.search-btn:is(:hover, :focus-visible) { color: var(--text); border-color: var(--border-strong); box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.3); }
+.search-btn:is(:hover, :focus-visible) .search-more { max-width: 220px; margin-left: 8px; opacity: 1; }
 .search-btn kbd, .palette kbd { font-family: var(--mono); font-size: 10.5px; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 5px; padding: 1px 5px; }
-@media (max-width: 1100px) { .search-btn span, .search-btn kbd { display: none; } .search-btn { width: 36px; padding: 0; justify-content: center; } }
 
 .palette { width: min(620px, calc(100vw - 32px)); max-height: min(560px, calc(100vh - 120px)); margin: 12vh auto auto; padding: 0; border: 1px solid var(--border-strong); border-radius: 16px; background: var(--surface); color: var(--text); box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.35); overflow: hidden; }
-.palette[open] { display: flex; animation: palette-in 0.16s ease-out; }
+/* Opens with a scale-and-fade. Closing is a transition: the dialog closes at once (the page works
+   straight away) and stays drawn while it fades, in browsers that can keep it on top
+   (overlay/display allow-discrete). Others just close. */
+.palette, .palette::backdrop { transition: opacity 0.18s ease-out, transform 0.18s ease-out, overlay 0.18s allow-discrete, display 0.18s allow-discrete; }
+.palette:not([open]), .palette:not([open])::backdrop { opacity: 0; }
+.palette:not([open]) { transform: translateY(-6px) scale(0.97); }
+.palette[open] { display: flex; animation: palette-in 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
 .palette::backdrop { background: rgba(15, 15, 18, 0.38); backdrop-filter: blur(3px); }
-@keyframes palette-in { from { opacity: 0; transform: translateY(-6px) scale(0.985); } }
+.palette[open]::backdrop { animation: fade-in 0.25s ease-out; }
+@keyframes palette-in { from { opacity: 0; transform: translateY(-12px) scale(0.96); } }
+@keyframes fade-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .palette, .palette::backdrop, .search-more { animation: none !important; transition: none !important; } }
 .palette-box { display: flex; flex-direction: column; width: 100%; min-height: 0; }
 .palette-search { display: flex; align-items: center; gap: 10px; padding: 0 16px; border-bottom: 1px solid var(--border); color: var(--faint); }
+.palette-search input:focus { box-shadow: none; }
 .palette-search input { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 16px 0; border: 0; background: none; color: var(--text); outline: none; }
 .palette-list { list-style: none; margin: 0; padding: 6px; overflow-y: auto; flex: 1; }
 .palette-list a { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 10px 12px; border-radius: 10px; color: var(--text); text-decoration: none; }
@@ -660,9 +675,7 @@ mark.alt { background: var(--mark-alt); }
 .palette-list li[aria-selected='true'] a { background: color-mix(in srgb, var(--red) 8%, var(--surface)); }
 .palette-list li[aria-selected='true'] strong { color: var(--red); }
 .palette-empty { padding: 18px 12px; color: var(--muted); }
-.palette-foot { display: flex; gap: 18px; margin: 0; padding: 10px 16px; border-top: 1px solid var(--border); background: var(--bar); font-size: 12px; color: var(--muted); }
-.palette-foot kbd { margin-right: 3px; }
-@media (max-width: 560px) { .palette-foot { display: none; } .palette { margin-top: 8vh; } }
+@media (max-width: 560px) { .palette { margin-top: 8vh; } }
 
 /* --- send a result to another tool -------------------------------------------------------- */
 .send-to { position: relative; margin-left: auto; }

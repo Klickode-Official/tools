@@ -209,7 +209,6 @@ function openPalette() {
   <div class="palette-search"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   <input type="text" placeholder="${t('Find a tool…')}" aria-label="${t('Find a tool')}" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="palette-list"><kbd>Esc</kbd></div>
   <ul class="palette-list" id="palette-list" role="listbox"></ul>
-  <p class="palette-foot"><span><kbd>↑</kbd><kbd>↓</kbd> ${t('move')}</span><span><kbd>Enter</kbd> ${t('open')}</span><span><kbd>${/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'}</kbd><kbd>Enter</kbd> ${t('runs a tool')}</span></p>
 </div>`;
     document.body.append(palette);
     const input = palette.querySelector('input');

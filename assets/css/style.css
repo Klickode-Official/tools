@@ -648,7 +648,7 @@ mark.alt { background: var(--mark-alt); }
 .search-more { display: inline-flex; align-items: center; gap: 8px; max-width: 0; margin-left: 0; opacity: 0; overflow: hidden; transition: max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1), margin-left 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s; }
 .search-btn:is(:hover, :focus-visible) { color: var(--text); border-color: var(--border-strong); box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.3); }
 .search-btn:is(:hover, :focus-visible) .search-more { max-width: 220px; margin-left: 8px; opacity: 1; }
-.search-btn kbd, .palette kbd { font-family: var(--mono); font-size: 10.5px; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 5px; padding: 1px 5px; }
+.palette kbd { font-family: var(--mono); font-size: 10.5px; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 5px; padding: 1px 5px; }
 
 .palette { width: min(620px, calc(100vw - 32px)); max-height: min(560px, calc(100vh - 120px)); margin: 12vh auto auto; padding: 0; border: 1px solid var(--border-strong); border-radius: 16px; background: var(--surface); color: var(--text); box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.35); overflow: hidden; }
 /* Opens with a scale-and-fade. Closing is a transition: the dialog closes at once (the page works

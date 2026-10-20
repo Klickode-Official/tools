@@ -266,11 +266,7 @@ function openPalette() {
 
 // --- keyboard shortcuts --------------------------------------------------------------------
 function initShortcuts() {
-  const mac = /Mac|iPhone|iPad/.test(navigator.userAgentData?.platform ?? navigator.platform);
-  for (const btn of document.querySelectorAll('[data-palette]')) {
-    btn.addEventListener('click', openPalette);
-    if (mac) btn.querySelector('kbd')?.replaceChildren('⌘K');
-  }
+  for (const btn of document.querySelectorAll('[data-palette]')) btn.addEventListener('click', openPalette);
   document.addEventListener('keydown', (e) => {
     const mod = e.ctrlKey || e.metaKey;
     if (mod && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'k') {

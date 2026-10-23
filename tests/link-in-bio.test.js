@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { renderPage, pageBody, pageCss, resolveTheme, linkUrl, linkTitle, THEMES, THEME_ORDER } from '../tools/link-in-bio/page.js';
+import { renderPage, pageBody, pageCss, resolveTheme, linkUrl, linkTitle, payBlock, THEMES, THEME_ORDER } from '../tools/link-in-bio/page.js';
 
 const base = (extra = {}) => ({ name: 'Mali', bio: 'Silver jewellery', links: [], theme: 'light', colors: {}, ...extra });
 
@@ -70,4 +70,16 @@ test('the page needs no scripts or outside requests', () => {
     assert.doesNotMatch(html, /<script|<link rel="stylesheet"|@import|url\(/i, theme);
   }
   assert.match(renderPage(base({ name: 'ร้านมะลิ' })), /<html lang="th">/);
+});
+
+test('a PromptPay ID adds a pay button with a QR code, and nothing otherwise', () => {
+  assert.equal(payBlock(base()), '');
+  assert.equal(payBlock(base({ pay: { id: '12345' } })), '');
+  const html = renderPage(base({ pay: { id: '081-234-5678', amount: '350' } }));
+  assert.match(html, /<details class="kb-pay"><summary class="kb-link">/);
+  assert.match(html, /Pay with PromptPay/);
+  assert.match(html, /฿350\.00/);
+  assert.match(html, /<svg[^>]+viewBox="0 0 \d+ \d+"/);
+  assert.doesNotMatch(html, /<script/);
+  assert.match(payBlock(base({ lang: 'th', pay: { id: '0812345678' } })), /จ่ายด้วยพร้อมเพย์/);
 });

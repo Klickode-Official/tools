@@ -83,3 +83,8 @@
   .lib-profile { align-items: flex-start; }
   .lib-avatar { width: 76px; height: 76px; }
 }
+
+.lib-pay { margin: 22px 0 0; padding: 14px 16px 6px; border: 1px solid var(--border); border-radius: 12px; background: var(--bar); }
+.lib-pay legend { padding: 0 6px; font-size: 13px; font-weight: 600; }
+.lib-pay legend em { font-style: normal; font-weight: 400; color: var(--faint); font-size: 12.5px; margin-left: 6px; }
+.lib-pay .lib-fld { flex: 1 1 180px; }

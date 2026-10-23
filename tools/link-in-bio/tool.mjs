@@ -42,6 +42,14 @@ export default {
         <button type="button" class="btn" id="add-link">Add link</button>
       </div>
       <p class="hint">Drag the handle or use the arrows to change the order. Links without an address are left out of the downloaded page.</p>
+      <fieldset class="lib-pay">
+        <legend>PromptPay <em>optional · Thai customers scan to pay you</em></legend>
+        <div class="lib-row">
+          <label class="lib-fld"><span>Phone number or ID</span><input type="text" data-pay="id" inputmode="numeric" maxlength="20" spellcheck="false" placeholder="081 234 5678"></label>
+          <label class="lib-fld"><span>Fixed amount <em>baht, optional</em></span><input type="text" data-pay="amount" inputmode="decimal" maxlength="12" placeholder="Any amount"></label>
+        </div>
+        <p class="hint" id="pay-note">Adds a “Pay with PromptPay” button that opens a QR code. Anyone who scans it can see this number, so use the one you take payments on.</p>
+      </fieldset>
     </section>
 
     <section class="lib-panel" data-panel="style" hidden>

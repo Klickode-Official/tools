@@ -225,6 +225,13 @@ let failures = 0;
   const [made] = await Promise.all([page.waitForEvent('download'), page.click('#run')]);
   check('jpg to pdf', (await PDFDocument.load(fs.readFileSync(await made.path()))).getPageCount() === 1, await txt('#status'));
 
+  await page.goto(B + '/tools/passport-photo-maker/');
+  await page.setInputFiles('#files', path.join(ROOT, 'assets/brand/og.png')); await page.waitForTimeout(300);
+  check('passport photo', /413 × 531 pixels/.test(await txt('#out-info')) && (await page.locator('#editor').isVisible()), await txt('#out-info'));
+  await page.goto(B + '/tools/link-in-bio/');
+  await page.click('[data-tab="links"]'); await page.fill('[data-pay="id"]', '0812345678');
+  check('link in bio promptpay', /kb-pay/.test(await page.inputValue('#html-out')));
+
   // ---- tool switchboard (its GitHub calls are covered by hand; the strict test CSP blocks them) ----
   await page.goto(B + '/admin/');
   check('admin lists every tool', (await page.locator('[role="switch"]').count()) === (await page.request.get(B + '/assets/tools-index.json').then((r) => r.json())).length);

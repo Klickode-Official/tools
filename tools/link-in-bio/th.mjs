@@ -37,6 +37,14 @@ export default {
         <button type="button" class="btn" id="add-link">เพิ่มลิงก์</button>
       </div>
       <p class="hint">ลากที่จับหรือกดลูกศรเพื่อเปลี่ยนลำดับ ลิงก์ที่ยังไม่มีที่อยู่จะไม่ถูกใส่ในหน้าที่ดาวน์โหลด</p>
+      <fieldset class="lib-pay">
+        <legend>พร้อมเพย์ <em>ไม่บังคับ · ให้ลูกค้าสแกนจ่ายเงิน</em></legend>
+        <div class="lib-row">
+          <label class="lib-fld"><span>เบอร์โทรหรือเลขประจำตัว</span><input type="text" data-pay="id" inputmode="numeric" maxlength="20" spellcheck="false" placeholder="081 234 5678"></label>
+          <label class="lib-fld"><span>จำนวนเงิน <em>บาท ไม่ใส่ก็ได้</em></span><input type="text" data-pay="amount" inputmode="decimal" maxlength="12" placeholder="ลูกค้าใส่เอง"></label>
+        </div>
+        <p class="hint" id="pay-note">เพิ่มปุ่ม “จ่ายด้วยพร้อมเพย์” ที่เปิด QR Code ได้ ใครสแกนก็จะเห็นเบอร์นี้ จึงควรใช้เบอร์ที่ใช้รับเงินอยู่แล้ว</p>
+      </fieldset>
     </section>
 
     <section class="lib-panel" data-panel="style" hidden>
@@ -111,6 +119,7 @@ export default {
     { q: 'ใส่ลิงก์ได้กี่อัน?', a: 'ไม่จำกัด แต่หน้าที่ดีมักมีแค่สามถึงหกลิงก์ เพื่อให้คนตัดสินใจกดได้ง่าย' },
   ],
   strings: {
+    'That isn’t a Thai mobile number, 13-digit ID or 15-digit e-wallet ID yet.': 'ยังไม่ใช่เบอร์มือถือ เลขประจำตัว 13 หลัก หรือ e-Wallet 15 หลัก',
     'Shop on Shopee': 'ช้อปบน Shopee',
     'Order on WhatsApp': 'สั่งซื้อทาง WhatsApp',
     'Care guide for silver': 'วิธีดูแลเครื่องเงิน',

@@ -1,0 +1,4 @@
+.pv-photos { gap: 8px; }
+.pv-photo { position: relative; width: 34px; height: 44px; border: 1px dashed var(--border-strong); border-radius: 3px; background: var(--surface); overflow: hidden; }
+.pv-photo::before { content: ''; position: absolute; left: 50%; top: 8px; width: 14px; height: 16px; margin-left: -7px; border-radius: 50%; background: color-mix(in srgb, var(--red) 55%, var(--surface)); }
+.pv-photo::after { content: ''; position: absolute; left: 50%; bottom: -10px; width: 26px; height: 20px; margin-left: -13px; border-radius: 50%; background: color-mix(in srgb, var(--red) 35%, var(--surface)); }

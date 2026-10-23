@@ -1,5 +1,6 @@
 import { $, toast, download, debounce, escapeHtml, t, lang } from '/assets/js/ui.js';
 import { PLATFORMS, PLATFORM_ORDER, THEMES, THEME_ORDER, pageCss, pageBody, renderPage, linkUrl, linkTitle, linkIcon } from './page.js';
+import { parseTarget } from '/assets/js/lib/promptpay.js';
 
 const STORE_KEY = 'kt:link-in-bio';
 const creditUrl = `${location.origin}/tools/link-in-bio/`;
@@ -25,13 +26,14 @@ function freshState() {
     icons: 'brand',
     credit: true,
     meta: {},
+    pay: {},
   };
 }
 
 let state = freshState();
 try {
   const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
-  if (saved && Array.isArray(saved.links)) state = { ...state, ...saved, colors: { ...saved.colors }, meta: { ...saved.meta } };
+  if (saved && Array.isArray(saved.links)) state = { ...state, ...saved, colors: { ...saved.colors }, meta: { ...saved.meta }, pay: { ...saved.pay } };
 } catch {
   // Nothing saved, or storage is blocked: start with the example.
 }
@@ -79,6 +81,19 @@ for (const el of document.querySelectorAll('[data-meta]')) {
   el.value = state.meta[el.dataset.meta] ?? '';
   el.addEventListener('input', () => {
     state.meta = { ...state.meta, [el.dataset.meta]: el.value.trim() };
+    render();
+  });
+}
+
+const payNote = $('#pay-note');
+const payHint = payNote?.textContent;
+for (const el of document.querySelectorAll('[data-pay]')) {
+  el.value = state.pay[el.dataset.pay] ?? '';
+  el.addEventListener('input', () => {
+    state.pay = { ...state.pay, [el.dataset.pay]: el.value.trim() };
+    const bad = state.pay.id && !parseTarget(state.pay.id);
+    payNote.textContent = bad ? t('That isn’t a Thai mobile number, 13-digit ID or 15-digit e-wallet ID yet.') : payHint;
+    payNote.classList.toggle('err-text', Boolean(bad));
     render();
   });
 }

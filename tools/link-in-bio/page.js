@@ -5,6 +5,8 @@ import { LOGOS } from '../shop-card-maker/logos.js';
 import { COPY_TH } from '../shop-card-maker/copy-th.js';
 import { PLATFORMS, PLATFORM_ORDER } from '../shop-card-maker/platforms.js';
 import { esc, safeUrl, safeImage, buildUrl } from '../shop-card-maker/card.js';
+import { parseTarget, promptPayPayload } from '../../assets/js/lib/promptpay.js';
+import { encodeQr, qrToSvg } from '../../assets/js/lib/qr.js';
 
 export { PLATFORMS, PLATFORM_ORDER, esc, safeUrl };
 
@@ -111,6 +113,22 @@ export function linkIcon(link, style = 'brand', color = 'currentColor') {
   return `<span class="kb-ico${brand ? '' : ' kb-ico-plain'}" aria-hidden="true"${brand ? ` style="background:${brandBg(p)}"` : ''}>${inner}</span>`;
 }
 
+const PAY_ICON = '<span class="kb-ico" aria-hidden="true" style="background:#0f3b62"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v.01M17 21h4v-4M14 21v-3"/></svg></span>';
+
+/**
+ * A "Pay with PromptPay" button that opens a QR code, if state.pay has a valid PromptPay ID.
+ * Uses <details>, so it works with no JavaScript in the downloaded page.
+ */
+export function payBlock(state) {
+  const pay = state.pay || {};
+  if (!parseTarget(pay.id || '')) return '';
+  const amount = /^\d+(\.\d{1,2})?$/.test(String(pay.amount || '').trim()) && Number(pay.amount) > 0 ? Number(pay.amount) : undefined;
+  const svg = qrToSvg(encodeQr(promptPayPayload(pay.id, { amount }), { ecl: 'M' }), { margin: 2, scale: 6 });
+  const th = state.lang === 'th';
+  const money = amount !== undefined ? `<b>฿${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>` : '';
+  return `<details class="kb-pay"><summary class="kb-link">${state.icons === 'none' ? '' : PAY_ICON}<span>${th ? 'จ่ายด้วยพร้อมเพย์' : 'Pay with PromptPay'}</span></summary><div class="kb-pay-card">${svg}${money}<small>${th ? 'สแกนด้วยแอปธนาคารไหนก็ได้' : 'Scan with any Thai banking app'}</small></div></details>`;
+}
+
 const initials = (name) =>
   String(name || '?')
     .trim()
@@ -147,6 +165,14 @@ export function pageCss(state) {
 .kb-ico b{font-size:17px;line-height:1}
 .kb-ico svg{display:block}
 .kb-ico-plain{background:transparent}
+.kb-pay{width:100%;margin-top:12px}
+.kb-pay>summary{list-style:none;cursor:pointer}
+.kb-pay>summary::-webkit-details-marker{display:none}
+.kb-pay[open]>summary{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.kb-pay-card{background:#fff;color:#18181b;border:1.5px solid var(--kb-border);border-top:0;border-radius:0 0 var(--kb-r) var(--kb-r);padding:18px 18px 16px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.kb-pay-card svg{width:100%;max-width:240px;height:auto}
+.kb-pay-card b{font-size:18px}
+.kb-pay-card small{font-size:13px;color:#5f5f69}
 .kb-foot{margin-top:40px;font-size:12px;color:var(--kb-muted)}
 .kb-foot a{color:inherit;text-decoration:none;opacity:.85}
 .kb-foot a:hover{text-decoration:underline}
@@ -180,6 +206,7 @@ ${avatar ? `<img class="kb-avatar" src="${esc(avatar)}" alt="${esc(state.name ||
 <h1 class="kb-name">${esc(state.name || 'Your name')}</h1>
 ${state.bio ? `<p class="kb-bio">${esc(state.bio)}</p>` : ''}
 ${links ? `<ul class="kb-links">${links}</ul>` : ''}
+${payBlock(state)}
 ${credit}
 </div>`;
 }

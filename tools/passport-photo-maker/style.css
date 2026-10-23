@@ -1,0 +1,7 @@
+.photo-editor { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; margin-top: 16px; }
+.photo-frame { flex: none; padding: 12px; border-radius: 14px; background: repeating-conic-gradient(var(--mist) 0 25%, var(--surface) 0 50%) 0 0 / 16px 16px; border: 1px solid var(--border); }
+.photo-frame canvas { display: block; cursor: grab; touch-action: none; box-shadow: 0 6px 20px -10px rgba(0, 0, 0, 0.45); }
+.photo-frame canvas:active { cursor: grabbing; }
+.photo-frame canvas:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.photo-side { flex: 1 1 260px; min-width: 0; }
+.photo-zoom input[type='range'] { width: 180px; }

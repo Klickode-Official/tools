@@ -43,6 +43,8 @@ export const UI = {
     ctaTitle: 'Need something these tools don’t do?',
     ctaBody: 'Klickode Studio builds websites, online shops and custom tools for businesses in Thailand and abroad.',
     ctaButton: 'Talk to Klickode Studio',
+    pausedLede: 'This tool is switched off for now. It may be back soon.',
+    pausedTry: 'Try one of these instead',
   },
   th: {
     tools: 'เครื่องมือ',
@@ -80,6 +82,8 @@ export const UI = {
     ctaTitle: 'อยากได้เครื่องมือที่ทำได้มากกว่านี้?',
     ctaBody: 'Klickode Studio รับทำเว็บไซต์ ร้านค้าออนไลน์ และเครื่องมือเฉพาะสำหรับธุรกิจ ทั้งในไทยและต่างประเทศ',
     ctaButton: 'คุยกับ Klickode Studio',
+    pausedLede: 'ตอนนี้ปิดเครื่องมือนี้ไว้ชั่วคราว อาจกลับมาเร็ว ๆ นี้',
+    pausedTry: 'ลองใช้เครื่องมือเหล่านี้แทน',
   },
 };
 

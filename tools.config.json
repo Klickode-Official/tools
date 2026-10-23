@@ -1,0 +1,7 @@
+{
+  "disabled": [
+    "thai-baht-text",
+    "thai-id-checker",
+    "vat-calculator"
+  ]
+}

@@ -14,7 +14,7 @@ const out = mkdtempSync(join(tmpdir(), 'klickode-e2e-'));
 const port = process.env.PORT || '4173';
 const csp = /Content-Security-Policy = "([^"]+)"/.exec(readFileSync(join(root, 'netlify.toml'), 'utf8'))[1];
 
-const build = spawnSync(process.execPath, [join(root, 'scripts/build.mjs')], { env: { ...process.env, SITE_URL: 'https://example.com', OUT_DIR: out }, stdio: 'inherit' });
+const build = spawnSync(process.execPath, [join(root, 'scripts/build.mjs')], { env: { ...process.env, SITE_URL: 'https://example.com', OUT_DIR: out, SHOW_ALL_TOOLS: '1' }, stdio: 'inherit' });
 if (build.status) process.exit(build.status);
 
 const server = spawn(process.execPath, [join(here, 'serve.mjs'), out], { env: { ...process.env, CSP: csp, PORT: port }, stdio: ['ignore', 'pipe', 'inherit'] });

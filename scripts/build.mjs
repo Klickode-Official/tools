@@ -17,8 +17,9 @@ import { createHash } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { categories, categoryById, categoryIcon } from './categories.mjs';
-import { layout, breadcrumbs, toolGrid, toolIcon, esc, localPath, studioCta, SITE_NAME, ORG_ID } from './layout.mjs';
+import { layout, breadcrumbs, toolGrid, toolIcon, esc, localPath, studioCta, hideFromLayout, SITE_NAME, ORG_ID } from './layout.mjs';
 import { keepThaiWords } from './thai-words.mjs';
+import { adminBody } from './admin.mjs';
 import { LANGS, UI, RUNTIME } from './i18n.mjs';
 import { legalPages, COMPANY, BRAND_NOTICE } from './legal.mjs';
 
@@ -65,13 +66,38 @@ export async function loadTools() {
   return tools.sort((a, b) => (a.order ?? 99) - (b.order ?? 99) || a.name.localeCompare(b.name));
 }
 
-const tools = await loadTools();
+const allTools = await loadTools();
 for (const c of categories) {
   for (const [, slug] of [...(c.guide || []), ...(c.th?.guide || [])]) {
-    if (!tools.some((t) => t.slug === slug)) throw new Error(`scripts/categories.mjs: guide for "${c.id}" points to unknown tool "${slug}"`);
+    if (!allTools.some((t) => t.slug === slug)) throw new Error(`scripts/categories.mjs: guide for "${c.id}" points to unknown tool "${slug}"`);
   }
 }
+// Tools switched off in tools.config.json (the admin page at /admin/ edits it) drop out of every
+// list, search index, sitemap and link. Their address shows a short "taking a break" page instead
+// of an error, so old links and bookmarks still land somewhere useful.
+export const readConfig = async () => {
+  try {
+    return JSON.parse(await readFile(join(root, 'tools.config.json'), 'utf8'));
+  } catch (e) {
+    if (e.code === 'ENOENT') return {};
+    throw new Error(`tools.config.json isn't valid JSON: ${e.message}`);
+  }
+};
+// Vercel preview builds (and SHOW_ALL_TOOLS=1) show every tool, so new ones can be tried before
+// they're switched on. Previews are noindex, so this never reaches search engines.
+const showAll = process.env.SHOW_ALL_TOOLS === '1' || process.env.VERCEL_ENV === 'preview';
+const off = new Set(showAll ? [] : (await readConfig()).disabled || []);
+for (const slug of off) if (!allTools.some((t) => t.slug === slug)) warnings.push(`tools.config.json switches off "${slug}", which isn't a tool`);
+const tools = allTools.filter((t) => !off.has(t.slug));
+const pausedTools = allTools.filter((t) => off.has(t.slug));
+const isOn = (slug) => tools.some((t) => t.slug === slug);
 const byCategory = (id) => tools.filter((t) => t.category === id);
+// Categories whose tools are all switched off disappear from the menus too.
+const emptyCategories = categories.filter((c) => !byCategory(c.id).length && allTools.some((t) => t.category === c.id));
+hideFromLayout({ tools: [...off], categories: emptyCategories.map((c) => c.id) });
+// Links in page copy to a switched-off tool or an emptied category become plain text.
+const offPaths = [...[...off].map((s) => `tools/${s}`), ...emptyCategories.map((c) => c.slug)].map((p) => p.replace(/[-/]/g, '\\$&'));
+const offLink = offPaths.length ? new RegExp(`<a href="(?:/th)?/(?:${offPaths.join('|')})/"[^>]*>([\\s\\S]*?)</a>`, 'g') : null;
 const LANG_IDS = Object.keys(LANGS);
 
 // A tool or category as seen in one language. Thai copy comes from tools/<slug>/th.mjs and the
@@ -87,6 +113,7 @@ const categoryNames = (lang) => Object.fromEntries(categories.map((c) => [c.id, 
 async function page(path, html) {
   const file = path.endsWith('.html') ? join(out, path) : join(out, path, 'index.html');
   await mkdir(dirname(file), { recursive: true });
+  if (offLink) html = html.replace(offLink, '$1');
   await writeFile(file, html.includes('<html lang="th"') ? keepThaiWords(html) : html);
 }
 
@@ -238,7 +265,7 @@ for (const lang of LANG_IDS) {
 ${toolGrid(list, catOf)}
 <section class="content cat-guide">
 ${c.intro || ''}
-${c.guide?.length ? `<h2>${u.whichTool}</h2><ul class="guide-list">${c.guide.map(([q, slug]) => { const t = toolIn(tools.find((x) => x.slug === slug), lang); return `<li><a href="${t.href}"><span>${esc(q)}</span><b><span class="tool-icon">${toolIcon(t, c, 14)}</span>${esc(t.name)}</b></a></li>`; }).join('')}</ul>` : ''}
+${c.guide?.some(([, s]) => isOn(s)) ? `<h2>${u.whichTool}</h2><ul class="guide-list">${c.guide.filter(([, s]) => isOn(s)).map(([q, slug]) => { const t = toolIn(tools.find((x) => x.slug === slug), lang); return `<li><a href="${t.href}"><span>${esc(q)}</span><b><span class="tool-icon">${toolIcon(t, c, 14)}</span>${esc(t.name)}</b></a></li>`; }).join('')}</ul>` : ''}
 </section>
 ${studioCta(lang)}`,
       }),
@@ -307,6 +334,54 @@ ${categories
     }),
   );
 }
+
+// --- switched-off tools and emptied categories: a "taking a break" page, kept out of search ----
+for (const lang of LANG_IDS) {
+  const u = UI[lang];
+  const catOf = catOfIn(lang);
+  const paused = [
+    ...pausedTools.map((base) => ({ t: toolIn(base, lang), cat: base.category, alternates: { en: `/tools/${base.slug}/`, ...(base.th && { th: localPath('th', `/tools/${base.slug}/`) }) } })),
+    ...emptyCategories.map((base) => ({ t: { ...catIn(base, lang), href: localPath(lang, `/${base.slug}/`) }, cat: null, alternates: { en: `/${base.slug}/`, th: localPath('th', `/${base.slug}/`) } })),
+  ];
+  for (const { t, cat, alternates } of paused) {
+    if (lang !== 'en' && !alternates[lang]) continue;
+    const others = (cat && byCategory(cat).length ? byCategory(cat) : tools).filter((o) => !o.variantOf).map((o) => toolIn(o, lang));
+    await page(
+      t.href,
+      layout({
+        siteUrl,
+        path: t.href,
+        lang,
+        alternates,
+        robots: 'noindex',
+        categoryNames: categoryNames(lang),
+        strings: lang === 'en' ? null : RUNTIME[lang],
+        title: `${t.name} | ${SITE_NAME}`,
+        description: u.pausedLede,
+        body: `<header class="page-head"><h1>${esc(t.name)}</h1><p class="lede">${u.pausedLede}</p></header>
+<section class="related"><h2>${u.pausedTry}</h2>${toolGrid(others, catOf)}</section>`,
+      }),
+    );
+  }
+}
+
+// --- tool switchboard: /admin/ (not linked, not indexed) ----------------------------------------
+await page(
+  '/admin/',
+  layout({
+    siteUrl: '',
+    path: '/admin/',
+    robots: 'noindex, nofollow',
+    categoryNames: categoryNames('en'),
+    title: `Tool switchboard | ${SITE_NAME}`,
+    description: 'Turn tools on or off.',
+    scripts: ['/assets/js/admin.js'],
+    styles: ['/assets/css/admin.css'],
+    body: adminBody({ allTools, off, categories }),
+  }),
+);
+// What this build has switched off, so the switchboard can tell when a saved change is live.
+await writeFile(join(out, 'admin', 'status.json'), JSON.stringify({ disabled: [...off].sort(), built: new Date().toISOString() }));
 
 // --- legal + 404 (English only) --------------------------------------------------------
 for (const lp of legalPages) {
@@ -456,7 +531,7 @@ async function listFiles(dir, base = '') {
   return files;
 }
 const cacheList = (await listFiles(out))
-  .filter((f) => !/(og\.png|robots\.txt|sitemap\.xml|llms\.txt|404\.html|\.webmanifest)$/.test(f))
+  .filter((f) => !/(og\.png|robots\.txt|sitemap\.xml|llms\.txt|404\.html|\.webmanifest)$/.test(f) && !f.startsWith('/admin/'))
   // Big optional parts (the HEIC decoder) are cached the first time they're used instead.
   .filter((f) => !f.startsWith('/assets/vendor/'))
   .map((f) => f.replace(/index\.html$/, ''));

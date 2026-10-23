@@ -38,6 +38,15 @@ const ORGANIZATION = {
   brand: { '@type': 'Brand', name: 'Klickode' },
 };
 
+// Switched-off tools and categories left with none of their tools on (tools.config.json).
+// The build calls hideFromLayout before rendering any page.
+const hidden = { tools: new Set(), categories: new Set() };
+export function hideFromLayout({ tools = [], categories = [] }) {
+  hidden.tools = new Set(tools);
+  hidden.categories = new Set(categories);
+}
+const navItems = () => NAV.filter(([, id]) => !hidden.categories.has(id));
+
 const POPULAR = [
   ['image-converter', { en: 'Image Converter', th: 'แปลงไฟล์รูป' }],
   ['image-compressor', { en: 'Image Compressor', th: 'ย่อขนาดรูป' }],
@@ -49,8 +58,8 @@ const POPULAR = [
 function footerColumns(lang, categoryNames) {
   const u = UI[lang];
   return [
-    [u.footerCols.categories, NAV.map(([href, id]) => [localPath(lang, href), categoryNames[id] ?? u.nav[id]])],
-    [u.footerCols.popular, POPULAR.map(([slug, names]) => [localPath(lang, `/tools/${slug}/`), names[lang]])],
+    [u.footerCols.categories, navItems().map(([href, id]) => [localPath(lang, href), categoryNames[id] ?? u.nav[id]])],
+    [u.footerCols.popular, POPULAR.filter(([slug]) => !hidden.tools.has(slug)).map(([slug, names]) => [localPath(lang, `/tools/${slug}/`), names[lang]])],
     [u.footerCols.company, [[STUDIO_URL, 'Klickode Studio'], [CONTACT_URL, u.contact], ['mailto:klickode@gmail.com', 'klickode@gmail.com']]],
     [u.footerCols.legal, [['/terms/', u.legal.terms], ['/privacy/', u.legal.privacy], ['/disclaimer/', u.legal.disclaimer], ['/copyright/', u.legal.copyright]]],
   ];
@@ -66,7 +75,7 @@ const SEARCH_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden
  * @param {Record<string,string>} [o.strings] runtime translations for this page's scripts
  * @param {Record<string,string>} [o.categoryNames] category names in this language, by id
  */
-export function layout({ siteUrl, path, title, description, body, scripts = [], styles = [], bodyAttrs = '', jsonLd, ogImage = '/assets/brand/og.png', active = '', lang = 'en', alternates = {}, strings = null, categoryNames = {} }) {
+export function layout({ siteUrl, path, title, description, body, robots, scripts = [], styles = [], bodyAttrs = '', jsonLd, ogImage = '/assets/brand/og.png', active = '', lang = 'en', alternates = {}, strings = null, categoryNames = {} }) {
   const abs = (p) => (siteUrl ? `${siteUrl}${p}` : p);
   const u = UI[lang];
   const other = lang === 'en' ? 'th' : 'en';
@@ -88,6 +97,7 @@ export function layout({ siteUrl, path, title, description, body, scripts = [], 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${esc(title)}</title>
   <meta name="description" content="${esc(description)}">
+  ${robots ? `<meta name="robots" content="${robots}">` : ''}
   ${siteUrl ? `<link rel="canonical" href="${abs(path)}">` : ''}
   ${hreflang}
   <meta property="og:type" content="website">
@@ -121,7 +131,7 @@ ${styles.map((h) => `  <link rel="stylesheet" href="${h}">\n`).join('')}  <scrip
 <header class="site-header"><div class="wrap wrap-wide">
   ${brand}
   <nav aria-label="${u.navLabel}">
-    ${NAV.map(([href, id]) => `<a href="${localPath(lang, href)}"${active === href ? ' aria-current="page"' : ''}>${u.nav[id]}</a>`).join('\n    ')}
+    ${navItems().map(([href, id]) => `<a href="${localPath(lang, href)}"${active === href ? ' aria-current="page"' : ''}>${u.nav[id]}</a>`).join('\n    ')}
   </nav>
   <div class="header-actions">
     <span class="search-slot"><button class="search-btn" type="button" data-palette aria-label="${u.findToolLabel}">${SEARCH_ICON}<span class="search-more">${u.findTool}</span></button></span>

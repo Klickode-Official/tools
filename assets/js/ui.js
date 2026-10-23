@@ -20,7 +20,7 @@ export function t(text, vars) {
 // Where a tool lives in this page's language.
 export const toolHref = (slug) => (lang === 'th' ? `/th/tools/${slug}/` : `/tools/${slug}/`);
 
-const storage = {
+export const storage = {
   get(key) {
     try {
       return localStorage.getItem(key);
@@ -343,11 +343,10 @@ function initSendTo() {
     };
     toolIndex().then((all) => {
       const slugs = out.dataset.sendTo.split(',').map((s) => s.trim());
-      menu.innerHTML = slugs
-        .map((s) => all.find((x) => x.slug === s))
-        .filter(Boolean)
-        .map((x) => `<button type="button" role="menuitem" data-slug="${x.slug}">${htmlEscape(x.name)}</button>`)
-        .join('');
+      const targets = slugs.map((s) => all.find((x) => x.slug === s)).filter(Boolean);
+      // Every target switched off: no menu at all rather than an empty one.
+      if (!targets.length) return wrap.remove();
+      menu.innerHTML = targets.map((x) => `<button type="button" role="menuitem" data-slug="${x.slug}">${htmlEscape(x.name)}</button>`).join('');
     });
     btn.addEventListener('click', () => {
       menu.hidden = !menu.hidden;

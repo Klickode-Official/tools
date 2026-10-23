@@ -185,6 +185,20 @@ let failures = 0;
   check('promptpay detect', /Mobile number 081-234-5678/.test(await txt('#detect')), await txt('#detect'));
   await page.click('#copy');
 
+  // ---- Thai business tools ----
+  await page.goto(B + '/th/tools/thai-baht-text/'); await page.fill('#amount', '1,250');
+  check('baht text', (await txt('#thai')) === 'หนึ่งพันสองร้อยห้าสิบบาทถ้วน', await txt('#thai'));
+  await page.goto(B + '/tools/vat-calculator/'); await page.fill('#amount', '10700'); await page.selectOption('#mode', 'remove'); await page.selectOption('#wht', '3');
+  check('vat breakdown', /10,000\.00.*700\.00.*10,700\.00.*300\.00.*10,400\.00/s.test(await txt('#table')), await txt('#table'));
+  await page.goto(B + '/tools/thai-id-checker/'); await page.fill('#input', '1-1037-00012-34-6\n1103700012345');
+  check('thai id', (await page.locator('#results li.ok').count()) === 1 && /should be 6/.test(await txt('#results')), await txt('#results'));
+
+  // ---- tool switchboard (its GitHub calls are covered by hand; the strict test CSP blocks them) ----
+  await page.goto(B + '/admin/');
+  check('admin lists every tool', (await page.locator('[role="switch"]').count()) === (await page.request.get(B + '/assets/tools-index.json').then((r) => r.json())).length);
+  check('admin is noindex', (await page.locator('meta[name="robots"]').getAttribute('content')).includes('noindex'));
+  check('admin needs a token', await page.locator('#save').isDisabled());
+
   // ---- accessibility: axe-core on every page in the sitemap, light and dark ----
   const axe = fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
   const sitemap = await (await page.request.get(B + '/sitemap.xml')).text();

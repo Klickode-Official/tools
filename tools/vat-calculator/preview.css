@@ -1,0 +1,3 @@
+.pv-vat { text-align: right; }
+.pv-vat b { color: var(--red); font-weight: 600; }
+.pv-vat-total { margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--border-strong); font-weight: 700; color: var(--text); }

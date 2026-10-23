@@ -68,6 +68,34 @@ export const categories = [
     },
   },
   {
+    id: 'pdf',
+    intro: `<p>Most PDF sites upload your file to their server, and many stop you after two or three files a day. These run in your browser instead: merge contracts, turn phone photos into one PDF, save pages as pictures or shrink a scan to fit an email. Nothing is uploaded and there’s no daily limit.</p>`,
+    // “Which tool do I need?”: a question people actually have, and the tool that answers it.
+    guide: [
+      ["I need to join several PDFs into one", 'merge-pdf'],
+      ["I took photos of documents and need them as one PDF", 'jpg-to-pdf'],
+      ["I need a page of a PDF as a picture", 'pdf-to-jpg'],
+      ["My PDF is too big to email or upload", 'compress-pdf'],
+    ],
+    icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h2.5a1.5 1.5 0 0 1 0 3H8v-5M14 16v-5h2"/>',
+    slug: 'pdf-tools',
+    name: 'PDF tools',
+    title: 'Free PDF Tools: Merge, Compress, JPG to PDF, No Upload',
+    description: 'Merge PDFs, compress them, turn photos into a PDF or PDF pages into JPG. Everything runs in your browser, so your documents are never uploaded. No daily limit.',
+    th: {
+      name: 'เครื่องมือ PDF',
+      title: 'เครื่องมือ PDF ฟรี: รวม PDF ย่อขนาด แปลง JPG ไม่ต้องอัปโหลด',
+      description: 'รวมไฟล์ PDF ย่อขนาด PDF แปลงรูปเป็น PDF หรือแปลงหน้า PDF เป็น JPG ทำงานในเบราว์เซอร์ เอกสารไม่ถูกอัปโหลด ใช้ได้ไม่จำกัดครั้ง',
+      intro: `<p>เว็บ PDF ส่วนใหญ่ต้องอัปโหลดไฟล์ขึ้นเซิร์ฟเวอร์ และหลายเว็บให้ใช้ฟรีได้แค่วันละ 2–3 ไฟล์ เครื่องมือเหล่านี้ทำงานในเบราว์เซอร์ของคุณแทน รวมสัญญาหลายไฟล์ ทำรูปถ่ายเอกสารเป็น PDF เดียว บันทึกหน้าเป็นรูป หรือย่อไฟล์สแกนให้แนบอีเมลได้ ไม่มีการอัปโหลด และไม่จำกัดจำนวนครั้ง</p>`,
+      guide: [
+        ["อยากรวมหลายไฟล์ PDF เป็นไฟล์เดียว", 'merge-pdf'],
+        ["ถ่ายรูปเอกสารไว้ อยากได้เป็น PDF ไฟล์เดียว", 'jpg-to-pdf'],
+        ["อยากได้หน้า PDF เป็นรูปภาพ", 'pdf-to-jpg'],
+        ["ไฟล์ PDF ใหญ่เกินจะส่งอีเมลหรืออัปโหลด", 'compress-pdf'],
+      ],
+    },
+  },
+  {
     id: 'json',
     intro: `<p>JSON is how most apps and APIs pass data around, and it’s strict: one stray comma and nothing works. These tools help you read it, fix it, compare versions and move it in and out of spreadsheets. Long ID numbers are kept exactly as written, which many online formatters get wrong.</p>`,
     // “Which tool do I need?”: a question people actually have, and the tool that answers it.

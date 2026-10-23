@@ -579,6 +579,8 @@ mark.alt { background: var(--mark-alt); }
 .file-row { display: flex; gap: 14px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--border); }
 .file-row:last-child { border-bottom: 0; }
 .file-row .thumb { width: 56px; height: 56px; object-fit: cover; border-radius: var(--radius-sm); background: var(--mist); flex: none; }
+.file-row .pdf-thumb { display: grid; place-items: center; font: 700 11px/1 var(--mono); letter-spacing: 0.06em; color: var(--red); border: 1px solid var(--border); }
+.file-row .row-moves { display: flex; gap: 4px; flex: none; }
 .file-info { flex: 1; min-width: 0; font-size: 14px; display: flex; flex-direction: column; gap: 2px; }
 .file-info strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 .file-info .badge { align-self: flex-start; white-space: normal; margin-top: 2px; }

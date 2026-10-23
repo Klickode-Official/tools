@@ -14,6 +14,7 @@ export const localPath = (lang, path) => `${LANGS[lang].prefix}${path}`;
 const NAV = [
   ['/business-tools/', 'business'],
   ['/image-tools/', 'images'],
+  ['/pdf-tools/', 'pdf'],
   ['/json-tools/', 'json'],
   ['/seo-tools/', 'seo'],
   ['/text-tools/', 'text'],

@@ -197,6 +197,34 @@ let failures = 0;
   check('size page preset', (await page.inputValue('#target-kb')) === '50' && (await page.inputValue('#format')) === 'image/jpeg');
   check('size page links', (await page.locator('.variant-links a').count()) === 5 && (await page.locator('.variant-links [aria-current]').innerText()) === '50 KB');
 
+  // ---- PDF tools (test PDFs are made with the same pdf-lib the site ships) ----
+  const { PDFDocument, StandardFonts } = await import(path.join(ROOT, 'assets/vendor/pdf-lib/pdf-lib.esm.min.js'));
+  const makePdf = async (pages) => {
+    const doc = await PDFDocument.create();
+    const font = await doc.embedFont(StandardFonts.Helvetica);
+    for (let i = 1; i <= pages; i++) doc.addPage([595, 842]).drawText(`Page ${i}`, { x: 60, y: 760, size: 24, font });
+    return Buffer.from(await doc.save());
+  };
+  const pdfA = { name: 'a.pdf', mimeType: 'application/pdf', buffer: await makePdf(2) };
+  const pdfB = { name: 'b.pdf', mimeType: 'application/pdf', buffer: await makePdf(3) };
+  await page.goto(B + '/tools/merge-pdf/');
+  await page.setInputFiles('#files', [pdfA, pdfB]); await page.waitForTimeout(500);
+  const [merged] = await Promise.all([page.waitForEvent('download'), page.click('#run')]);
+  const mergedBytes = fs.readFileSync(await merged.path());
+  check('merge pdf', (await PDFDocument.load(mergedBytes)).getPageCount() === 5, await txt('#status'));
+  await page.goto(B + '/th/tools/pdf-to-jpg/');
+  await page.setInputFiles('#files', pdfB);
+  await page.waitForFunction(() => document.querySelectorAll('[data-page]').length === 3, null, { timeout: 30000 }).catch(() => {});
+  check('pdf to jpg', (await page.locator('[data-page]').count()) === 3, await txt('#status'));
+  await page.goto(B + '/tools/compress-pdf/');
+  await page.setInputFiles('#files', pdfA);
+  await page.waitForSelector('#list [data-dl]:not([disabled])', { timeout: 30000 }).catch(() => {});
+  check('compress pdf', await page.locator('#list [data-dl]').isEnabled(), await txt('#list'));
+  await page.goto(B + '/tools/jpg-to-pdf/');
+  await page.setInputFiles('#files', path.join(ROOT, 'assets/brand/icon-192.png')); await page.waitForTimeout(300);
+  const [made] = await Promise.all([page.waitForEvent('download'), page.click('#run')]);
+  check('jpg to pdf', (await PDFDocument.load(fs.readFileSync(await made.path()))).getPageCount() === 1, await txt('#status'));
+
   // ---- tool switchboard (its GitHub calls are covered by hand; the strict test CSP blocks them) ----
   await page.goto(B + '/admin/');
   check('admin lists every tool', (await page.locator('[role="switch"]').count()) === (await page.request.get(B + '/assets/tools-index.json').then((r) => r.json())).length);

@@ -45,6 +45,8 @@ export const UI = {
     ctaButton: 'Talk to Klickode Studio',
     pausedLede: 'This tool is switched off for now. It may be back soon.',
     pausedTry: 'Try one of these instead',
+    popularSizes: 'Popular sizes',
+    anySize: 'Any size',
   },
   th: {
     tools: 'เครื่องมือ',
@@ -84,6 +86,8 @@ export const UI = {
     ctaButton: 'คุยกับ Klickode Studio',
     pausedLede: 'ตอนนี้ปิดเครื่องมือนี้ไว้ชั่วคราว อาจกลับมาเร็ว ๆ นี้',
     pausedTry: 'ลองใช้เครื่องมือเหล่านี้แทน',
+    popularSizes: 'ขนาดยอดนิยม',
+    anySize: 'ขนาดอื่น ๆ',
   },
 };
 

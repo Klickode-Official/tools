@@ -92,6 +92,20 @@ const tools = allTools.filter((t) => !off.has(t.slug));
 const pausedTools = allTools.filter((t) => off.has(t.slug));
 const isOn = (slug) => tools.some((t) => t.slug === slug);
 const byCategory = (id) => tools.filter((t) => t.category === id);
+// Landing pages that preset another tool (variantOf, like "compress to 100 KB") get no card of
+// their own: the tool they belong to links to them instead, and they're in search and the sitemap.
+const cards = (list) => list.filter((t) => !t.variantOf);
+// "Popular sizes: 20 KB · 50 KB · …" under a tool and its landing pages.
+function variantLinks(base, lang) {
+  const root = base.variantOf || base.slug;
+  const family = tools.filter((o) => o.variantOf === root).sort((a, b) => parseFloat(a.variantLabel) - parseFloat(b.variantLabel));
+  if (!family.length) return '';
+  const parent = isOn(root) ? [[toolIn(tools.find((o) => o.slug === root), lang), UI[lang].anySize]] : [];
+  const links = [...family.map((o) => [toolIn(o, lang), o.variantLabel]), ...parent];
+  return `<nav class="variant-links" aria-label="${esc(UI[lang].popularSizes)}"><span>${UI[lang].popularSizes}</span>${links
+    .map(([o, label]) => `<a href="${o.href}"${o.slug === base.slug ? ' aria-current="page"' : ''}>${esc(label)}</a>`)
+    .join('')}</nav>`;
+}
 // Categories whose tools are all switched off disappear from the menus too.
 const emptyCategories = categories.filter((c) => !byCategory(c.id).length && allTools.some((t) => t.category === c.id));
 hideFromLayout({ tools: [...off], categories: emptyCategories.map((c) => c.id) });
@@ -143,7 +157,7 @@ if (previewCss) await writeFile(join(out, 'assets/css/style.css'), (await readFi
 
 // --- tool pages ---------------------------------------------------------------
 for (const base of tools) {
-  await cp(join(root, 'tools', base.slug), join(out, 'tools', base.slug), { recursive: true, filter: (src) => !/(tool\.mjs|th\.mjs|icon\.svg|preview\.(html|css))$/.test(src) });
+  await cp(join(root, 'tools', base.slug), join(out, 'tools', base.slug), { recursive: true, filter: (src) => !/(\.mjs|icon\.svg|preview\.(html|css))$/.test(src) }); // .mjs files are build-time only
   const alternates = { en: `/tools/${base.slug}/`, ...(base.th && { th: localPath('th', `/tools/${base.slug}/`) }) };
   for (const lang of LANG_IDS) {
     if (lang !== 'en' && !base.th) continue;
@@ -155,7 +169,7 @@ for (const base of tools) {
     const catPath = localPath(lang, `/${cat.slug}/`);
     const path = t.href;
     const src = `/tools/${t.slug}/`; // scripts, styles and images are shared by both languages
-    const related = tools.filter((o) => o.category === t.category && o.slug !== t.slug).map((o) => toolIn(o, lang));
+    const related = cards(tools).filter((o) => o.category === t.category && o.slug !== t.slug && o.slug !== t.variantOf).map((o) => toolIn(o, lang));
     const graph = [
       {
         '@type': 'WebApplication',
@@ -215,6 +229,7 @@ for (const base of tools) {
 ${t.body}
   </div>
 </section>
+${variantLinks(base, lang)}
 <section class="content">
 ${t.content || ''}
 ${faqHtml(t.faq, lang)}
@@ -231,7 +246,7 @@ for (const lang of LANG_IDS) {
   const u = UI[lang];
   const catOf = catOfIn(lang);
   for (const base of categories) {
-    const list = byCategory(base.id).map((t) => toolIn(t, lang));
+    const list = cards(byCategory(base.id)).map((t) => toolIn(t, lang));
     if (!list.length) continue;
     const c = catIn(base, lang);
     const path = localPath(lang, `/${c.slug}/`);
@@ -303,7 +318,7 @@ for (const lang of LANG_IDS) {
         ...(siteUrl && { '@id': WEBSITE_ID, url: abs(path), publisher: { '@id': ORG_ID } }),
       },
       body: `<div class="hero-wrap"><section class="hero">
-  <p class="eyebrow">${u.eyebrow(tools.length)}</p>
+  <p class="eyebrow">${u.eyebrow(cards(tools).length)}</p>
   <h1>${u.heroTitle}</h1>
   <p class="lede">${u.heroLede}</p>
   <div class="search"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -321,7 +336,7 @@ ${categories
   .filter((c) => byCategory(c.id).length)
   .map((base) => {
     const c = catIn(base, lang);
-    const list = byCategory(base.id).map((t) => toolIn(t, lang));
+    const list = cards(byCategory(base.id)).map((t) => toolIn(t, lang));
     return `<section class="cat-section" data-cat><div class="cat-head"><h2>${esc(c.name)} <span class="count">${list.length}</span></h2><a href="${localPath(lang, `/${c.slug}/`)}">${u.viewAll}</a></div>${toolGrid(list, catOf)}</section>`;
   })
   .join('\n')}
@@ -390,7 +405,7 @@ for (const lp of legalPages) {
 }
 await page(
   '404.html',
-  layout({ siteUrl, path: '/404', title: `Page not found | ${SITE_NAME}`, description: 'Page not found.', body: `<header class="page-head"><h1>Page not found</h1><p class="lede">That page doesn't exist. Try one of these:</p></header>${toolGrid(tools.map((t) => toolIn(t, 'en')), catOfIn('en'))}` }),
+  layout({ siteUrl, path: '/404', title: `Page not found | ${SITE_NAME}`, description: 'Page not found.', body: `<header class="page-head"><h1>Page not found</h1><p class="lede">That page doesn't exist. Try one of these:</p></header>${toolGrid(cards(tools).map((t) => toolIn(t, 'en')), catOfIn('en'))}` }),
 );
 
 // --- sitemap + robots -------------------------------------------------------------------
@@ -431,7 +446,7 @@ await writeFile(
     join(out, 'llms.txt'),
     `# ${SITE_NAME}
 
-> ${tools.length} free online tools by Klickode, a web studio in Bangkok, Thailand (https://www.klickode.com/). They run entirely in the browser: files and text are never uploaded, there's no sign-up and no tracking. Every tool has an English page and a Thai page.
+> ${cards(tools).length} free online tools by Klickode, a web studio in Bangkok, Thailand (https://www.klickode.com/). They run entirely in the browser: files and text are never uploaded, there's no sign-up and no tracking. Every tool has an English page and a Thai page.
 
 Categories: ${categories.filter((c) => byCategory(c.id).length).map((c) => `[${c.name}](${abs(`/${c.slug}/`)})`).join(', ')}.
 
@@ -491,7 +506,7 @@ for (const lang of LANG_IDS) {
   const list = tools.map((base) => {
     const t = toolIn(base, lang);
     const cat = catOfIn(lang)(t);
-    return { slug: t.slug, href: t.href, name: t.name, short: t.short, cat: cat.name, search: `${t.name} ${t.short} ${t.slug} ${cat.name} ${(t.keywords || []).join(' ')} ${t.searchExtra ?? ''}`.toLowerCase() };
+    return { slug: t.slug, href: t.href, name: t.name, short: t.short, cat: cat.name, ...(t.variantOf && { variant: true }), search: `${t.name} ${t.short} ${t.slug} ${cat.name} ${(t.keywords || []).join(' ')} ${t.searchExtra ?? ''}`.toLowerCase() };
   });
   await writeFile(join(out, 'assets', lang === 'en' ? 'tools-index.json' : `tools-index.${lang}.json`), JSON.stringify(list));
 }

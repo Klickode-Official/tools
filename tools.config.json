@@ -1,5 +1,9 @@
 {
   "disabled": [
+    "compress-image-to-100kb",
+    "compress-image-to-200kb",
+    "compress-image-to-20kb",
+    "compress-image-to-50kb",
     "thai-baht-text",
     "thai-id-checker",
     "vat-calculator"

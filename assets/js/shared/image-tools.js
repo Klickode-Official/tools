@@ -145,17 +145,36 @@ async function process(item) {
     const size = targetSize(w, h, resize);
     const mime = chooseMime(file);
     const fill = FORMATS[mime].alpha ? null : bg?.value || '#ffffff';
-    const canvas = draw(src, size.width, size.height, fill);
+    let canvas = draw(src, size.width, size.height, fill);
     const q = quality ? Number(quality.value) / 100 : 0.92;
-    const name = sameFormatName(mime, mode === 'exif' ? '-clean' : mode === 'resize' ? `-${size.width}x${size.height}` : '');
+    let name = sameFormatName(mime, mode === 'exif' ? '-clean' : mode === 'resize' ? `-${size.width}x${size.height}` : '');
     let blob;
     let note = mode === 'exif' ? t('Re-encoded to apply rotation; metadata removed') : '';
 
-    const target = (Number(targetKb?.value) || 0) * 1024;
+    // 1 KB counts as 1,000 bytes here, so the file also fits forms that count 1,024.
+    const target = (Number(targetKb?.value) || 0) * 1000;
     if (target && FORMATS[mime].lossy) {
-      const r = await searchQuality(async (qq) => ({ size: (await toBlob(canvas, mime, qq)).size }), target);
+      const label = `${Number(targetKb.value)} KB`;
+      const search = (c, min) => searchQuality(async (qq) => ({ size: (await toBlob(c, mime, qq)).size }), target, { min });
+      let r = await search(canvas, 0.05);
+      // Still too big at the lowest quality: make the picture smaller, keeping quality readable,
+      // until it fits. A 12-megapixel photo usually needs this to get under 50 KB.
+      let shrunk = false;
+      for (let i = 0; !r.fits && i < 12 && Math.min(size.width, size.height) > 48; i++) {
+        const scale = Math.min(0.85, Math.max(0.3, Math.sqrt(target / r.result.size) * 0.95));
+        size.width = Math.max(1, Math.round(size.width * scale));
+        size.height = Math.max(1, Math.round(size.height * scale));
+        canvas = draw(src, size.width, size.height, fill);
+        r = await search(canvas, 0.3);
+        shrunk = true;
+      }
       blob = await toBlob(canvas, mime, r.quality);
-      note = r.fits ? t('Quality {q} to fit {size}', { q: Math.round(r.quality * 100), size: formatBytes(target) }) : t('Couldn’t reach {size}; try a smaller size', { size: formatBytes(target) });
+      if (shrunk) name = sameFormatName(mime, `-${size.width}x${size.height}`);
+      note = !r.fits
+        ? t('Couldn’t reach {size}; try a smaller size', { size: label })
+        : shrunk
+          ? t('Resized to {w} × {h} and quality {q} to fit {size}', { w: size.width, h: size.height, q: Math.round(r.quality * 100), size: label })
+          : t('Quality {q} to fit {size}', { q: Math.round(r.quality * 100), size: label });
     } else {
       blob = await toBlob(canvas, mime, q);
       if (target) note = t('{format} is lossless, so a target size can’t apply; choose JPG or WebP', { format: FORMATS[mime].label });

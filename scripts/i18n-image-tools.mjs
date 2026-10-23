@@ -17,6 +17,7 @@ export default {
   'Re-encoded to apply rotation; metadata removed': 'บันทึกรูปใหม่เพื่อหมุนให้ถูกด้าน และลบข้อมูลแฝงแล้ว',
   // l.150: `Quality ${q} to fit ${size}` / `Couldn’t reach ${size}; try a smaller size`
   'Quality {q} to fit {size}': 'ใช้คุณภาพ {q} ให้ไม่เกิน {size}',
+  'Resized to {w} × {h} and quality {q} to fit {size}': 'ย่อเป็น {w} × {h} และใช้คุณภาพ {q} ให้ไม่เกิน {size}',
   'Couldn’t reach {size}; try a smaller size': 'ย่อให้เหลือ {size} ไม่ได้ ลองลดขนาดรูปลงด้วย',
   // l.153: `${label} is lossless, so a target size can’t apply; choose JPG or WebP`
   '{format} is lossless, so a target size can’t apply; choose JPG or WebP': '{format} เป็นไฟล์แบบไม่ลดคุณภาพ จึงกำหนดขนาดไฟล์เป้าหมายไม่ได้ ลองเลือก JPG หรือ WebP',

@@ -17,7 +17,7 @@ let failures = 0;
   const val = s => page.locator(s).inputValue();
   const check = (name, cond, extra = '') => { if (!cond) failures++; console.log((cond ? 'PASS ' : 'FAIL ') + name + (cond ? '' : ' :: ' + extra)); };
 
-  await page.goto(B + '/'); const toolCount = (await (await page.request.get(B + '/assets/tools-index.json')).json()).length;
+  await page.goto(B + '/'); const toolCount = (await (await page.request.get(B + '/assets/tools-index.json')).json()).filter((t) => !t.variant).length;
   check('home cards', (await page.locator('.tool-card').count()) === toolCount, toolCount);
   await page.fill('#tool-search', 'webp'); check('home search', (await page.locator('.tool-card:visible').count()) >= 1 && (await page.locator('.tool-card:visible').count()) < 6, await page.locator('.tool-card:visible').count());
   await page.fill('#tool-search', 'zzzz'); check('home search empty', await page.isVisible('#no-results'));
@@ -101,7 +101,7 @@ let failures = 0;
   await page.setInputFiles('#files', [{ name: 'card.png', mimeType: 'image/png', buffer: png }]);
   await page.selectOption('#format', 'image/jpeg'); await page.fill('#target-kb', '30');
   await page.waitForFunction(() => /Quality \d+ to fit/.test(document.querySelector('#results').textContent), null, { timeout: 20000 }).catch(() => {});
-  check('img target size', /Quality \d+ to fit 30.0 KB/.test(await txt('#results')), await txt('#results'));
+  check('img target size', /Quality \d+ to fit 30 KB/.test(await txt('#results')), await txt('#results'));
 
   // JPEG with a GPS EXIF segment spliced in after SOI.
   const jpg = await page.screenshot({ type: 'jpeg', clip: { x: 0, y: 0, width: 200, height: 100 } });
@@ -192,6 +192,10 @@ let failures = 0;
   check('vat breakdown', /10,000\.00.*700\.00.*10,700\.00.*300\.00.*10,400\.00/s.test(await txt('#table')), await txt('#table'));
   await page.goto(B + '/tools/thai-id-checker/'); await page.fill('#input', '1-1037-00012-34-6\n1103700012345');
   check('thai id', (await page.locator('#results li.ok').count()) === 1 && /should be 6/.test(await txt('#results')), await txt('#results'));
+
+  await page.goto(B + '/th/tools/compress-image-to-50kb/');
+  check('size page preset', (await page.inputValue('#target-kb')) === '50' && (await page.inputValue('#format')) === 'image/jpeg');
+  check('size page links', (await page.locator('.variant-links a').count()) === 5 && (await page.locator('.variant-links [aria-current]').innerText()) === '50 KB');
 
   // ---- tool switchboard (its GitHub calls are covered by hand; the strict test CSP blocks them) ----
   await page.goto(B + '/admin/');

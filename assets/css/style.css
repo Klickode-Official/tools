@@ -798,6 +798,11 @@ textarea.drop-over { outline: 2px dashed var(--red); outline-offset: -6px; backg
 .notice-x:hover { background: var(--mist); color: var(--text); }
 .studio-cta { display: flex; align-items: center; justify-content: space-between; gap: 18px 32px; flex-wrap: wrap; margin-top: 56px; padding: 26px 28px; border-radius: 18px; border: 1px solid color-mix(in srgb, var(--red) 22%, var(--border)); background: radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--red) 10%, transparent), transparent 60%), var(--surface); }
 .studio-cta h2 { margin: 0 0 6px; font-size: 19px; }
+.variant-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 18px 0 0; font-size: 13.5px; }
+.variant-links span { color: var(--muted); margin-right: 4px; }
+.variant-links a { padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; color: var(--text); text-decoration: none; background: var(--surface); }
+.variant-links a:hover { border-color: var(--border-strong); }
+.variant-links a[aria-current='page'] { border-color: var(--red); color: var(--red); background: color-mix(in srgb, var(--red) 6%, var(--surface)); }
 .studio-cta p { margin: 0; color: var(--muted); max-width: 60ch; }
 .studio-cta .btn { flex: none; text-decoration: none; }
 

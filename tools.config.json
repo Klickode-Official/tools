@@ -1,5 +1,9 @@
 {
   "disabled": [
+    "compress-pdf",
+    "jpg-to-pdf",
+    "merge-pdf",
+    "pdf-to-jpg",
     "promptpay-qr",
     "thai-baht-text",
     "thai-id-checker",
